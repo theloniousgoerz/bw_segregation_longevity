@@ -1,0 +1,321 @@
+---
+title: "1940 Data"
+author: "Thelonious Goerz"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: pdf_document 
+fig_width: 6
+fig_height: 4
+editor_options: 
+  chunk_output_type: inline
+link-citations: true
+header-includes:
+  \usepackage{framed}
+  \usepackage{tcolorbox}
+  \usepackage{pdflscape}
+  \newcommand{\blandscape}{\begin{landscape}}
+  \newcommand{\elandscape}{\end{landscape}}
+  \usepackage{multirow}
+  \usepackage{xcolor} 
+  \newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+  \def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+bibliography: references.bib
+---
+
+```{r setup, include=TRUE, results="hide", echo = FALSE, message = F}
+
+ rm(list = objects())
+ # THIS IS THE WIDTH OF THE CODE                                                ###
+ knitr::opts_chunk$set(echo = F,
+                       resuls = T, message = F, warning = F)
+ 
+ # knitr::opts_chunk$set(fig.width = unit(16,"cm"), fig.height = unit(9,"cm"))
+ 
+```
+
+## Details
+
+This file cleans the 1940 data that was loaded in the 01 data construction file and processes it. 
+
+
+```{r}
+## -------- ##
+# Packages 
+## -------- ##
+
+## -------- ##
+# Load Libraries 
+## -------- ##
+
+library(tidyverse)
+library(haven)
+library(magrittr)
+library(dvmisc)
+library(foreign)
+library(modelsummary)
+library(readxl)
+library(openxlsx)
+library(marginaleffects)
+library(ggeffects)
+library(margins)
+library(readr)
+
+options(scipen = 999999999999)
+options("modelsummary_format_numeric_latex" = "plain")
+
+## -------- ##
+# Supress warnings 
+## -------- ##
+
+suppressWarnings(suppressMessages(library(kableExtra)))
+suppressWarnings(suppressMessages(library(data.table)))
+suppressWarnings(suppressMessages(library(ggplot2)))
+suppressWarnings(suppressMessages(library(stargazer)))
+suppressWarnings(suppressMessages(library(estimatr)))
+suppressWarnings(suppressMessages(library(statar)))
+suppressWarnings(suppressMessages(library(ivreg)))
+suppressWarnings(suppressMessages(library(ivmte)))
+suppressWarnings(suppressMessages(library(ggpubr)))
+## -------- ##
+`%notin%` = Negate(`%in%`)
+
+## -------- ##
+# Technical 
+## -------- ##
+options(scipen = 999)
+#theme_set(theme_cowplot(font_size = 10,font_family = "Times New Roman"))
+theme_set(theme(panel.background = element_rect(fill = "grey96", colour = NA)))
+
+ThemeArgs = theme(plot.caption = element_text(hjust = 0),
+        legend.position = "top",
+         panel.background = element_rect(fill = "grey96", 
+                                         colour = NA),
+        text=element_text(size=12,  family="Palatino"),
+        plot.title  = element_text(size = 16,face = "bold"))
+
+set.seed(20240314)
+## -------- ##
+```
+
+```{r}
+# Load Data 
+
+# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------
+## Load data ## 
+# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------
+
+library(readxl)
+# Cutler, Glaser, Vigdor data on segregation 
+allseg <- read_excel("../Data/allseg.xlsx")
+
+
+```
+
+```{r}
+
+# ------------------------------------------------# ------------------------------------------------
+# Data for 1940 Analysis
+# ------------------------------------------------
+# Load 1940 data 
+census = read_csv("../Data/merged_data_1940_alt.csv")
+#id = read_csv("../Data/instrument_to_data_id.csv")
+#ananat = read_dta("../Data/aej_maindata.dta")
+
+# County information in 1940 
+county_1940_rs_age <- read_csv("../Data/nhgis0015_csv/nhgis0015_ds77_1940_county.csv")
+county_1940_total_pop = read_csv("../Data/nhgis0015_csv/nhgis0015_ds224_1940_county.csv")
+tract_1940_race <- read_csv("../Data/nhgis0015_csv/nhgis0015_ds76_1940_tract.csv")
+# ------------------------------------------------# ------------------------------------------------
+# ------------------------------------------------# ------------------------------------------------
+# County information in 1990
+# County data 1980-2000
+tract_d <- read_csv("../Data/nhgis0017_csv/nhgis0017_ts_nominal_tract.csv")
+
+```
+
+
+```{r}
+## 1940 Age information ## 
+county_1940_rs_age %<>% 
+  mutate(
+        STATEA = str_sub(STATEA,1,2),
+        COUNTYA = str_sub(COUNTYA,1,3),
+    STATEA =as.numeric(STATEA),
+  #COUNTYA =as.numeric(COUNTYA),
+    birth_fips = as.numeric(paste0(STATEA,COUNTYA,sep = "")),
+         ctyN65Black40 = (
+           BV1062 + 
+           BV1063 + 
+           BV1064 + 
+           BV1046 +       
+           BV1047 +       
+           BV1048   ) ,
+         ctyN65White40 = (
+           BV1014 + 
+           BV1015 + 
+           BV1016 + 
+           BV1030 + 
+           BV1031 + 
+           BV1032),
+  ) %>% select(birth_fips,ctyN65White40,ctyN65Black40)
+
+## County D 1940 ##
+tract_1940_race %<>%
+mutate(   
+        STATEA = str_sub(STATEA,1,2),
+        COUNTYA = str_sub(COUNTYA,1,3),
+    STATEA =as.numeric(STATEA),
+  #COUNTYA =as.numeric(COUNTYA),
+    birth_fips = as.numeric(paste0(STATEA,COUNTYA,sep = "")),
+        tWP40 = BUQ001,
+        tBP40 = BVG001) %>% 
+  group_by(birth_fips) %>% 
+  mutate(ctyWP40 = sum(tWP40,na.rm = T),
+         ctyBP40 = sum(tBP40,na.rm = T)) %>%
+  ungroup()
+
+county_d_1940 = 
+  tract_1940_race %>% 
+  mutate(dwb = abs((tWP40/ctyWP40) - (tBP40/ctyBP40))) %>% 
+  group_by(birth_fips) %>% 
+  summarise(ctyDism1940 = .5*sum(dwb,na.rm = T)) # need to check this 
+
+## county pop 
+county_1940_total_pop %<>% 
+  mutate(       
+        STATEA = str_sub(STATEA,1,2),
+        COUNTYA = str_sub(COUNTYA,1,3),
+    STATEA =as.numeric(STATEA),
+  #COUNTYA =as.numeric(COUNTYA),
+    birth_fips = as.numeric(paste0(STATEA,COUNTYA,sep = "")),
+        ctyPop40 = AF14001,
+        ctyPopWhite40 = AF15001
+        ) %>% 
+  select(birth_fips,
+ctyPop40,
+ctyPopWhite40)
+
+# Documentation
+# ET1001:      Total
+# Table 2:     Hispanic Origin by Race
+# ET2001:      Not of Hispanic origin >> Whit
+# ET2002:      Not of Hispanic origin >> Black
+# ET2003:      Not of Hispanic origin >> American Indian, Eskimo, or Aleut
+# ET2004:      Not of Hispanic origin >> Asian or Pacific Islander
+# ET2005:      Not of Hispanic origin >> Other race
+# ET2006:      Hispanic origin >> White
+# ET2007:      Hispanic origin >> Black
+# ET2008:      Hispanic origin >> American Indian, Eskimo, or Aleut
+# ET2009:      Hispanic origin >> Asian or Pacific Islander
+# ET2010:      Hispanic origin >> Other race
+
+
+# ------------------#
+## Death County Data 
+# 1980-2000
+# ------------------#
+tract_d %<>% 
+  rename(GEOID = GISJOIN,
+         county = COUNTYNH,
+         state = STATENH,
+         pop = AV0AA,
+         nh_white = B18AA,
+         nh_black = B18AB,
+         w_Under5 = AC4AA,
+         w_5to14   = AC4AB,
+         w_15to59  = AC4AC,
+         w_60to64  = AC4AD,
+         w_65p = AC4AE,
+         b_Under5 = AD6AA,
+         b_5to14   = AD6AB,
+         b_15to59  = AD6AC,
+         b_60to64  = AD6AD,
+         b_65p = AD6AE) %>% mutate(
+        STATEA = str_sub(state,1,2),
+        COUNTYA = str_sub(county,1,3),
+    STATEA =as.numeric(STATEA),
+    death_fips = as.numeric(paste0(STATEA,COUNTYA,sep = ""))
+        )
+
+
+county_d = tract_d %>% 
+  group_by(death_fips,YEAR) %>% 
+  mutate(co_black = sum(nh_black,na.rm = T),
+         co_white = sum(nh_white,na.rm = T),
+         d = abs(nh_black /co_black - nh_white/co_white)) %>%
+summarise(county_dism = .5*sum(d,na.rm = T)) 
+
+pop_char = tract_d %>% 
+  group_by(death_fips, YEAR) %>% 
+  summarise(
+    pop = sum(pop, na.rm = T),
+nh_white = sum(nh_white,na.rm = T),
+nh_black = sum(nh_black,na.rm = T),
+w_Under5 = sum(w_Under5,na.rm = T),
+w_5to14 = sum(w_5to14,na.rm = T),
+w_15to59 = sum(w_15to59,na.rm = T),
+w_60to64 = sum(w_60to64,na.rm = T),
+w_65p = sum(w_65p,na.rm = T),
+b_Under5 = sum(b_Under5,na.rm = T),
+b_5to14 = sum(b_5to14,na.rm = T),
+b_15to59 = sum(b_15to59,na.rm = T),
+b_60to64 = sum(b_60to64,na.rm = T),
+b_65p = sum(b_65p,na.rm = T)
+    
+  )
+
+```
+
+
+## Save file 
+
+```{r}
+# ctest = census %>% 
+# filter(dyear %in% 1990 & !is.na(birth_fips) & !is.na(death_fips)) 
+# 
+# feols(death_age~dism1990 | byear, data = subset(ctest,byear %in% 1910:1924 & RACE == 1))
+```
+
+
+```{r}
+
+census %<>% 
+  mutate(death_decade = case_when(dyear %in% 1980:1990 ~ 1980,
+                                  dyear %in% 1990:2000 ~ 1990,
+                                  dyear %in% 2000:2010 ~ 2000),
+         death_fips = as.numeric(death_fips))
+
+county_d %<>% mutate(death_decade = YEAR)
+
+pop_char %<>% mutate(death_decade = YEAR)
+
+census %<>% left_join(county_d, by = c("death_decade","death_fips")) %>% 
+  left_join(.,pop_char,by = c("death_decade","death_fips") )
+
+c = census %>% filter(!is.na(county_dism))
+
+feols(death_age~county_dism |byear,data = subset(census,RACE ==2 & byear %in% 1904:1918))
+
+census %>% distinct(name)
+
+
+write_csv(census,"../Data/clean1940.csv") # run 
+
+```
+
+```{r}
+
+### 1940 Controls 
+library(ipumsr)
+ddi = read_ipums_ddi("../Data/usa_00007.xml")
+
+controls = read_ipums_micro(ddi)
+
+controls_m = controls %>% filter(HISTID %in% census$HISTID)
+rm(controls)
+write.csv(controls_m,file = "../Data/1940_controls.csv")
+```
+
+
+
+
+

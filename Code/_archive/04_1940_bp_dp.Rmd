@@ -1,0 +1,422 @@
+---
+title: "1940 Birth Place and Death Place Data"
+author: "Thelonious Goerz"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: pdf_document 
+fig_width: 6
+fig_height: 4
+editor_options: 
+  chunk_output_type: inline
+link-citations: true
+header-includes:
+  \usepackage{framed}
+  \usepackage{tcolorbox}
+  \usepackage{pdflscape}
+  \newcommand{\blandscape}{\begin{landscape}}
+  \newcommand{\elandscape}{\end{landscape}}
+  \usepackage{multirow}
+  \usepackage{xcolor} 
+  \newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+  \def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+bibliography: references.bib
+---
+
+
+```{r setup, include=TRUE, results="hide", echo = FALSE, message = F}
+
+ rm(list = objects())
+ # THIS IS THE WIDTH OF THE CODE                                                ###
+ knitr::opts_chunk$set(echo = F,
+                       resuls = T, message = F, warning = F)
+ 
+ # knitr::opts_chunk$set(fig.width = unit(16,"cm"), fig.height = unit(9,"cm"))
+ 
+```
+
+```{r}
+## -------- ##
+# Packages 
+## -------- ##
+
+library(tidyverse)
+library(haven)
+library(magrittr)
+library(dvmisc)
+library(foreign)
+library(modelsummary)
+library(readxl)
+library(openxlsx)
+library(marginaleffects)
+library(ggeffects)
+library(margins)
+library(readr)
+library(tidygeocoder)
+library(fixest)
+library(sf)
+library(lme4)
+library(clubSandwich)
+library(patchwork)
+library(tidymodels)
+library(cowplot)
+
+options(scipen = 999999999999)
+options("modelsummary_format_numeric_latex" = "plain")
+
+## -------- ##
+# Supress warnings 
+## -------- ##
+
+suppressWarnings(suppressMessages(library(kableExtra)))
+suppressWarnings(suppressMessages(library(data.table)))
+suppressWarnings(suppressMessages(library(ggplot2)))
+suppressWarnings(suppressMessages(library(stargazer)))
+suppressWarnings(suppressMessages(library(estimatr)))
+suppressWarnings(suppressMessages(library(statar)))
+suppressWarnings(suppressMessages(library(ivreg)))
+suppressWarnings(suppressMessages(library(ivmte)))
+suppressWarnings(suppressMessages(library(ggpubr)))
+## -------- ##
+`%notin%` = Negate(`%in%`)
+
+## -------- ##
+# Technical 
+## -------- ##
+options(scipen = 999)
+#theme_set(theme_cowplot(font_size = 10,font_family = "Times New Roman"))
+theme_set(theme(panel.background = element_rect(fill = "grey96", colour = NA)))
+
+ThemeArgs = theme(plot.caption = element_text(hjust = 0),
+        legend.position = "top",
+         panel.background = element_rect(fill = "grey96", 
+                                         colour = NA),
+        text=element_text(size=12,  family="Palatino"),
+        plot.title  = element_text(size = 16,face = "bold"))
+
+set.seed(20240314)
+## -------- ##
+```
+
+```{r}
+# Load Data 
+
+# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------
+## Load data ## 
+# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------
+# Cutler, Glaser, Vigdor data on segregation 
+allseg <- read_excel("../Data/allseg.xlsx")
+
+# ------------------------------------------------# ------------------------------------------------
+# Data for 1940 Analysis
+# ------------------------------------------------
+# Load 1940 data 
+census = read_csv("../Data/merged_data_1940.csv")
+id = read_csv("../Data/instrument_to_data_id.csv")
+ananat = read_dta("../Data/aej_maindata.dta")
+
+# County information in 1940 
+county_1940_rs_age <- read_csv("../Data/nhgis0015_csv/nhgis0015_ds77_1940_county.csv")
+county_1940_total_pop = read_csv("../Data/nhgis0015_csv/nhgis0015_ds224_1940_county.csv")
+tract_1940_race <- read_csv("../Data/nhgis0015_csv/nhgis0015_ds76_1940_tract.csv")
+# ------------------------------------------------# ------------------------------------------------
+# County information in 1990
+# County data 1980-2000
+tract_d <- read_csv("../nhgis0017_csv/nhgis0017_ts_nominal_tract.csv")
+
+```
+
+
+
+```{r}
+# ------------------#
+# 1940 info 
+# ------------------#
+
+## 1940 Age information ## 
+county_1940_rs_age %<>% 
+  mutate(
+        STATEA = str_sub(STATEA,1,2),
+        COUNTYA = str_sub(COUNTYA,1,3),
+    STATEA =as.numeric(STATEA),
+  #COUNTYA =as.numeric(COUNTYA),
+    birth_fips = as.numeric(paste0(STATEA,COUNTYA,sep = "")),
+         ctyN65Black40 = (
+           BV1062 + 
+           BV1063 + 
+           BV1064 + 
+           BV1046 +       
+           BV1047 +       
+           BV1048   ) ,
+         ctyN65White40 = (
+           BV1014 + 
+           BV1015 + 
+           BV1016 + 
+           BV1030 + 
+           BV1031 + 
+           BV1032),
+  ) %>% select(birth_fips,ctyN65White40,ctyN65Black40)
+
+## County D 1940 ##
+tract_1940_race %<>%
+mutate(   
+        STATEA = str_sub(STATEA,1,2),
+        COUNTYA = str_sub(COUNTYA,1,3),
+    STATEA =as.numeric(STATEA),
+  #COUNTYA =as.numeric(COUNTYA),
+    birth_fips = as.numeric(paste0(STATEA,COUNTYA,sep = "")),
+        tWP40 = BUQ001,
+        tBP40 = BVG001) %>% 
+  group_by(birth_fips) %>% 
+  mutate(ctyWP40 = sum(tWP40,na.rm = T),
+         ctyBP40 = sum(tBP40,na.rm = T)) %>%
+  ungroup()
+
+county_d_1940 = 
+  tract_1940_race %>% 
+  mutate(dwb = abs((tWP40/ctyWP40) - (tBP40/ctyBP40))) %>% 
+  group_by(birth_fips) %>% 
+  summarise(ctyDism1940 = .5*sum(dwb,na.rm = T)) # need to check this 
+
+## county pop 
+county_1940_total_pop %<>% 
+  mutate(       
+        STATEA = str_sub(STATEA,1,2),
+        COUNTYA = str_sub(COUNTYA,1,3),
+    STATEA =as.numeric(STATEA),
+  #COUNTYA =as.numeric(COUNTYA),
+    birth_fips = as.numeric(paste0(STATEA,COUNTYA,sep = "")),
+        ctyPop40 = AF14001,
+        ctyPopWhite40 = AF15001
+        ) %>% 
+  select(birth_fips,
+ctyPop40,
+ctyPopWhite40)
+
+
+# ------------------#
+## Death County Data 
+# 1980-2000
+# ------------------#
+tract_d %<>% 
+  rename(GEOID = GISJOIN,
+         county = COUNTYNH,
+         state = STATENH,
+         pop = AV0AA,
+         nh_white = B18AA,
+         nh_black = B18AB,
+         w_Under5 = AC4AA,
+         w_5to14   = AC4AB,
+         w_15to59  = AC4AC,
+         w_60to64  = AC4AD,
+         w_65p = AC4AE,
+         b_Under5 = AD6AA,
+         b_5to14   = AD6AB,
+         b_15to59  = AD6AC,
+         b_60to64  = AD6AD,
+         b_65p = AD6AE) %>% mutate(
+        STATEA = str_sub(state,1,2),
+        COUNTYA = str_sub(county,1,3),
+    STATEA =as.numeric(STATEA),
+    death_fips = as.numeric(paste0(STATEA,COUNTYA,sep = ""))
+        )
+
+
+county_d = tract_d %>% 
+  group_by(death_fips,YEAR) %>% 
+  mutate(co_black = sum(nh_black,na.rm = T),
+         co_white = sum(nh_white,na.rm = T),
+         d = abs(nh_black /co_black - nh_white/co_white)) %>%
+summarise(county_dism = .5*sum(d,na.rm = T)) 
+pop_char = tract_d %>% 
+  group_by(death_fips, YEAR) %>% 
+  summarise(
+    pop = sum(pop, na.rm = T),
+nh_white = sum(nh_white,na.rm = T),
+nh_black = sum(nh_black,na.rm = T),
+w_Under5 = sum(w_Under5,na.rm = T),
+w_5to14 = sum(w_5to14,na.rm = T),
+w_15to59 = sum(w_15to59,na.rm = T),
+w_60to64 = sum(w_60to64,na.rm = T),
+w_65p = sum(w_65p,na.rm = T),
+b_Under5 = sum(b_Under5,na.rm = T),
+b_5to14 = sum(b_5to14,na.rm = T),
+b_15to59 = sum(b_15to59,na.rm = T),
+b_60to64 = sum(b_60to64,na.rm = T),
+b_65p = sum(b_65p,na.rm = T)
+    
+  )
+
+county_d %>% distinct(death_fips,d,YEAR)
+
+```
+
+
+```{r}
+
+# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------
+# Construct Crosswalk of 1940 counties to 1990 MSA 
+# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------
+# Create 1940-1940 county to MSA 
+# 1990-1940 msa crosswalk 
+ 
+# https://github.com/liang-jack-a/EGLP_Crosswalk/blob/master/Crosswalks/county_crosswalk_endyr_1990.csv
+county_crosswalk_endyr_1990 <- read_csv("~/Downloads/county_crosswalk_endyr_1990.csv")
+# 
+cbsafip <- read_csv("~/Downloads/cbsa2fipsxw (1).csv")
+
+### Merge 1940 County Fip CW to 1940 data 
+
+county_crosswalk_endyr_1990 %<>%
+  filter(Year == 1940) %>% 
+# Create identifier for Censoc data 
+    mutate(
+        STATEA = str_sub(NHGISST,1,2),
+        COUNTYA = str_sub(NHGISCTY,1,3),
+    STATEA =as.numeric(STATEA),
+    birth_fips = as.numeric(paste0(STATEA,COUNTYA,sep = "")))
+
+  # Merge on county arguments 
+  # Filters to 1930 and 1940 birth cohorts for geography change
+
+# Filter down to 1930 and 1940 birth cohorts 
+census_2ch = census %>% filter(AGE %in% 0:20)
+### Merge county-county
+
+census_2ch %<>% 
+  left_join(.,county_crosswalk_endyr_1990,by = "birth_fips")
+
+census_2ch %<>% 
+  mutate(STATE90 = str_sub(NHGISST_1990,1,2),
+        COUNTY90 = str_sub(NHGISCTY_1990,1,3),
+    STATE90 =as.numeric(STATE90),
+    birth_fips90 = as.numeric(paste0(STATE90,COUNTY90,sep = "")))
+## NHGISST_1990 identifies the 1990 state
+## NHGISCTY_1990 identifies the 1990 county
+
+### Merge MSA CW on to Data 
+
+cbsafip %<>% 
+  mutate(STATE90 = str_sub(fipsstatecode,2,2),
+         birth_fips90 = as.numeric(paste0(STATE90,fipscountycode,sep = ""))) %>% 
+  select(-STATE90) 
+
+cbsafip %<>% select(cbsacode,csacode,cbsatitle,csatitle,birth_fips90)
+###
+# Merge with 1940 data 
+
+census_2ch_b = census_2ch %<>% 
+  left_join(.,cbsafip,by = "birth_fips90")
+
+census_2ch %<>% mutate(fips = as.character(cbsacode))
+
+```
+
+
+```{r}
+
+nchs2fips_county1990 <- read_csv("Data/nchs2fips_county1990.csv")
+
+# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------
+# CLEAN ALLSEG DATA 
+# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------
+allseg %<>% 
+ dplyr::mutate(id = `name...1`,
+msafips = `name...2`,
+isol1880 = msafips,
+dism1890 = as.numeric(dism1890),
+isol1890 = as.numeric(isol1890),
+dism1900 = as.numeric(dism1900),
+isol1900 = as.numeric(isol1900),
+dism1910 = as.numeric(dism1910),
+isol1910 = as.numeric(isol1910),
+dism1920 = as.numeric(dism1920),
+isol1920 = as.numeric(isol1920),
+dism1930 = as.numeric(dism1930),
+isol1930 = as.numeric(isol1930),
+dism1940w = as.numeric(dism1940w),
+isol1940w = as.numeric(isol1940w),
+dism1940t = as.numeric(dism1940t),
+isol1940t = as.numeric(isol1940t),
+dism1950 = as.numeric(dism1950),
+isol1950 = as.numeric(isol1950),
+dism1960 = as.numeric(dism1960),
+isol1960 = as.numeric(isol1960),
+dism1970 = as.numeric(dism1970),
+isol1970 = as.numeric(isol1970),
+dism1980 = as.numeric(dism1980),
+isol1980 = as.numeric(isol1980),
+dism1990 = as.numeric(dism1990),
+isol1990 = as.numeric(isol1990),id = toupper(id),
+name = name...1)
+#data %<>% mutate(name = toupper(name))
+```
+
+
+
+```{r}
+# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------
+# 1940 Birth Data Merge 
+
+# Merge TO ID 
+# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------
+
+id1 = id %>% select(name,birth_fips= county) %>% distinct()
+
+merged = census %>% left_join(.,id) %>% filter(!is.na(name)) %>% 
+  left_join(.,ananat)
+
+merged %<>% left_join(.,allseg[,c("name","dism1940w","dism1940t")])
+
+merged %>% filter(!is.na(dism1940w))
+# 79 counties 
+
+merged %<>% 
+  mutate(dism1940 = ifelse(is.na(dism1940w),dism1940t,dism1940w))
+
+merged_birth= merged %>% 
+  left_join(.,county_1940_rs_age,by = "birth_fips") %>%
+  left_join(.,county_1940_total_pop) %>% 
+    left_join(.,distinct(tract_1940_race[,c("birth_fips","ctyBP40")])) %>% 
+  left_join(.,county_d_1940) 
+# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------
+# Returns birth file 
+
+
+```
+
+```{r}
+# 1990 death place merge 
+# Merge TO ID 
+
+id2 = id %>% select(name,death_fips= county) %>% distinct()
+
+merged_death = census %>% left_join(.,id2, by = "death_fips") %>% filter(!is.na(name)) %>% 
+  left_join(.,ananat)
+
+
+#merged_death %<>% filter(!is.na(dism1990))
+
+# Merge death place data with county information 
+  # need to get county info from NHGIS 
+
+# create YEAR identifier for merge 
+
+merged_death %<>% 
+  mutate(YEAR = case_when(dyear >=1980 & dyear < 1990 ~ 1980,
+                          dyear >= 1990 & dyear < 2000 ~ 1990,
+                          dyear >= 2000 ~ 2000))
+
+merged_death %<>% left_join(.,county_d,by = c("death_fips","YEAR")) %>% 
+  left_join(pop_char, by = c("YEAR","YEAR"))
+# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------# ------------
+# Returns death file 
+
+```
+
+# Data Cleaning 
+
+```{r}
+```
+
+
+
+
