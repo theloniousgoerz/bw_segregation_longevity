@@ -1,7 +1,7 @@
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Title: Data Cleaning and Summary Statistics
 # Thelonious Goerz 
-# Purpose: This file cleans all necessary data for analysis files and creates summary statistics, and descriptive plots. 
+# Purpose: This file cleans all necessary data for analysis. 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Packages
 rm(list=ls())
@@ -11,34 +11,61 @@ library(readr)
 library(modelsummary)
 library(kableExtra)
 library(gt)
+library(readxl)
 library(cowplot)
 library(fixest)
-
-# Options
-
-setwd("/Users/theloniousgoerz/Academic/Projects/QP/Analysis/")
-
-my_ftest <- function(modc, modnc)
-{
-  df_dif <- (degrees_freedom(modc, type="resid") - degrees_freedom(modnc, type="resid"))
-  df_nc <- degrees_freedom(modnc, type="resid")
-  fstat <- ((modc$ssr - modnc$ssr) / df_dif) / (modnc$ssr / df_nc)
-  pvf <- pf(fstat, df_dif, df_nc, lower.tail = FALSE)
-  print(paste(paste("The F-statistic is", fstat, sep=" "), paste("and the p-value is", pvf, sep=" "), sep=" "))
-}
-
+library(here)
+`%notin%` = Negate(`%in%`)
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Read Data 
-controls = read_csv("../Data/_Cleaned/controls.csv")
-numident = read_csv("../Data/_Cleaned/NUMIDENT.csv")
-county_d = read_csv("../Data/_Cleaned/county_data.csv")
-gov = read_csv("../Data/_Cleaned/CensusGov.csv")
+controls = read_csv(here("Data","_Cleaned","controls.csv"))
+numident = read_csv(here("Data","_Cleaned","NUMIDENT.csv"))
+county_d = read_csv(here("Data","_Cleaned","county_data.csv"))
+gov =      read_csv(here("Data","_Cleaned","CensusGov.csv"))
+## Rural Urban Codes 
+urb_rural_8393 = read_excel(here("Data","Rural_Urban_codes","cd8393.xls"))
+urb_rural_03 =   read_excel(here("Data","Rural_Urban_codes","ruralurbancodes2003.xls"))
+
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Clean data
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # NUMIDENT
+data = numident %<>% 
+  left_join(.,controls) 
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# RUC Codes 
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-data = numident %<>% left_join(.,controls) 
+ urb_codes =
+   urb_rural_03 %>% 
+   mutate(FIPS = `FIPS Code`) %>%
+   left_join(urb_rural_8393, by = "FIPS") %>%
+   rename(death_fips = FIPS,
+          code_93 = `1993 Rural-urban Continuum Code.y`,
+          code_00 = `2003 Rural-urban Continuum Code`,
+          code_83 = `1983 Rural-urban Continuum Code` ) %>%
+   pivot_longer(names_to = "year",
+                values_to = "urb_code",cols = starts_with("code")) %>% 
+   select(death_fips,year,urb_code) %>% 
+     mutate(death_decade = case_when(
+       year == "code_00" ~ 2000,
+       year == "code_93" ~ 1990,
+       year == "code_83" ~ 1980
+     )) %>% 
+     mutate(urb_code = case_when(death_decade %in% 1980:1990 & urb_code %in% 0:1 ~ 1,
+                                  death_decade == 2000 & urb_code == 1 ~ 1,
+                                  urb_code == 2 ~ 2,
+                                  urb_code == 3 ~ 3,
+                                  urb_code == 4 ~ 4,
+                                  urb_code == 5 ~ 5,
+                                  urb_code == 6 ~ 6,
+                                  urb_code == 7 ~ 7,
+                                  urb_code == 8 ~ 8,
+                                  urb_code == 9 ~ 9))
+
+ county_d %<>% 
+   left_join(urb_codes,by = c("death_fips","death_decade")) 
+
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Clearn Fips 
 data %<>% mutate(
@@ -80,14 +107,13 @@ data %<>% mutate(
     state %notin% c("1","2", "4","5", "6", "8", "9") ~ as.character(death_fips)
   )) 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # County
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 county_d %<>% mutate(death_fips = as.character(death_fips))
 gov %<>% mutate(has_gov_info = 1)
 
-county = county_d %<>% left_join(., gov,by = c("death_fips")) 
+county = county_d %<>% 
+  left_join(., gov,by = c("death_fips")) 
 
 ## Define South Samples for birth and death ## 
 south_fips = data.frame(
@@ -105,7 +131,7 @@ county %<>% mutate(STATEFIP = as.character(str_sub(death_fips,1,2)), death_fips 
 ## Merge on data_a with fips ## 
 data %<>% left_join(.,county,by = c("death_fips","death_decade"))
 
-data %<>% left_join(.,metro_codes) %>% 
+data %<>% 
   mutate(migrated = ifelse(as.character(birth_fips) == death_fips,"Migrated","Did Not Migrate"),
          STATEFIP_b = as.character(str_sub(birth_fips,1,2))) %>% 
   left_join(south_fips_b, by = "STATEFIP_b")  %>% 
@@ -120,15 +146,11 @@ data %<>% left_join(.,metro_codes) %>%
 # Compare sample v non sample 
 county %<>% mutate(sample_counties = ifelse(death_fips %in% data$death_fips,"In Sample","Out of Sample"))
 
-# Save 
-write_csv(county, "../Data/_Cleaned/county.csv")
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Data Join
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Data Description 
-#1988-1924
 
-data_a = data %>% filter(byear %in% 1905:1924 & 
+data_a = data %>% filter(byear %in% 1905:1920 & 
                            sex %in% 1:2 &
                            HISPAN == 0 &
                            RACE %in% 1:2 & 
@@ -167,17 +189,9 @@ data_a = data %>% filter(byear %in% 1905:1924 &
                     !is.na(married) & !is.na(ownhome) & 
                     !is.na(county_dism)
                   )
-# merge sibs
-data_a %<>% left_join(sibs)
-
-data_as = data_a %>% filter(!is.na(sib_group_id_exact))
-
-data %<>% mutate(iv_sample = ifelse(HISTID %in% data_a$HISTID,"IV Sample","Non-IV Sample"),
-                    sibling_sample = ifelse(HISTID %in% data_as$HISTID,"Sibling Sample","Non-Sibling Sample"))
-
 
 fulldata = data %>% 
-  filter(byear %in% 1905:1924 & 
+  filter(byear %in% 1905:1920 & 
            sex %in% 1:2 &
            HISPAN == 0 &
            RACE %in% 1:2 & 
@@ -214,24 +228,6 @@ fulldata = data %>%
                               EMPSTAT == 2 ~ 0))
 
 # Save 
-write_csv(fulldata, "../Data/_Cleaned/fulldata.csv")
-# Save 
-write_csv(data_a, "../Data/_Cleaned/analytic_sample.csv")
-
-rm(data)
-rm(data_a)
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# BUNMD 
-b = bunmd %>% filter(death_fips %in% county$death_fips)
-
-county %<>% mutate(death_fips = as.numeric(death_fips))
-
-b %<>% left_join(.,county, by = c("death_decade","death_fips"))
-
-b %<>% filter(!is.na(county_dism))
-
-b %<>% left_join(.,south_fips,by = c("STATEFIP"))
-
-# Save 
-write_csv(b, "../Data/_Cleaned/bunmd_clean.csv")
-
+write_csv(fulldata, here("Data","_Cleaned","fulldata.csv"))
+write_csv(data_a,   here("Data","_Cleaned","analytic_sample.csv"))
+write_csv(county,   here("Data","_Cleaned","county.csv"))

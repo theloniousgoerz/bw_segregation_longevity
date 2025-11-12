@@ -1,0 +1,37 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Estimates of the Effect of Segregation on Longevity (Weights)},
+note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
+note{ }={This table describes IV estimates of the effect of segregation on longevity using post-stratification weights. 
+         First-stage regressions are supppressed for concision. Heteroskedasiticty Robust Standard Errors in parentheses.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]},
+column{2,3,4,5}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{14}={1,2,3,4,5}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Black & Black\newline Controls & White & White\newline Controls \\ \midrule %% TinyTableHeader
+D                & -0.042*** & -0.045*** & -0.037*** & -0.031*** \\
+& (0.003)   & (0.005)   & (0.001)   & (0.001)   \\
+Male             &           & -1.138*** &           & -1.078*** \\
+&           & (0.051)   &           & (0.012)   \\
+Education        &           & 0.034***  &           & 0.060***  \\
+&           & (0.006)   &           & (0.002)   \\
+Migrated         &           & -0.279*** &           & -0.156*** \\
+&           & (0.045)   &           & (0.010)   \\
+Married in 1940  &           & 0.103**   &           & 0.021*    \\
+&           & (0.037)   &           & (0.010)   \\
+Died in South    &           & 0.044     &           & 0.175***  \\
+&           & (0.061)   &           & (0.012)   \\
+Num.Obs.         & 106945    & 106945    & 1987072   & 1987072   \\
+R2               & 0.389     & 0.402     & 0.379     & 0.386     \\
+Birth Year       & Yes       & Yes       & Yes       & Yes       \\
+Birth State      & Yes       & Yes       & Yes       & Yes       \\
+Urban Rural Code & Yes       & Yes       & Yes       & Yes       \\
+OCC              & No        & Yes       & No        & Yes       \\
+\bottomrule
+\end{talltblr}
+\end{table}

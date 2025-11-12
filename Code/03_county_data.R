@@ -1,7 +1,7 @@
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Title: County-Level Data 
 # Thelonious Goerz 
-# Date: 
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 rm(list = ls())
 library(tidyverse)
 library(readr)
@@ -13,15 +13,12 @@ library(tidycensus)
 library(ipumsr)
 library(fixest)
 library(segregation)
-options(scipen = 999)
+library(here)
 # ------------------------------------------------# ------------------------------------------------
 # Census Data 
 # ------------------------------------------------# ------------------------------------------------
-## Rural Urban Codes 
-urb_rural_8393 = read_excel("./Data/Rural_Urban_codes/cd8393.xls")
-urb_rural_03 = read_excel("./Data/Rural_Urban_codes/ruralurbancodes2003.xls")
 
-nhgis0017_ts_nominal_tract <- read.csv("./Data/Census/nhgis0017_csv/nhgis0017_ts_nominal_tract copy.csv")  %>% 
+nhgis0017_ts_nominal_tract <- read.csv(here("Data","Census","nhgis0017_csv","nhgis0017_ts_nominal_tract copy.csv"))  %>% 
  rename(GEOID = GISJOIN,
                 county = COUNTYNH,
                 state = STATENH,
@@ -40,10 +37,7 @@ nhgis0017_ts_nominal_tract <- read.csv("./Data/Census/nhgis0017_csv/nhgis0017_ts
                 b_65p = AD6AE) 
 
 # ------------------------------------------------# ------------------------------------------------
-# County information in 1990
 # County data 1980-2000
-## Death County Data 
-# 1980-2000
 # ------------------------------------------------# ------------------------------------------------
 tract_d = nhgis0017_ts_nominal_tract
 
@@ -75,7 +69,9 @@ county_d <- tract_d %>%
             county_isolb = sum(isob,na.rm = T))
 
 # ------------------------------------------------# ------------------------------------------------# ------------------------------------------------
-### Calculate D*
+### Calculate D* Bias Adjusted
+# ------------------------------------------------# ------------------------------------------------# ------------------------------------------------
+set.seed(9999)
 
 D_star = tract_d %>% 
  distinct(YEAR, STATE,death_fips,COUNTY,nh_black,nh_white, GEOID) %>% 
@@ -136,32 +132,9 @@ pop_char =
     
   ) %>% distinct()
 
-county_d %<>% mutate(Year4 = YEAR, 
-                     FIPS_Combined = as.character(death_fips)) %>% 
+county_d %<>% 
+  mutate(Year4 = YEAR, 
+  FIPS_Combined = as.character(death_fips)) %>% 
   left_join(.,pop_char) %>% distinct()
 
-# ------------------------------------------------# ------------------------------------------------# ------------------------------------------------
-### cunstruct 1940-1970 bp growth 
-
-bpop_1940_df = bpop_1940 %>% rename(bpop_40 = BYA003) %>% 
-  mutate(death_fips = paste0(str_sub(STATEA,1,2),str_sub(COUNTYA,1,3))) %>% 
-  select(death_fips,bpop_40)
-
-tract_d %>% select(COUNTYFP,STATEFP,death_fips) %>% head()
- b_growth = 
-tract_d %>% filter(YEAR == 1970) %>% 
- mutate(death_fips = paste0(STATEFP,COUNTYFP)) %>%
-  group_by(death_fips) %>%
-   mutate(bpop_70 = sum(nh_black,na.rm = T),
-          wpop_70 = sum(nh_white,na.rm = T),
-          pop_70 = sum(pop,na.rm=T)
-                                  )  %>% 
-             distinct(death_fips,wpop_70,bpop_70,pop_70) %>%
-  left_join(.,bpop_1940_df, by = "death_fips") %>% 
-  mutate(
-         b_increase = bpop_40-bpop_70,
-         b_growth = b_increase/pop_70)
-
- 
-county_d %<>% left_join(.,b_growth, by = "death_fips") 
-write_csv(county_d,"./Data/_Cleaned/county_data.csv")
+write_csv(county_d,here("Data","_Cleaned","county_data.csv"))

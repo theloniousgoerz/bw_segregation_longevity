@@ -1,0 +1,34 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Estimates of the Effect of Segregation on Longevity (Alternative Measures)},
+note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
+note{ }={This table describes IV estimates of the effect of segregation on longevity for alternative measures of D. 
+         First-stage regressions are supppressed for concision.Heteroskedasiticty Robust Standard Errors in parentheses. 
+         Models adjust for all covariates and FEs used in main analyses but are not shown in the model.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
+column{2,3,4,5,6,7,8,9}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{10}={1,2,3,4,5,6,7,8,9}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Black (D) & Black (H) & Black (I) & Black (D*) & White (D) & White (H) & White (I) & White (D*) \\ \midrule %% TinyTableHeader
+D                & -0.044*** &           &           &           & -0.029*** &           &           &           \\
+& (0.004)   &           &           &           & (0.001)   &           &           &           \\
+H                &           & -0.036*** &           &           &           & -0.025*** &           &           \\
+&           & (0.003)   &           &           &           & (0.001)   &           &           \\
+I                &           &           & -0.043*** &           &           &           & -0.022*** &           \\
+&           &           & (0.004)   &           &           &           & (0.001)   &           \\
+D-Adjusted       &           &           &           & -0.044*** &           &           &           & -0.028*** \\
+&           &           &           & (0.004)   &           &           &           & (0.001)   \\
+Num.Obs.         & 106945    & 106945    & 106945    & 106945    & 1987072   & 1987072   & 1987072   & 1987072   \\
+R2               & 0.384     & 0.386     & 0.370     & 0.384     & 0.347     & 0.344     & 0.334     & 0.346     \\
+Birth Year       & X         & X         & X         & X         & X         & X         & X         & X         \\
+Birth State      & X         & X         & X         & X         & X         & X         & X         & X         \\
+Urban-Rural Code & X         & X         & X         & X         & X         & X         & X         & X         \\
+Occupation       & X         & X         & X         & X         & X         & X         & X         & X         \\
+\bottomrule
+\end{talltblr}
+\end{table}

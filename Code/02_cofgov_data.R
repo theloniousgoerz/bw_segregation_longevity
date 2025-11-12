@@ -1,27 +1,16 @@
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Title: Census of Governments  
 # Thelonious Goerz 
-# Date: 
-# https://my.willamette.edu/site/mba/public-datasets
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 rm(list = ls())
 library(tidyverse)
 library(readr)
 library(readxl)
 library(data.table)
-library(haven)
 library(magrittr)
-library(tidycensus)
-library(ipumsr)
-library(fixest)
-options(scipen = 999)
-
-setwd("/Users/theloniousgoerz/Academic/Projects/QP/")
-
-data = read_csv("./Data/GFD/Government Finance Database Municipal Data/MunicipalData.csv")
-data_t = read_csv("./Data/GFD/Government Finance Database Township Data/TownshipData.csv")
-
-
-data %>% filter(Year4 == 1967) %>% view()
+library(here)
+data =   read_csv(here("Data","GFD","Government Finance Database Municipal Data", "MunicipalData.csv"))
+data_t = read_csv(here("Data","GFD","Government Finance Database Township Data", "TownshipData.csv"))
 
  c_of_gov_m = 
   data %>% filter(Year4 %in% c(1967) & Name != "NOT AVAILABLE") %>% 
@@ -60,4 +49,4 @@ c_of_gov_m %<>% left_join(.,c_of_gov_t, by = c("FIPS_Combined","State_Code")) %>
 c_of_gov_m %<>% rename(death_fips = FIPS_Combined)
 
 # Save 
-write_csv(c_of_gov_m,"./Data/_Cleaned/CensusGov.csv")
+write_csv(c_of_gov_m,here("Data", "_Cleaned","CensusGov.csv"))

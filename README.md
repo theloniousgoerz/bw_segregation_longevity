@@ -2,10 +2,11 @@
 
 ## Replication Package
 
-This repository includes code to replicate all figures and tables in the paper. Please note that to run the replication code, you will have to download the publicly-available (1) IPUMS Full Count 1940 Census Data; (2) CenSoc NUMIDENT v3 and Geographic Supplement V2; (3) The Government Finance Database maintained by The Wilamette University Atkinson Graduate School of Management; (4) Decennial Census Data (detailed below); and (5) United States Department of Agriculture (USDA) Rural-Urban Continuum Codes (detailed below).
+This repository includes code to replicate all figures and tables in the paper. Please note that to run the replication code, you will have to download the publicly-available (1) IPUMS Full Count 1940 Census Data; (2) CenSoc NUMIDENT v3 and Geographic Supplement V2; (3) The Government Finance Database maintained by The Wilamette University Atkinson Graduate School of Management; (4) Decennial Census Data (detailed below); and (5) United States Department of Agriculture (USDA) Rural-Urban Continuum Codes (detailed below). Note to replicators: This code was run on a MacBook Pro M2 Laptop with 64 GB of RAM.
 
     Clone this repository
     Download Data and update scripts to point towards your data files
+    Run 00_Run_All.R to reproduce data processing, cleaning, and main tables and figures.
 
 ### Deccenial Census Data 
 

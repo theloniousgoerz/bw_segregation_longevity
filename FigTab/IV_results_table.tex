@@ -1,0 +1,40 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Estimates of the Effect of Segregation on Longevity},
+note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
+note{ }={This table describes the first-stage models and IV estimates of the effect of segregation on longevity. Heteroskedasiticty Robust Standard Errors in parentheses.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
+column{2,3,4,5,6,7,8,9}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{18}={1,2,3,4,5,6,7,8,9}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Black\newline 1st Stage & Black & Black\newline Controls\newline 1st Stage & Black\newline Controls & White\newline 1st Stage & White & White\newline Controls\newline 1st Stage & White\newline Controls \\ \midrule %% TinyTableHeader
+D                &           & -0.040*** &           & -0.044*** &           & -0.036*** &           & -0.029*** \\
+&           & (0.003)   &           & (0.004)   &           & (0.001)   &           & (0.001)   \\
+Male             &           &           & 0.438***  & -1.012*** &           &           & 0.391***  & -0.945*** \\
+&           &           & (0.109)   & (0.045)   &           &           & (0.027)   & (0.010)   \\
+Education        &           &           & 0.023+    & 0.035***  &           &           & -0.088*** & 0.058***  \\
+&           &           & (0.012)   & (0.005)   &           &           & (0.004)   & (0.001)   \\
+Migrated         &           &           & -2.009*** & -0.292*** &           &           & 3.372***  & -0.138*** \\
+&           &           & (0.097)   & (0.039)   &           &           & (0.022)   & (0.008)   \\
+Married in 1940  &           &           & -0.344*** & 0.121***  &           &           & -0.518*** & -0.023**  \\
+&           &           & (0.082)   & (0.033)   &           &           & (0.023)   & (0.008)   \\
+Died in South    &           &           & -5.853*** & 0.012     &           &           & 5.077***  & 0.195***  \\
+&           &           & (0.116)   & (0.054)   &           &           & (0.031)   & (0.010)   \\
+Log(Governments) & 4.134***  &           & 2.966***  &           & 4.544***  &           & 4.943***  &           \\
+& (0.036)   &           & (0.039)   &           & (0.012)   &           & (0.013)   &           \\
+Revenue Share    & 78.232*** &           & 76.845*** &           & 31.002*** &           & 38.153*** &           \\
+& (0.603)   &           & (0.558)   &           & (0.641)   &           & (0.612)   &           \\
+Num.Obs.         & 106945    & 106945    & 106945    & 106945    & 1987072   & 1987072   & 1987072   & 1987072   \\
+R2               & 0.528     & 0.373     & 0.547     & 0.384     & 0.351     & 0.342     & 0.368     & 0.347     \\
+Birth Year       & -         & X         & -         & X         & -         & X         & -         & X         \\
+Birth State      & -         & X         & -         & X         & -         & X         & -         & X         \\
+Urban-Rural Code & -         & X         & -         & X         & -         & X         & -         & X         \\
+Occupation       & -         & -         & -         & X         & -         & -         & -         & X         \\
+\bottomrule
+\end{talltblr}
+\end{table}

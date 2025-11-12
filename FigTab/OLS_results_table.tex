@@ -1,0 +1,34 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Estimates of the Association Betwen Segregation and Longevity},
+note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
+note{ }={Heteroskedasiticty Robust Standard Errors in parentheses.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]},
+column{2,3,4,5}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{12}={1,2,3,4,5}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Black & Black\newline Controls & White & White\newline Controls \\ \midrule %% TinyTableHeader
+D                & -0.084*** & -0.084*** & -0.072*** & -0.072*** \\
+& (0.001)   & (0.001)   & (0.000)   & (0.000)   \\
+Male             &           & -0.976*** &           & -0.927*** \\
+&           & (0.044)   &           & (0.010)   \\
+Education        &           & 0.040***  &           & 0.055***  \\
+&           & (0.005)   &           & (0.001)   \\
+Migrated         &           & -0.456*** &           & 0.013+    \\
+&           & (0.037)   &           & (0.008)   \\
+Married in 1940  &           & 0.107**   &           & -0.048*** \\
+&           & (0.033)   &           & (0.008)   \\
+Num.Obs.         & 106945    & 106945    & 1987072   & 1987072   \\
+R2               & 0.381     & 0.391     & 0.350     & 0.357     \\
+Birth Year       & X         & X         & X         & X         \\
+Birth State      & X         & X         & X         & X         \\
+Urban-Rural Code & X         & X         & X         & X         \\
+Occupation       & -         & X         & -         & X         \\
+\bottomrule
+\end{talltblr}
+\end{table}

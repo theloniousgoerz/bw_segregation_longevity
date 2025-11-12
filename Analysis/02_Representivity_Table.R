@@ -12,30 +12,18 @@ library(gt)
 library(cowplot)
 library(fixest)
 library(tinytable)
-
-# Options
-
-setwd("/Users/theloniousgoerz/Academic/Projects/QP/Analysis/")
-
-my_ftest <- function(modc, modnc)
-{
-  df_dif <- (degrees_freedom(modc, type="resid") - degrees_freedom(modnc, type="resid"))
-  df_nc <- degrees_freedom(modnc, type="resid")
-  fstat <- ((modc$ssr - modnc$ssr) / df_dif) / (modnc$ssr / df_nc)
-  pvf <- pf(fstat, df_dif, df_nc, lower.tail = FALSE)
-  print(paste(paste("The F-statistic is", fstat, sep=" "), paste("and the p-value is", pvf, sep=" "), sep=" "))
-}
+library(here)
 
 # Data
-data_a = read_csv("../Data/_Cleaned/analytic_sample.csv")
-data = read_csv("../Data/_Cleaned/fulldata.csv")
-#nchs2fips_county1990 <- read_csv("../Data/nchs2fips_county1990.csv")
-county_d = read_csv("../Data/_Cleaned/county_data.csv")
+data_a =    read_csv(here("Data", "_Cleaned","analytic_sample.csv"))
+data =      read_csv(here("Data", "_Cleaned","fulldata.csv"))
+county_d =  read_csv(here("Data", "_Cleaned","county_data.csv"))
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 state_abbrevs <- data.frame(death_state = c("ct", "il", "in", "ia", "ks", "me", "ma", "mi", "mn", "mo", 
-                                            "ne", "nh", "nj", "ny", "nd", "oh", "pa", "ri", "sd", "vt", "wi"), north_state_d = c("North"))
+                                            "ne", "nh", "nj", "ny", "nd", "oh", "pa", "ri", "sd", "vt", "wi"), 
+                            north_state_d = c("North"))
 
 state_region <- data.frame(
   death_state = c(
@@ -46,7 +34,7 @@ state_region <- data.frame(
     "de", "md", "dc", "va", "wv", "nc", "sc", "ga", "fl",
     "ky", "tn", "ms", "al",
     "ok", "tx", "ar", "la",
-    "mt", "id", "wy", "nv", "ut", "co", "az", "nm",
+    "mt", "id", "wy", "nv", "ut", "co", "az", "nm", 
     "ak", "wa", "or", "ca", "hi"
   ),
   census_region_d = c(
@@ -56,62 +44,103 @@ state_region <- data.frame(
     rep("West", 13)
   )
 )
-
-msa_id = data_a %>% distinct(fips_msa,death_decade) %>% 
-  group_by(fips_msa) %>% 
-  summarise(n = n()) %>% filter(n == 3 & fips_msa != "0000")
-
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-data_a %<>% mutate(urb_code = case_when(death_decade %in% 1980:1990 & urban_rural_code %in% 0:1 ~ 1,
-                                        death_decade == 2000 & urban_rural_code == 1 ~ 1,
-                                        urban_rural_code == 2 ~ 2,
-                                        urban_rural_code == 3 ~ 3,
-                                        urban_rural_code == 4 ~ 4,
-                                        urban_rural_code == 5 ~ 5,
-                                        urban_rural_code == 6 ~ 6,
-                                        urban_rural_code == 7 ~ 7,
-                                        urban_rural_code == 8 ~ 8,
-                                        urban_rural_code == 9 ~ 9))
-
-data %<>% mutate(urb_code = case_when(death_decade %in% 1980:1990 & urban_rural_code %in% 0:1 ~ 1,
-                                      death_decade == 2000 & urban_rural_code == 1 ~ 1,
-                                      urban_rural_code == 2 ~ 2,
-                                      urban_rural_code == 3 ~ 3,
-                                      urban_rural_code == 4 ~ 4,
-                                      urban_rural_code == 5 ~ 5,
-                                      urban_rural_code == 6 ~ 6,
-                                      urban_rural_code == 7 ~ 7,
-                                      urban_rural_code == 8 ~ 8,
-                                      urban_rural_code == 9 ~ 9))
-
-data_a %<>% mutate(STATEFIP_d = str_sub(death_fips,1,2)) 
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Filtering 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # all counties
-data %<>% left_join(.,distinct(county_d[,c("death_decade","death_fips","D_star")]))
-
-data_a %<>% left_join(.,distinct(county_d[,c("death_decade","death_fips","D_star")]))
-counties = data %>% filter(byear %in% 1905:1920) %>%
+counties = 
+  data_a %>% filter(byear %in% 1905:1920) %>%
   distinct(death_fips,county_dism,
                   n_governments,
                   gov_rev_share_state,
                   nh_black,
                   death_decade,
-           D_star)
-  
-counties %>% filter(
-  !is.na(death_fips) &
-  nh_black >0 & 
-    !is.na(gov_rev_share_state) & 
-    !is.na(D_star)
-) %>% 
-  distinct(death_fips)
+                 D_star)
+c_1 = counties %>% distinct(death_fips) %>% nrow()
+c_2 = counties %>% filter(nh_black >0) %>% distinct(death_fips) %>% nrow()
+c_3 = counties %>% 
+  filter(nh_black >-0 &
+  !is.na(gov_rev_share_state)) %>% 
+  distinct(death_fips) %>%
+  nrow()
+ind_1 =
+  data_a %>% filter(
+    byear %in% 1905:1920) %>% nrow()
+ind_2 =
+  data_a %>% filter(
+    byear %in% 1905:1920 & 
+      nh_black >0) %>% nrow()
+ind_3 =
+  data_a%>% filter(
+    byear %in% 1905:1920 & 
+      nh_black >0 & 
+      !is.na(gov_rev_share_state) & 
+      !is.na(n_governments)) %>% nrow()
+ind_4 =
+  data_a %>% filter(
+    byear %in% 1905:1920 & 
+      nh_black >0 & 
+      !is.na(gov_rev_share_state) & 
+      !is.na(n_governments) &
+      !is.na(male) &  
+      !is.na(migrated) & 
+      !is.na(educ_years) &  
+      !is.na(urb_code) &
+      !is.na(south) &
+      !is.na(married) &
+      !is.na(byear) & 
+      !is.na(OCC) & 
+      !is.na(STATEFIP_b) &
+      !is.na(weight) & 
+      !is.na(county_dism) &
+      !is.na(D_star)) %>% nrow()
 
-data_a = data_a %>% filter(
+c_4 =   data_a %>% filter(
+  byear %in% 1905:1920 & 
+    nh_black >0 & 
+    !is.na(gov_rev_share_state) & 
+    !is.na(n_governments) &
+    !is.na(male) &  
+    !is.na(migrated) & 
+    !is.na(educ_years) &  
+    !is.na(urb_code) &
+    !is.na(south) &
+    !is.na(married) &
+    !is.na(byear) & 
+    !is.na(OCC) & 
+    !is.na(STATEFIP_b) &
+    !is.na(weight) & 
+    !is.na(county_dism) &
+    !is.na(D_star)) %>% 
+  distinct(death_fips) %>% nrow()
+
+
+### Assemble Data Frame with Stepwise Deletion
+data.frame(
+  `Sample` = c("All Counties",
+               "Counties With >0 NH Black Pop",
+               "Counties With non-Missing Government Revenue Share Data",
+               "Filter non-Missing Individual-and County-Level Variables."),
+  `N (Counties)` = c(c_1,c_2,c_3,c_4),
+  `N (Persons)` = c(ind_1,ind_2,ind_3,ind_4),
+  check.names = F
+) %>% 
+  datasummary_df(
+    align = "lcc",
+    notes = "Individual-level characteristics include demographics, education, and fixed effects. Individuals are also filtered by not missing post-stratification weights.",
+  output = "tinytable",
+  title = "Sample Filtering Criteria",
+  fmt = 0
+  ) %>% 
+  save_tt(here("FigTab","Filtering_table.tex"),overwrite = T)
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+### Filter Analytic Data ###
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+data_a =
+  data_a %>% filter(
     byear %in% 1905:1920 & 
       nh_black >0 & 
       !is.na(gov_rev_share_state) & 
@@ -128,28 +157,8 @@ data_a = data_a %>% filter(
       !is.na(D_star) &
       !is.na(n_governments))
 
-### Assemble Data Frame with Stepwise Deletion
-data.frame(
-  `Sample` = c("All Counties",
-               "Counties With >0 NH Black Pop",
-               "Counties With non-Missing Government Revenue Share Data",
-               "Filter non-Missing Individual-and County-Level Variables."),
-  `N x T` = c(9305,7704,4746,4678),
-  `N` = c(3128,3091,1792,1774), # check
-  `N (Persons)` = c(3047945,2714754,2350973,2152370),
-  check.names = F
-) %>% 
-  datasummary_df(
-    align = "lccc",
-    notes = "Individual-level characteristics include demographics, education, and fixed effects. Individuals are also filtered by not missing post-stratification weights.",
-  output = "tinytable",
-  title = "Sample Filtering Criteria"
-  ) %>% 
-  save_tt("./FigTab/Filtering_table.tex",overwrite = T)
 
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-### Filter Analytic Data ###
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 data %<>%  filter(
     byear %in% 1905:1920 & 
     !is.na(male) &  
@@ -165,16 +174,16 @@ data %<>%  filter(
     !is.na(D_star) &
     nh_black >0)
 
-db =  data_a %>% filter(Race == "Black") %>% mutate(education = educ_years,urban = ifelse(urb_code %in% 1:3,1,0))
-dw =  data_a %>% filter(Race == "White") %>% mutate(education = educ_years,urban = ifelse(urb_code %in% 1:3,1,0))
+db =  data_a %>% filter(Race == "Black") %>% mutate(education = educ_years)
+dw =  data_a %>% filter(Race == "White") %>% mutate(education = educ_years)
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ### Save Data for Analysis ###
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-write_csv(data, "../Data/_Cleaned/data.csv")
-write_csv(data_a, "../Data/_Cleaned/data_a.csv")
-write_csv(db,   "../Data/_Cleaned/db.csv") 
-write_csv(dw,   "../Data/_Cleaned/dw.csv")
+write_csv(data,   here("Data", "_Cleaned","data.csv"))
+write_csv(data_a, here("Data", "_Cleaned","data_a.csv"))
+write_csv(db,     here("Data", "_Cleaned","db.csv")) 
+write_csv(dw,     here("Data", "_Cleaned","dw.csv"))
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Represntivity Table Comparing Full Data to Analytic Sample 
@@ -354,7 +363,7 @@ datasummary_df(t[t$Variable != "N",],
                notes = "This table compares the descriptive statistics of the full Numident sample to the analytic sample subset of the sample used in analysis.",
                output = "tinytable"
                ) %>% 
-  save_tt(output = "./FigTab/representivity_table.tex", overwrite = T)
+  save_tt(output = here("FigTab","representivity_table.tex"), overwrite = T)
   
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -382,14 +391,14 @@ data_table = fulldata %>%
              title = "Descriptive Statistics of Analytic Sample By Race",
              align = "lcc",
              add_rows = data.frame(r1 = c("N"), 
-                                   r2 = c("108627"),
-                                   r3 = c("2043743")),
+                                   r2 = nrow(db),
+                                   r3 = nrow(dw)),
              notes = "This table presents descriptive statistics for the analytic sample by racial group.",
              threeparttable = T, 
              fmt = 2, 
              output = "tinytable"
  ) %>% 
-   save_tt(output = "./FigTab/descriptive_table.tex", overwrite = T)
+   save_tt(output = here("FigTab","descriptive_table.tex"), overwrite = T)
 
  
  

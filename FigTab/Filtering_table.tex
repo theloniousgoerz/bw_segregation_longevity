@@ -1,0 +1,20 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Sample Filtering Criteria},
+note{}={Individual-level characteristics include demographics, education, and fixed effects. Individuals are also filtered by not missing post-stratification weights.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]},
+column{2,3}={}{halign=c,},
+column{1}={}{halign=l,},
+}                     %% tabularray inner close
+\toprule
+Sample & N (Counties) & N (Persons) \\ \midrule %% TinyTableHeader
+All Counties                                              & 3125 & 2613272 \\
+Counties With >0 NH Black Pop                             & 3091 & 2605102 \\
+Counties With non-Missing Government Revenue Share Data   & 1792 & 2247476 \\
+Filter non-Missing Individual-and County-Level Variables. & 1774 & 2094017 \\
+\bottomrule
+\end{talltblr}
+\end{table}
