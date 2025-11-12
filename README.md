@@ -1,4 +1,4 @@
-# Segregation and Black White Longevity Disparities 
+# Racial Segregation and Black White Longevity Disparities 
 
 ## Replication Package
 
