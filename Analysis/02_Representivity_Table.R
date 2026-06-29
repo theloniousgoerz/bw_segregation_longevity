@@ -176,6 +176,8 @@ data %<>%  filter(
 
 db =  data_a %>% filter(Race == "Black") %>% mutate(education = educ_years)
 dw =  data_a %>% filter(Race == "White") %>% mutate(education = educ_years)
+db_f =  data %>% filter(Race == "Black" & !is.na(sib_group_id_flexible)) %>% mutate(education = educ_years)
+dw_f =  data %>% filter(Race == "White" & !is.na(sib_group_id_flexible)) %>% mutate(education = educ_years)
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ### Save Data for Analysis ###
@@ -184,7 +186,8 @@ write_csv(data,   here("Data", "_Cleaned","data.csv"))
 write_csv(data_a, here("Data", "_Cleaned","data_a.csv"))
 write_csv(db,     here("Data", "_Cleaned","db.csv")) 
 write_csv(dw,     here("Data", "_Cleaned","dw.csv"))
-
+write_csv(db_f,  here("Data", "_Cleaned","db_f.csv")) 
+write_csv(dw_f,  here("Data", "_Cleaned","dw_f.csv"))
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Represntivity Table Comparing Full Data to Analytic Sample 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -390,15 +393,60 @@ data_table = fulldata %>%
              data =data_table,
              title = "Descriptive Statistics of Analytic Sample By Race",
              align = "lcc",
-             add_rows = data.frame(r1 = c("N"), 
+             add_rows = data.frame(r1 = c("N"),
                                    r2 = nrow(db),
                                    r3 = nrow(dw)),
              notes = "This table presents descriptive statistics for the analytic sample by racial group.",
-             threeparttable = T, 
-             fmt = 2, 
+             threeparttable = T,
+             fmt = 2,
              output = "tinytable"
- ) %>% 
+ ) %>%
    save_tt(output = here("FigTab","descriptive_table.tex"), overwrite = T)
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#### Sibling Sample Representativeness Table ####
+# Compares full IV analytic sample to exact sibling matches (sib_group_id_exact)
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+sib_base <- fulldata %>%
+  filter(!is.na(weight) & !is.na(migrated)) %>%
+  mutate(
+    migrated = ifelse(migrated == "Migrated", 1, 0),
+    Sample   = factor(
+      ifelse(!is.na(sib_group_id_exact), "Sibling Sample", "Full Sample"),
+      levels = c("Full Sample", "Sibling Sample")
+    )
+  )
+
+n_full <- nrow(sib_base)
+n_sib  <- sum(!is.na(sib_base$sib_group_id_exact))
+
+sib_table <- sib_base %>%
+  select(
+    "Age at Death"                           = death_age,
+    "Male"                                   = male,
+    "Education (Years)"                      = educ_years,
+    "Married (In 1940)"                      = married,
+    "Migrated (Birth County - Death County)" = migrated,
+    "Reside in South at Death"               = south,
+    "County D at Death"                      = county_dism,
+    "County Population"                      = pop,
+    "County Pr. Black"                       = pblack,
+    "Sample"                                 = Sample
+  )
+
+datasummary(
+  All(sib_table) ~ Mean * Sample,
+  data         = sib_table,
+  title        = "Representativeness of Exact Sibling Matches Relative to Full IV Sample",
+  align        = "lcc",
+  add_rows     = data.frame(r1 = "N", r2 = n_full, r3 = n_sib),
+  notes        = "This table compares descriptive statistics for the full IV analytic sample to the subset matched into exact sibling groups. Means are unweighted.",
+  threeparttable = TRUE,
+  fmt          = 2,
+  output       = "tinytable"
+) %>%
+  save_tt(output = here("FigTab", "sibling_representivity_table.tex"), overwrite = TRUE)
 
  
  

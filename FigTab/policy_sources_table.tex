@@ -1,0 +1,32 @@
+\begin{table}[ht]
+\centering
+\caption{Hybrid Policy Index: Component Variables, Sources, and Geographic Level}
+\label{tab:policy_sources}
+\small
+\begin{threeparttable}
+\begin{tabular}{clp{4.6cm}p{2.6cm}lp{1.6cm}}
+\toprule
+\textbf{Item} & \textbf{Component} & \textbf{Description} & \textbf{Source variable} & \textbf{Level} & \textbf{Dataset} \\
+\midrule
+\multicolumn{6}{l}{\textit{Panel A: Components with county-level GFD analogue (GFD primary; SPPD fallback where noted)}} \\[4pt]
+1 & TANF / AFDC  & Categorical and general cash assistance expenditure per 1,000 residents; falls back to state maximum monthly TANF/AFDC benefit (2023\$) when county GFD data absent & \texttt{Welf\_Categ\_Cash\_Assist} + \texttt{Welf\_Cash\_Cash\_Assist} (GFD); \texttt{TANF2023} (SPPD) & County / State & GFD / SPPD \\[6pt]
+5 & Medicaid     & Vendor medical payments per 1,000 residents; no state-level fallback (Medicaid expansion is NA pre-2014 in SPPD) & \texttt{Welf\_Vend\_Pmts\_Medical} & County & GFD \\[10pt]
+\multicolumn{6}{l}{\textit{Panel B: Components without county analogue (state-level SPPD only)}} \\[4pt]
+2  & SNAP                  & Maximum monthly SNAP food-stamp allotment for a two-person household (2023\$) & \texttt{SNAP\_2023}           & State & SPPD \\[4pt]
+3  & EITC                  & State EITC rate as a percentage of the federal credit & \texttt{eitc}                 & State & SPPD \\[4pt]
+4  & Minimum wage          & State minimum wage (2023\$); set to federal level if no state law & \texttt{state\_minwage\_2023} & State & SPPD \\[4pt]
+6  & Unemployment ins.     & Maximum annual unemployment insurance benefit (2023\$) & \texttt{ui\_max\_2023}        & State & SPPD \\[4pt]
+7  & Paid sick leave       & Indicator: state paid sick leave law in effect (proportion of decade years) & \texttt{psl}                  & State & SPPD \\[4pt]
+8  & Right-to-work         & Reversed indicator: 1 $-$ RTW law, so higher = no RTW = more liberal & \texttt{1 - rtw}              & State & SPPD \\[4pt]
+9  & Labor preemption      & Negative count of six labor-related preemption laws in effect, so higher = less preemption & \texttt{-preempt\_total}      & State & SPPD \\[4pt]
+10 & Tobacco tax           & State cigarette tax per pack (2023\$) & \texttt{tobaccotax\_2023}     & State & SPPD \\[4pt]
+11 & Firearm laws          & Count of restrictive firearm laws in effect: child access protection + (1 $-$ stand-your-ground) + (1 $-$ right-to-carry); ranges 0--3 & \texttt{CAP + (1-SYG) + (1-RTC)} & State & SPPD \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\footnotesize
+\item \textit{Notes:} The composite index (\texttt{lib\_index\_final}) follows the construction in \citet{montez2026}: (1) each component is normalized to $[0,1]$ globally across all county-decades and all three decades (1980, 1990, 2000); (2) available normalized scores are summed per county-decade; (3) the sum is re-normalized to $[0,1]$. SPPD variables are averaged within the corresponding GFD decade window (1980--1989; 1990--1999; 2000--2005) before merging. GFD spending figures are decade-averaged and expressed per 1,000 residents using NHGIS decennial census population denominators (nhgis0017). The variable \texttt{tanf\_source} records whether item 1 derives from county GFD data (\texttt{county\_gfd}) or the state SPPD fallback (\texttt{state\_sppd}). Item 5 (Medicaid) has no state-level fallback because \texttt{medicaidexp} in SPPD is missing for all pre-2014 years. Washington, D.C. (FIPS 11001) has no GFD coverage and is excluded from SPPD; its index value is missing across all three decades.
+\item GFD = Government Finance Database. SPPD = State Policies and Politics Database (ICPSR 246713; \citealt{sppd2026}).
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

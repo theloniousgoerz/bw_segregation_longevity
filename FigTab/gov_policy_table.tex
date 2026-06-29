@@ -1,0 +1,22 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={IV Estimates of D on County Fiscal Policy},
+note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
+note{ }={Standard errors clustered at the county level. All models include decade fixed effects (1980, 1990, 2000).},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
+column{2,3,4,5,6,7,8,9}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{4}={1,2,3,4,5,6,7,8,9}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Lib. Index & Lib Index (c) & Welfare & Health & Cash Asst. & Medicaid & Taxes & Income Seg \\ \midrule %% TinyTableHeader
+D        & 0.000   & 0.003*** & 0.172   & 0.065   & -1.011** & -0.008  & -4.217** & 0.183*** \\
+& (0.000) & (0.001)  & (0.640) & (1.183) & (0.384)  & (0.067) & (1.337)  & (0.025)  \\
+Num.Obs. & 6459    & 6665     & 6459    & 6459    & 6459     & 6459    & 6459     & 6654     \\
+R2       & 0.071   & 0.365    & 0.178   & 0.024   & 0.081    & 0.029   & 0.046    & 0.426    \\
+\bottomrule
+\end{talltblr}
+\end{table}

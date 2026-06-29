@@ -1,0 +1,36 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Mechanism Estimates: Effect of Segregation on Longevity Controlling for Policy Channels},
+note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
+note{ }={IV estimates (RDI instrument). Each column adds one mechanism as a control. Heteroskedasticity-robust SEs in parentheses.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
+column{2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{18}={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Black & Black + Inc. Seg. & Black + Taxes & Black + Medicaid & Black + SNAP & Black + EITC & Black + Lib. Index & Black + Welfare & White & White + Inc. Seg. & White + Taxes & White + TANF & White + SNAP & White + EITC & White + Lib. Index & White + Welfare \\ \midrule %% TinyTableHeader
+D                    & -0.055*** & -0.079*** & -0.019*** & -0.045*** & -0.029*** & -0.051*** & -0.030*** & -0.018*** & -0.044*** & -0.080*** & -0.023*** & -0.043*** & -0.021*** & -0.043*** & -0.038*** & -0.044*** \\
+& (0.003)   & (0.005)   & (0.005)   & (0.003)   & (0.003)   & (0.003)   & (0.003)   & (0.004)   & (0.001)   & (0.001)   & (0.001)   & (0.001)   & (0.001)   & (0.001)   & (0.001)   & (0.001)   \\
+Income Segregation   &           & 0.125***  &           &           &           &           &           &           &           & 0.171***  &           &           &           &           &           &           \\
+&           & (0.010)   &           &           &           &           &           &           &           & (0.002)   &           &           &           &           &           &           \\
+Taxes (pc)           &           &           & 0.005***  &           &           &           &           &           &           &           & 0.005***  &           &           &           &           &           \\
+&           &           & (0.001)   &           &           &           &           &           &           &           & (0.000)   &           &           &           &           &           \\
+Medicaid             &           &           &           & 0.042***  &           &           &           &           &           &           &           &           &           &           &           &           \\
+&           &           &           & (0.001)   &           &           &           &           &           &           &           &           &           &           &           &           \\
+SNAP                 &           &           &           &           & 0.393***  &           &           &           &           &           &           &           & 0.427***  &           &           &           \\
+&           &           &           &           & (0.001)   &           &           &           &           &           &           &           & (0.000)   &           &           &           \\
+EITC                 &           &           &           &           &           & 0.086***  &           &           &           &           &           &           &           & 0.144***  &           &           \\
+&           &           &           &           &           & (0.003)   &           &           &           &           &           &           &           & (0.001)   &           &           \\
+Lib. Index (County)  &           &           &           &           &           &           & 50.738*** &           &           &           &           &           &           &           & 32.925*** &           \\
+&           &           &           &           &           &           & (1.322)   &           &           &           &           &           &           &           & (0.217)   &           \\
+Welfare (Direct, pc) &           &           &           &           &           &           &           & 0.010***  &           &           &           &           &           &           &           & 0.009***  \\
+&           &           &           &           &           &           &           & (0.000)   &           &           &           &           &           &           &           & (0.000)   \\
+Num.Obs.             & 88086     & 88086     & 88086     & 88086     & 88086     & 88086     & 88086     & 88086     & 1833673   & 1833673   & 1833673   & 1833673   & 1833673   & 1833673   & 1833673   & 1833673   \\
+R2                   & 0.365     & 0.365     & 0.399     & 0.372     & 0.661     & 0.372     & 0.377     & 0.380     & 0.332     & 0.333     & 0.362     & 0.335     & 0.633     & 0.355     & 0.339     & 0.348     \\
+\bottomrule
+\end{talltblr}
+\end{table}

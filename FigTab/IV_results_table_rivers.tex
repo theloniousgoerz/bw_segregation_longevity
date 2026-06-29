@@ -1,0 +1,40 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Estimates of the Effect of Segregation on Longevity (Rivers Instrument)},
+note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
+note{ }={This table describes the first-stage models and IV estimates of the effect of segregation on longevity. Heteroskedasiticty Robust Standard Errors in parentheses.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
+column{2,3,4,5,6,7,8,9}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{18}={1,2,3,4,5,6,7,8,9}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Black\newline 1st Stage & Black & Black\newline Controls\newline 1st Stage & Black\newline Controls & White\newline 1st Stage & White & White\newline Controls\newline 1st Stage & White\newline Controls \\ \midrule %% TinyTableHeader
+D                  &          & -0.049*** &           & -0.054*** &          & -0.039*** &           & -0.044*** \\
+&          & (0.007)   &           & (0.009)   &          & (0.003)   &           & (0.002)   \\
+Male               &          &           & 0.593***  & -1.005*** &          &           & 0.303***  & -0.940*** \\
+&          &           & (0.114)   & (0.045)   &          &           & (0.028)   & (0.010)   \\
+Education          &          &           & 0.064***  & 0.036***  &          &           & -0.102*** & 0.057***  \\
+&          &           & (0.013)   & (0.005)   &          &           & (0.004)   & (0.001)   \\
+Migrated           &          &           & -2.126*** & -0.314*** &          &           & 4.132***  & -0.076*** \\
+&          &           & (0.099)   & (0.043)   &          &           & (0.022)   & (0.013)   \\
+Married in 1940    &          &           & -0.365*** & 0.117***  &          &           & -0.647*** & -0.033*** \\
+&          &           & (0.085)   & (0.033)   &          &           & (0.024)   & (0.008)   \\
+Died in South      &          &           & -8.635*** & -0.074    &          &           & 0.944***  & 0.212***  \\
+&          &           & (0.106)   & (0.092)   &          &           & (0.031)   & (0.010)   \\
+Named Rivers       & 0.049*** &           & 0.036***  &           & 0.030*** &           & 0.031***  &           \\
+& (0.002)  &           & (0.002)   &           & (0.000)  &           & (0.000)   &           \\
+Named Rivers (Sq.) & 0.000*** &           & 0.000***  &           & 0.000*** &           & 0.000***  &           \\
+& (0.000)  &           & (0.000)   &           & (0.000)  &           & (0.000)   &           \\
+Num.Obs.           & 106902   & 106902    & 106886    & 106886    & 1984661  & 1984661   & 1984661   & 1984661   \\
+R2                 & 0.468    & 0.350     & 0.512     & 0.361     & 0.300    & 0.319     & 0.314     & 0.328     \\
+Birth Year         & -        & X         & -         & X         & -        & X         & -         & X         \\
+Birth State        & -        & X         & -         & X         & -        & X         & -         & X         \\
+Urban-Rural Code   & -        & X         & -         & X         & -        & X         & -         & X         \\
+Occupation         & -        & -         & -         & X         & -        & -         & -         & X         \\
+\bottomrule
+\end{talltblr}
+\end{table}

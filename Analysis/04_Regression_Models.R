@@ -19,6 +19,7 @@ library(ggbrace)
 library(gompertztrunc)
 library(car)
 library(binsreg)
+library(ivDiag)
 library(here)
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # ------------------------------- Helper Function -------------------------------
@@ -46,7 +47,12 @@ my_ftest <- function(modc, modnc) {
 data_a =   read_csv(here("Data","_Cleaned","data_a.csv"))                                                                        
 db =       read_csv(here("Data","_Cleaned","db.csv"))                                                                              
 dw =       read_csv(here("Data","_Cleaned","dw.csv"))   
-
+db_f=      read_csv(here("Data","_Cleaned","db_f.csv"))                                                                              
+dw_f=      read_csv(here("Data","_Cleaned","dw_f.csv"))   
+rivers =      read_csv(here("Data","derived","tiger_hydrography_county_instruments_2023.csv"))
+rdi =   read_csv(here("Data","derived","atack_rail_county_instruments_1911.csv"))
+mechanism = read_csv(here("Data","_Cleaned","mechanism.csv"))
+income_seg = read_csv(here("Data","_Cleaned","income_segregation_Hr.csv"))
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Data Cleaning for Analysis
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -64,7 +70,19 @@ dw %<>% mutate(county_dism = county_dism*100,
                D_star = D_star*100
                )
 
-# Education multi-category -------------------------------
+db_f %<>% mutate(county_dism = county_dism*100,
+               county_isolb = county_isolb*100,
+               H_bw = H_bw*100,
+               D_star = D_star*100)
+
+dw_f %<>% mutate(county_dism = county_dism*100,
+               county_isolb = county_isolb*100,
+               H_bw = H_bw*100,
+               D_star = D_star*100
+)
+#  -------------------------------
+# Education multi-category
+#  -------------------------------
 db %<>% 
   mutate(educ_cat = case_when(
     educ_years <12 ~ "Less than HS",
@@ -82,29 +100,80 @@ dw %<>%
   ),
   educ_cat = factor(educ_cat, levels = c("Less than HS","High School","Some College","College+")))
 
+db_f %<>% 
+  mutate(educ_cat = case_when(
+    educ_years <12 ~ "Less than HS",
+    educ_years == 12 ~ "High School",
+    educ_years >12 & educ_years < 16 ~ "Some College",
+    educ_years >=16 ~ "College+"
+  ),
+  educ_cat = factor(educ_cat, levels = c("Less than HS","High School","Some College","College+")))
+dw_f %<>% 
+  mutate(educ_cat = case_when(
+    educ_years <12 ~ "Less than HS",
+    educ_years == 12 ~ "High School",
+    educ_years > 12 & educ_years < 16 ~ "Some College",
+    educ_years >=16 ~ "College+"
+  ),
+  educ_cat = factor(educ_cat, levels = c("Less than HS","High School","Some College","College+")))
+
+#  -------------------------------
+# Merge on rdi and river instruments
+#  -------------------------------
+rdi %<>% mutate(death_fips = GEOID)
+rivers %<>% mutate(death_fips = GEOID)
+# Merge
+mechanisms = mechanism  %>% select(
+  death_decade,
+  death_fips, 
+  starts_with("comp"),
+  county_lib_index,
+  lib_index_final,
+  welf_direct_pc,
+  health_pc,
+  cash_asst_pc,
+  medicaid_pc,
+  taxes_pc,
+  Hr_all,
+  gov_party_consistent,
+  gov_party
+) %>% distinct() 
+
+
+data_a %<>% left_join(rdi,by = c("death_fips")) %>% left_join(rivers, by = c("death_fips")) %>% left_join(.,mechanisms, by = c("death_decade","death_fips"))
+db %<>% left_join(rdi,by = c("death_fips")) %>% left_join(rivers,by = c("death_fips")) %>% left_join(.,mechanisms, by = c("death_decade","death_fips")) 
+dw %<>% left_join(rdi,by = c("death_fips")) %>% left_join(rivers,by = c("death_fips")) %>% left_join(.,mechanisms, by = c("death_decade","death_fips"))
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Run Models
+# Preliminaries 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # -------------------------------First-stage -------------------------------
 
 # ------------------------------- Collapse ---------------------------------
 instrument = data_a %>% 
-  distinct(county_dism ,death_decade,ln_gov,gov_rev_share_state,death_fips) 
+  distinct(county_dism ,death_decade,ln_gov,gov_rev_share_state,rdi,n_named_rivers,n_named_rivers_sq,stream_km_per_km2,death_fips) 
 
 # ------------------------------- Make Table -------------------------------
-f  = feols(county_dism~ln_gov + gov_rev_share_state | death_decade, data = instrument, vcov = "white") 
-f_table = msummary(f,stars = T,
+f_gov  =    feols(county_dism~ln_gov + gov_rev_share_state | death_decade, data = instrument, vcov = ~death_fips) 
+f_rivers  = feols(county_dism~n_named_rivers + n_named_rivers_sq | death_decade, data = instrument, vcov = ~death_fips) 
+f_rdi  =    feols(county_dism~rdi | death_decade, data = instrument, vcov = ~death_fips) 
+
+f_table = msummary(list(f_gov,f_rivers,f_rdi),stars = T,
          gof_map = c("nobs","f"),
-         coef_map = c("ln_gov" = "Ln(Number Governments)",
-                      "gov_rev_share_state" = "County Share Revenue from Federal Gov."),
-         add_rows = data.frame("F",s = unlist(fitstat(f, type = "f"))[1]),
+         # coef_map = c("ln_gov" = "Ln(Number Governments)",
+         #              "gov_rev_share_state" = "County Share Revenue from Federal Gov."),
+         add_rows = data.frame(
+                               term = "First-Stage F",
+                               `(1)` = unlist(fitstat(f_gov, type = "f"))[1],
+                               `(2)` = unlist(fitstat(f_rivers, type = "f"))[1],
+                               `(3)` = unlist(fitstat(f_rdi, type = "f"))[1],
+                               check.names = FALSE),
          notes = "First stage relationship includes death decade fixed effects and heteroskedacticity SEs.",
          title = "First Stage Regression of D on Instruments",
-         align = "lc",
+         #align = "lc",
          threeparttable = T, 
-         fmt = 2, 
+         fmt = 2,   
          output = "tinytable")
 # ------------------------------- Save -------------------------------
 save_tt(f_table,output = here("FigTab","f_table.tex"), overwrite = T)
@@ -146,7 +215,7 @@ ols_m2_w = feols(death_age~county_dism + male + migrated + education + married |
 ## IV analysis
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-# ------------------------------- Estimate IV Models -------------------------------
+# ------------------------------- Estimate IV Models (Government) -------------------------------
 
 m1_b = feols(death_age~1|byear + STATEFIP_b + urb_code |county_dism~ln_gov + gov_rev_share_state, data = db, vcov = "white")
 m1_w = feols(death_age~1|byear + STATEFIP_b + urb_code |county_dism~ln_gov + gov_rev_share_state, data = dw, vcov = "white")
@@ -193,6 +262,344 @@ msummary(list("Black\\newline 1st Stage" = summary(m1_b,stage = 1),
          threeparttable = TRUE
          ) %>% 
   save_tt(.,output = here("FigTab","IV_results_table.tex"), overwrite = T)
+
+# ------------------------------- Estimate IV Models (Rivers) -------------------------------
+
+r1_b = feols(death_age~1|byear + STATEFIP_b + urb_code |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2 , data = db, vcov = "white")
+r1_w = feols(death_age~1|byear + STATEFIP_b + urb_code |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2 , data = dw, vcov = "white")
+r2_b = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC |county_dism~n_named_rivers + n_named_rivers_sq +  stream_km_per_km2, data = db, vcov ="white")
+r2_w = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC |county_dism~n_named_rivers + n_named_rivers_sq +  stream_km_per_km2, data = dw, vcov ="white")
+
+msummary(list("Black\\newline 1st Stage" = summary(r1_b, stage = 1),
+              "Black" = r1_b,
+              "Black\\newline Controls\\newline 1st Stage" = summary(r2_b, stage = 1),
+              "Black\\newline Controls" = r2_b,
+              "White\\newline 1st Stage" = summary(r1_w, stage = 1),
+              "White" = r1_w,
+              "White\\newline Controls\\newline 1st Stage" = summary(r2_w, stage = 1),
+              "White\\newline Controls" = r2_w),
+         fmt = 3,
+         stars = T,
+         coef_map = c(
+                      "fit_county_dism" = "D",
+                      "male" = "Male",
+                      "education" = "Education",
+                      "migratedMigrated" = "Migrated",
+                      "married" = "Married in 1940",
+                      "south" = "Died in South",
+                      "n_named_rivers" = "Named Rivers",
+                      "n_named_rivers_sq" = "Named Rivers (Sq.)"),
+         gof_map = c("nobs",
+                     "r.squared",
+                     "f"),
+         align = "lcccccccc",
+         notes = "This table describes the first-stage models and IV estimates of the effect of segregation on longevity. Heteroskedasiticty Robust Standard Errors in parentheses.",
+         title = "Estimates of the Effect of Segregation on Longevity (Rivers Instrument)",
+         add_rows = data.frame(
+           FE = c("Birth Year","Birth State","Urban-Rural Code","Occupation"),
+           m1_fs = c("-","-","-","-"),
+           m1 = c("X","X","X","-"),
+           m2_fs = c("-","-","-","-"),
+           m2 = c("X","X","X","X"),
+           m3_fs = c("-","-","-","-"),
+           m3 = c("X","X","X","-"),
+           m4_fs = c("-","-","-","-"),
+           m4 = c("X","X","X","X")
+         ),
+         threeparttable = TRUE
+         ) %>%
+  save_tt(., output = here("FigTab","IV_results_table_rivers.tex"), overwrite = T)
+
+# ------------------------------- Estimate IV Models (RDI) -------------------------------
+
+d1_b = feols(death_age~1|byear + STATEFIP_b + urb_code |county_dism~rdi + rail_km_per_km2, data = db, vcov =~death_fips)
+d1_w = feols(death_age~1|byear + STATEFIP_b + urb_code |county_dism~rdi + rail_km_per_km2, data = dw, vcov =~death_fips)
+d2_b = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC |county_dism~rdi + rail_km_per_km2, data = db, vcov =~death_fips)
+d2_w = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC |county_dism~rdi + rail_km_per_km2, data = dw, vcov =~death_fips)
+
+msummary(list("Black\\newline 1st Stage" = summary(d1_b, stage = 1),
+              "Black" = d1_b,
+              "Black\\newline Controls\\newline 1st Stage" = summary(d2_b, stage = 1),
+              "Black\\newline Controls" = d2_b,
+              "White\\newline 1st Stage" = summary(d1_w, stage = 1),
+              "White" = d1_w,
+              "White\\newline Controls\\newline 1st Stage" = summary(d2_w, stage = 1),
+              "White\\newline Controls" = d2_w),
+         fmt = 3,
+         stars = T,
+         coef_map = c(
+                      "fit_county_dism" = "D",
+                      "male" = "Male",
+                      "education" = "Education",
+                      "migratedMigrated" = "Migrated",
+                      "married" = "Married in 1940",
+                      "south" = "Died in South",
+                      "rdi" = "Racial Diversity Index"),
+         gof_map = c("nobs",
+                     "r.squared",
+                     "f"),
+         align = "lcccccccc",
+         notes = "This table describes the first-stage models and IV estimates of the effect of segregation on longevity. Heteroskedasiticty Robust Standard Errors in parentheses.",
+         title = "Estimates of the Effect of Segregation on Longevity (RDI Instrument)",
+         add_rows = data.frame(
+           FE = c("Birth Year","Birth State","Urban-Rural Code","Occupation"),
+           m1_fs = c("-","-","-","-"),
+           m1 = c("X","X","X","-"),
+           m2_fs = c("-","-","-","-"),
+           m2 = c("X","X","X","X"),
+           m3_fs = c("-","-","-","-"),
+           m3 = c("X","X","X","-"),
+           m4_fs = c("-","-","-","-"),
+           m4 = c("X","X","X","X")
+         ),
+         threeparttable = TRUE
+         ) %>%
+  save_tt(., output = here("FigTab","IV_results_table_rdi.tex"), overwrite = T)
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Sibling FE Robustness 
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Exact Matches
+sib_m2_b = feols(death_age~county_dism + male + migrated + education + married |byear + STATEFIP_b  + urb_code +OCC + sib_group_id_exact, data = db_f,vcov = ~death_fips)
+sib_m2_w = feols(death_age~county_dism + male + migrated + education + married |byear + STATEFIP_b  + urb_code +OCC + sib_group_id_exact, data = dw_f,vcov = ~death_fips)
+
+# Flexible Matches
+sib_2_m2_b = feols(death_age~county_dism + male + migrated + education + married |byear + STATEFIP_b  + urb_code +OCC + sib_group_id_flexible, data = db_f,vcov = ~death_fips)
+sib_2_m2_w = feols(death_age~county_dism + male + migrated + education + married |byear + STATEFIP_b  + urb_code +OCC + sib_group_id_flexible, data = dw_f,vcov = ~death_fips)
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Results for children ineligible for war 
+
+## 1. Five-year birth-year bins spanning 1905–1920.
+##    Last bin keeps your 1915:1920 definition, so it is 6 years wide.
+bins <- list(
+  "1905-1909" = 1905:1909,
+  "1910-1914" = 1910:1914,
+  "1915-1920" = 1915:1920
+)
+
+est_bin <- function(data, years, sex_val) {
+  d <- data[data$byear %in% years & data$male == sex_val, ]   # explicit, no NSE
+  feols(
+    death_age ~ migrated + education + married + south |
+      byear + STATEFIP_b + urb_code + OCC |
+      county_dism ~ ln_gov + gov_rev_share_state,
+    data  = d,
+    vcov  = ~death_fips
+  )
+}
+
+collect <- function(data, race_label, sex_val, sex_label) {
+  do.call(rbind, lapply(names(bins), function(b) {
+    m  <- est_bin(data, bins[[b]], sex_val)
+    ct <- coeftable(m)["fit_county_dism", ]
+    data.frame(
+      bin      = b,
+      sample   = race_label,
+      sex      = sex_label,
+      estimate = ct[["Estimate"]],
+      se       = ct[["Std. Error"]],
+      fstat    = tryCatch(fitstat(m, "ivf1")[[1]]$stat,
+                          error = function(e) NA_real_),
+      stringsAsFactors = FALSE
+    )
+  }))
+}
+
+## 4. All four Race × Sex combinations.
+res <- rbind(
+  collect(db, "Black", 1, "Men"),
+  collect(db, "Black", 0, "Women"),
+  collect(dw, "White", 1, "Men"),
+  collect(dw, "White", 0, "Women")
+)
+
+res$lo  <- res$estimate - 1.96 * res$se
+res$hi  <- res$estimate + 1.96 * res$se
+res$bin <- factor(res$bin, levels = names(bins))
+res$sex <- factor(res$sex, levels = c("Men", "Women"))
+
+## 5. Figure: faceted by sex, colored by race.
+res %>%
+  mutate(estimate = estimate * 10,
+         lo       = lo * 10,
+         hi       = hi * 10) %>%
+  ggplot(aes(bin, estimate, 
+             color = sample,  
+             shape = sex)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey60") +
+  geom_pointrange(aes(ymin = lo, ymax = hi),
+                  position = position_dodge(width = 0.35),
+                  linewidth = 0.7, fatten = 2.5, 
+                  size = 1) +
+  labs(
+    x = "Birth-year bin",
+    y = "Years of Life",
+    color = "Group"
+  ) +
+  theme_cowplot() +
+  theme(legend.position = "top") +
+  scale_color_manual(values = c("Black" = "#1b7837", "White" = "#2166ac"))
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Mechanisms
+db_mech = db %>% filter(!is.na(taxes_pc) & !is.na(cash_asst_pc))
+dw_mech = dw %>% filter(!is.na(taxes_pc) & !is.na(cash_asst_pc))
+
+# Shared formula components
+mech_fe  <- "byear + STATEFIP_b + urb_code + OCC"
+mech_iv  <- "county_dism~rdi + rail_km_per_km2"
+mech_cov <- "male + migrated + education + married + south"
+
+# --------------------------
+# Black
+
+d2_b_m         = feols(death_age~.[mech_cov]                      |.[mech_fe] |.[mech_iv], data = db_mech, vcov = ~death_fips)
+#d2_b_m_inc     = feols(death_age~.[mech_cov] + Hr_all             |.[mech_fe] |.[mech_iv], data = db_mech, vcov = ~death_fips)
+d2_b_m_tax     = feols(death_age~.[mech_cov] + taxes_pc           |.[mech_fe] |.[mech_iv], data = db_mech, vcov = ~death_fips)
+d2_b_m_med     = feols(death_age~.[mech_cov] + comp_medicaid      |.[mech_fe] |.[mech_iv], data = db_mech, vcov = ~death_fips)
+d2_b_m_health   = feols(death_age~.[mech_cov] + health_pc         |.[mech_fe] |.[mech_iv], data = db_mech, vcov = ~death_fips)
+d2_b_m_cash    = feols(death_age~.[mech_cov] + cash_asst_pc       |.[mech_fe] |.[mech_iv], data = db_mech, vcov = ~death_fips)
+d2_b_m_lib     = feols(death_age~.[mech_cov] + county_lib_index   |.[mech_fe] |.[mech_iv], data = db_mech, vcov = ~death_fips)
+d2_b_m_welf    = feols(death_age~.[mech_cov] + welf_direct_pc     |.[mech_fe] |.[mech_iv], data = db_mech, vcov = ~death_fips)
+d2_b_m_rep    = feols(death_age~.[mech_cov] + gov_party_consistent                |.[mech_fe] |.[mech_iv], data = db_mech, vcov = ~death_fips)
+
+# --------------------------
+# White
+d2_w_m         = feols(death_age~.[mech_cov]                      |.[mech_fe] |.[mech_iv], data = dw_mech, vcov =~death_fips)
+#d2_w_m_inc     = feols(death_age~.[mech_cov] + Hr_all             |.[mech_fe] |.[mech_iv], data = dw_mech, vcov =~death_fips)
+d2_w_m_tax     = feols(death_age~.[mech_cov] + taxes_pc           |.[mech_fe] |.[mech_iv], data = dw_mech, vcov =~death_fips)
+d2_w_m_med     = feols(death_age~.[mech_cov] + comp_medicaid      |.[mech_fe] |.[mech_iv], data = dw_mech, vcov =~death_fips)
+d2_w_m_health    = feols(death_age~.[mech_cov] + health_pc        |.[mech_fe] |.[mech_iv], data = dw_mech, vcov =~death_fips)
+d2_w_m_cash    = feols(death_age~.[mech_cov] + cash_asst_pc       |.[mech_fe] |.[mech_iv], data = dw_mech, vcov =~death_fips)
+d2_w_m_lib     = feols(death_age~.[mech_cov] + county_lib_index   |.[mech_fe] |.[mech_iv], data = dw_mech, vcov =~death_fips)
+d2_w_m_welf    = feols(death_age~.[mech_cov] + welf_direct_pc     |.[mech_fe] |.[mech_iv], data = dw_mech, vcov =~death_fips)
+d2_w_m_rep    = feols(death_age~.[mech_cov] + gov_party_consistent                |.[mech_fe] |.[mech_iv], data = dw_mech, vcov = ~death_fips)
+
+msummary(list(
+  # Black
+  "Black"               = d2_b_m,
+ # "Black + Inc. Seg."   = d2_b_m_inc,
+  "Black + Lib. Index"  = d2_b_m_lib,
+  "Black + Taxes"       = d2_b_m_tax,
+  "Black + Medicaid"    = d2_b_m_med,
+  "Black + Welfare"     = d2_b_m_welf,
+  "Black + Cash"        = d2_b_m_cash,
+  "Black + Health"      = d2_b_m_health,
+  "Black + Rep" = d2_w_m_rep,
+  # White
+  "White"               = d2_w_m,
+#  "White + Inc. Seg."   = d2_w_m_inc,
+  "White + Lib. Index"  = d2_w_m_lib,
+  "White + Taxes"       = d2_w_m_tax,
+  "White + Medicaid"    = d2_w_m_med,
+  "White + Welfare"     = d2_w_m_welf,
+  "White + Cash"        = d2_w_m_cash,
+  "White + Health"      = d2_w_m_health,
+  "White + Rep" = d2_b_m_rep
+),
+fmt   = 3,
+stars = TRUE,
+coef_map = c(
+  "fit_county_dism"  = "D"
+),
+gof_map = c("nobs", "r.squared", "f"),
+notes   = "IV estimates (RDI instrument). Each column adds one mechanism as a control. Heteroskedasticity-robust SEs in parentheses.",
+title   = "Mechanism Estimates: Effect of Segregation on Longevity Controlling for Policy Channels",
+threeparttable = TRUE
+) %>%
+  save_tt(., output = here("FigTab", "mechanism_table.tex"), overwrite = TRUE)
+
+# -----------------------
+# Mechanism coefficient plot
+# -----------------------
+black_models <- list(
+  "Baseline"     = d2_b_m,      
+  "Inc. Seg."    = d2_b_m_inc,
+  "Taxes"        = d2_b_m_tax,
+  "Medicaid"     = d2_b_m_med,  
+  "Lib. Index" = d2_b_m_lib,
+  "Welfare"     = d2_b_m_welf,
+  "Health"      = d2_b_m_health,
+  "Cash"        = d2_b_m_cash
+)
+white_models <- list(
+  "Baseline"     = d2_w_m,    
+  "Inc. Seg."    = d2_w_m_inc,
+  "Taxes"        = d2_w_m_tax,
+  "Medicaid"     = d2_w_m_med,
+  "Lib. Index" = d2_w_m_lib,
+  "Welfare"     = d2_w_m_welf,
+  "Health" = d2_w_m_health,
+  "Cash"  = d2_w_m_cash
+)
+
+coef_black <- map_dfr(black_models,
+  \(m) broom::tidy(m, conf.int = TRUE) |> filter(term == "fit_county_dism"),
+  .id = "mechanism"
+) |> mutate(race = "Black")
+
+coef_white <- map_dfr(white_models,
+  \(m) broom::tidy(m, conf.int = TRUE) |> filter(term == "fit_county_dism"),
+  .id = "mechanism"
+) |> mutate(race = "White")
+
+base_b <- coef_black |> filter(mechanism == "Baseline") |> pull(estimate)
+base_w <- coef_white |> filter(mechanism == "Baseline") |> pull(estimate)
+
+mech_levels <- c("Baseline",
+                 "Lib. Index", "Inc. Seg.", "Taxes","Health", "Medicaid",  "Welfare","Cash")
+
+coef_all <- bind_rows(coef_black, coef_white) |>
+  mutate(
+    pct_baseline = case_when(
+      race == "Black" ~ estimate / base_b * 100,
+      race == "White" ~ estimate / base_w * 100
+    ),
+    pct_label = paste0(round(pct_baseline, 1), "%"),
+    mechanism = factor(mechanism, levels = rev(mech_levels))
+  )
+
+baseline_lines <- data.frame(
+  race      = c("Black", "White"),
+  xintercept = c(base_b,  base_w)
+)
+
+#mech_plot <-
+  ggplot(coef_all, aes(y = mechanism, x = estimate, color = race)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray50", lwd = 1) +
+  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high),
+                 lwd = 1,
+                 height = 0.25, position = position_dodge(width = 0.4)) +
+  geom_point(size = 2.5, position = position_dodge(width = 0.6)) +
+  geom_text(aes(x = conf.high, label = pct_label),
+            position = position_dodge(width = 0.6),
+            hjust = -0.15, size = 2.8, show.legend = FALSE) +
+  scale_color_manual(values = c("Black" = "#1b7837", "White" = "#2166ac")) +
+  geom_vline(data = baseline_lines,
+              aes(xintercept = xintercept, color = race),
+              linetype = "dotted", linewidth = 1, show.legend = FALSE) +
+  scale_x_continuous(expand = expansion(mult = c(0.05, 0.22))) +
+  labs(
+    x     = "Coefficient on D (Segregation)",
+    y     = NULL,
+    color = NULL,
+    title = "Effect of Segregation on Longevity Controlling for Mechanisms",
+    subtitle = "Label shows coefficient as % of baseline model (no mechanism control)"
+  ) +
+facet_wrap(~race, nrow = 1, scales = "free_x") +
+  theme_cowplot(font_size = 11) +
+  theme(
+    legend.position = "none",
+    strip.background = element_rect(fill = "gray92"),
+    strip.text       = element_text(face = "bold")
+  ) 
+
+ggsave(mech_plot, filename = here("FigTab", "mechanism_coefplot.jpeg"),
+       width = 12, height = 7, dpi = 1000)
+
+
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Figures
@@ -325,8 +732,69 @@ ggsave(Iv_estimate_plot,filename = here("FigTab","iv_plot.jpeg"),
        height = 5,
        dpi = 1000)
 
+# ------------------------------- All Estimates Plot -------------------------------
+
+all_estimates_plot_data = bind_rows(
+  # Gov IV
+ # tidy(m1_b, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "Black", Model = "Unadjusted", Estimator = "Gov. IV"),
+ # tidy(m1_w, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "White", Model = "Unadjusted", Estimator = "Gov. IV"),
+  tidy(m2_b, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "Black", Model = "Controls",    Estimator = "Gov. IV"),
+  tidy(m2_w, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "White", Model = "Controls",    Estimator = "Gov. IV"),
+  # Rivers IV
+  #tidy(r1_b, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "Black", Model = "Unadjusted", Estimator = "Rivers IV"),
+  #tidy(r1_w, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "White", Model = "Unadjusted", Estimator = "Rivers IV"),
+  tidy(r2_b, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "Black", Model = "Controls",    Estimator = "Rivers IV"),
+  tidy(r2_w, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "White", Model = "Controls",    Estimator = "Rivers IV"),
+  # RDI IV
+  #tidy(d1_b, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "Black", Model = "Unadjusted", Estimator = "RDI IV"),
+  #tidy(d1_w, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "White", Model = "Unadjusted", Estimator = "RDI IV"),
+  tidy(d2_b, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "Black", Model = "Controls",    Estimator = "RDI IV"),
+  tidy(d2_w, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "White", Model = "Controls",    Estimator = "RDI IV"),
+  # Sibling FE — Exact match
+  tidy(sib_m2_b, conf.int = T) |> filter(term == "county_dism") |> mutate(Race = "Black", Model = "Controls", Estimator = "Sib. FE (Exact)"),
+  tidy(sib_m2_w, conf.int = T) |> filter(term == "county_dism") |> mutate(Race = "White", Model = "Controls", Estimator = "Sib. FE (Exact)"),
+  # Sibling FE — Flexible match
+  tidy(sib_2_m2_b, conf.int = T) |> filter(term == "county_dism") |> mutate(Race = "Black", Model = "Controls", Estimator = "Sib. FE (Flexible)"),
+  tidy(sib_2_m2_w, conf.int = T) |> filter(term == "county_dism") |> mutate(Race = "White", Model = "Controls", Estimator = "Sib. FE (Flexible)")
+) |>
+  mutate(
+    estimate  = estimate  * contrast,
+    conf.high = conf.high * contrast,
+    conf.low  = conf.low  * contrast,
+    Model     = factor(Model, levels = c("Unadjusted", "Controls")),
+    Estimator = factor(Estimator, levels = c("Gov. IV","Rivers IV","RDI IV","Sib. FE (Exact)","Sib. FE (Flexible)"))
+  )
+
+all_estimates_plot =
+  ggplot(all_estimates_plot_data,
+         aes(Estimator, estimate,
+             ymin = conf.low,
+             ymax = conf.high,
+             color = Race)) +
+  geom_pointrange(position = position_dodge2(width = .5),
+                  size = .75,
+                  lwd = .75,
+                  shape = 22) +
+  labs(y = "Change in Life Expectancy",
+       x = NULL,
+       caption = str_wrap("This figure displays estimates from all specifications of the effect of racial segregation on longevity.
+       IV models use government fragmentation (Gov. IV), named rivers (Rivers IV), and the Railroad Diversity Index (RDI IV) as instruments.
+       Sibling FE models include birth year, urban-rural, birth state, and occupation fixed effects plus a sibling group fixed effect.
+       All estimates refer to a 10-point increase in Dissimilarity.", 120)) +
+  scale_color_manual(values = c("darkgreen","darkblue")) +
+  theme_cowplot() +
+  geom_hline(yintercept = 0, linetype = "dashed", lwd = 1) +
+  theme(plot.caption    = element_text(hjust = 0),
+        legend.position = "bottom",
+        axis.text.x     = element_text(angle = 25, hjust = 1))
+
+ggsave(all_estimates_plot, filename = here("FigTab","iv_plot_all.jpeg"),
+       width = 14,
+       height = 6,
+       dpi = 1000)
+
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Subgroup Analysis
+# Results by education
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # ------------------------------- Education ------------------------------- 
 w_ed_c = feols(death_age~male + migrated + married + south + educ_cat |byear + STATEFIP_b +urb_code + OCC | county_dism~ ln_gov + gov_rev_share_state, data = dw,vcov = "white")

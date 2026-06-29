@@ -25,7 +25,9 @@ gov =      read_csv(here("Data","_Cleaned","CensusGov.csv"))
 ## Rural Urban Codes 
 urb_rural_8393 = read_excel(here("Data","Rural_Urban_codes","cd8393.xls"))
 urb_rural_03 =   read_excel(here("Data","Rural_Urban_codes","ruralurbancodes2003.xls"))
-
+# Sibling identifiers 
+sbs =      read_csv(here("Data","censoc_numident_siblings_v2","censoc_numident_sibs_exact_match_v2.csv"))
+sbs_f =    read_csv(here("Data","censoc_numident_siblings_v2","censoc_numident_sibs_flexible_match_v2.csv"))
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Clean data
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -131,6 +133,11 @@ county %<>% mutate(STATEFIP = as.character(str_sub(death_fips,1,2)), death_fips 
 ## Merge on data_a with fips ## 
 data %<>% left_join(.,county,by = c("death_fips","death_decade"))
 
+## Merge on data_a with sibling identifiers ##
+data %<>% left_join(.,sbs,by = c("HISTID")) %>% left_join(.,sbs_f,by = c("HISTID"))
+
+
+
 data %<>% 
   mutate(migrated = ifelse(as.character(birth_fips) == death_fips,"Migrated","Did Not Migrate"),
          STATEFIP_b = as.character(str_sub(birth_fips,1,2))) %>% 
@@ -155,7 +162,6 @@ data_a = data %>% filter(byear %in% 1905:1920 &
                            HISPAN == 0 &
                            RACE %in% 1:2 & 
                            !is.na(weight)) %>% 
-  
   mutate(ln_gov = ifelse(n_governments == 0, log(0.01),log(n_governments)),
          Race = ifelse(RACE == 1, "White","Black"),
          pblack = nh_black/pop,
@@ -189,6 +195,7 @@ data_a = data %>% filter(byear %in% 1905:1920 &
                     !is.na(married) & !is.na(ownhome) & 
                     !is.na(county_dism)
                   )
+
 
 fulldata = data %>% 
   filter(byear %in% 1905:1920 & 
@@ -227,7 +234,11 @@ fulldata = data %>%
          employed = case_when(EMPSTAT == 1 ~ 1,
                               EMPSTAT == 2 ~ 0))
 
+
+
 # Save 
 write_csv(fulldata, here("Data","_Cleaned","fulldata.csv"))
 write_csv(data_a,   here("Data","_Cleaned","analytic_sample.csv"))
 write_csv(county,   here("Data","_Cleaned","county.csv"))
+
+
