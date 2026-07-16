@@ -30,6 +30,12 @@ Ananat, E.~O. and Washington, E. (2009).
 \newblock Segregation and {Black} political efficacy.
 \newblock {\em Journal of Public Economics}, 93(5):807--822.
 
+\bibitem[Angrist and Kolesár, 2021]{angrist_one_2021}
+Angrist, J. and Kolesár, M. (2021).
+\newblock One {Instrument} to {Rule} {Them} {All}: {The} {Bias} and {Coverage} of {Just}-{ID} {IV}.
+\newblock {\em arXiv:2110.10556 [econ, stat]}.
+\newblock arXiv: 2110.10556.
+
 \bibitem[Arias, 2020]{arias_united_2020}
 Arias, E. (2020).
 \newblock United {States} life tables, 2023.
@@ -109,6 +115,11 @@ Bruch, S.~K., Meyers, M.~K., and Gornick, J.~C. (2018).
 \newblock The {Consequences} of {Decentralization}: {Inequality} in {Safety} {Net} {Provision} in the {Post}--{Welfare} {Reform} {Era}.
 \newblock {\em Social Service Review}, 92(1):3--35.
 
+\bibitem[Cameron and Miller, 2015]{cameron_practitioners_2015}
+Cameron, A.~C. and Miller, D.~L. (2015).
+\newblock A {Practitioner}’s {Guide} to {Cluster}-{Robust} {Inference}.
+\newblock {\em Journal of Human Resources}, 50(2):317--372.
+
 \bibitem[Carlson et~al., 2026]{carlson_changing_2026}
 Carlson, H.~J., Logan, J.~R., and Won, J. (2026).
 \newblock The changing spatial pattern of metropolitan racial segregation, 1900–2020: the rise of macro-segregation.
@@ -118,6 +129,11 @@ Carlson, H.~J., Logan, J.~R., and Won, J. (2026).
 Carrington, W.~J. and Troske, K.~R. (1997).
 \newblock On {Measuring} {Segregation} in {Samples} with {Small} {Units}.
 \newblock {\em Journal of Business \& Economic Statistics}, 15(4):402--409.
+
+\bibitem[Chetty and Hendren, 2018]{chetty_impacts_2018}
+Chetty, R. and Hendren, N. (2018).
+\newblock The {Impacts} of {Neighborhoods} on {Intergenerational} {Mobility} {I}: {Childhood} {Exposure} {Effects}.
+\newblock {\em The Quarterly Journal of Economics}, 133(3):1107--1162.
 
 \bibitem[Chyn et~al., 2026]{chyn_effects_2026}
 Chyn, E., Haggag, K., and Stuart, B.~A. (2026).
@@ -184,6 +200,11 @@ Elliott, J.~R. and Frickel, S. (2013).
 Evans, M. and Chapman, A. (2024).
 \newblock Residential {Immobility} and {Racial} and {Ethnic} {Disparities} in {Housing} {Quality}.
 \newblock {\em Sociology of Race and Ethnicity}, 10(1):31--50.
+
+\bibitem[Felton and Stewart, 2024]{felton_handle_2024}
+Felton, C. and Stewart, B.~M. (2024).
+\newblock Handle with {Care}: {A} {Sociologist}’s {Guide} to {Causal} {Inference} with {Instrumental} {Variables}.
+\newblock {\em Sociological Methods \& Research}, page 00491241241235900.
 
 \bibitem[Fishback et~al., 2007]{fishback_births_2007}
 Fishback, P.~V., Haines, M.~R., and Kantor, S. (2007).
@@ -270,6 +291,11 @@ Hoynes, H., Schanzenbach, D.~W., and Almond, D. (2016).
 Hurd, M. and Kapteyn, A. (2003).
 \newblock Health, {Wealth}, and the {Role} of {Institutions}.
 \newblock {\em Journal of Human Resources}.
+
+\bibitem[Imbens and Angrist, 1994]{imbens_identification_1994}
+Imbens, G. and Angrist, J. (1994).
+\newblock Identification and {Estimation} of {Local} {Average} {Treatment} {Effects}.
+\newblock {\em Econometrica}, 62(2):467--475.
 
 \bibitem[Johnson, 2019]{johnson_children_2019}
 Johnson, R.~C. (2019).
@@ -376,6 +402,11 @@ Miller, S., Johnson, N., and Wherry, L.~R. (2021).
 \newblock Medicaid and {Mortality}: {New} {Evidence} from {Linked} {Survey} and {Administrative} {Data}.
 \newblock {\em The Quarterly Journal of Economics}, 136(3):1783--1829.
 
+\bibitem[Mogstad et~al., 2021]{mogstad_causal_2021}
+Mogstad, M., Torgovitsky, A., and Walters, C.~R. (2021).
+\newblock The {Causal} {Interpretation} of {Two}-{Stage} {Least} {Squares} with {Multiple} {Instrumental} {Variables}.
+\newblock {\em American Economic Review}, 111(11):3663--3698.
+
 \bibitem[Molloy et~al., 2011]{molloy_internal_2011}
 Molloy, R., Smith, C.~L., and Wozniak, A. (2011).
 \newblock Internal {Migration} in the {United} {States}.
@@ -424,6 +455,11 @@ Quillian, L. (2012).
 Quillian, L. (2014).
 \newblock Does {Segregation} {Create} {Winners} and {Losers}? {Residential} {Segregation} and {Inequality} in {Educational} {Attainment}.
 \newblock {\em Social Problems}, 61(3):402--426.
+
+\bibitem[Rauscher, 2020]{rauscher_why_2020}
+Rauscher, E. (2020).
+\newblock Why {Who} {Marries} {Whom} {Matters}: {Effects} of {Educational} {Assortative} {Mating} on {Infant} {Health} in the {United} {States} 1969–1994.
+\newblock {\em Social Forces}, 98(3):1143--1173.
 
 \bibitem[Rauscher and Shen, 2022]{rauscher_variation_2022}
 Rauscher, E. and Shen, Y. (2022).

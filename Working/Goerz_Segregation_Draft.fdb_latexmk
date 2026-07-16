@@ -1,15 +1,20 @@
 # Fdb version 4
-["bibtex Goerz_Segregation_Draft"] 1784218802.21516 "Goerz_Segregation_Draft.aux" "Goerz_Segregation_Draft.bbl" "Goerz_Segregation_Draft" 1784219024.66009 0
+["bibtex Goerz_Segregation_Draft"] 1784235532.62116 "Goerz_Segregation_Draft.aux" "Goerz_Segregation_Draft.bbl" "Goerz_Segregation_Draft" 1784235537.46208 0
   "./ref.bib" 1784063540.50269 3151420 4213e4a34a1bafeeac9026f10c7c561d ""
   "/usr/local/texlive/2025/texmf-dist/bibtex/bst/base/apalike.bst" 1292289607 24635 604dafcc79f521a11ea73e506e1fbd98 ""
-  "Goerz_Segregation_Draft.aux" 1784219024.24301 16545 940b6af194b191d87cfa8c9c25c394b2 "pdflatex"
+  "Goerz_Segregation_Draft.aux" 1784235537.05587 19399 6c35c2886913f6b351bec88ccbef3f52 "pdflatex"
   (generated)
   "Goerz_Segregation_Draft.bbl"
   "Goerz_Segregation_Draft.blg"
   (rewritten before read)
-["pdflatex"] 1784219021.11446 "/Users/theloniousgoerz/Academic/Projects/bw_segregation_longevity/Working/Goerz_Segregation_Draft.tex" "Goerz_Segregation_Draft.pdf" "Goerz_Segregation_Draft" 1784219024.66035 0
+["pdflatex"] 1784235533.07233 "/Users/theloniousgoerz/Academic/Projects/bw_segregation_longevity/Working/Goerz_Segregation_Draft.tex" "Goerz_Segregation_Draft.pdf" "Goerz_Segregation_Draft" 1784235537.46238 0
+  "../FigTab/Filtering_table.tex" 1784235492.98118 1586 5fd670861893929e289a74c5da26ddc9 ""
+  "../FigTab/fs_plot.jpeg" 1784234239.31571 5229746 aa04dd2aaad336a1c3795469bdb29b6d ""
+  "../FigTab/gompertz_figure.jpeg" 1781640241.26787 4394891 6fd811648ecd709f322aca43fd268c72 ""
+  "../FigTab/iv_plot_all.jpeg" 1784234031.89566 4949274 d844001d573967e06f39e9244b2d8f3a ""
+  "../FigTab/ols_estimates_all.jpeg" 1784234121.35181 5849318 0485dcc665d5b603be5db738579d4994 ""
   "../FigTab/representivity_table_by_race.tex" 1784218203.76882 4635 3d47f9a89076a8825a417aacca3c09b9 ""
-  "/Users/theloniousgoerz/Academic/Projects/bw_segregation_longevity/Working/Goerz_Segregation_Draft.tex" 1784219020.97596 69057 630a20440a43c740a2a3cc1ecfd63c2d ""
+  "/Users/theloniousgoerz/Academic/Projects/bw_segregation_longevity/Working/Goerz_Segregation_Draft.tex" 1784235527.92224 89721 380c599fc7a5afab16cd459a6425fcbf ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/tcrm1095.tfm" 1136768653 1536 02c06700a42be0f5a28664c7273f82e7 ""
@@ -18,6 +23,7 @@
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex9.tfm" 1246382020 996 a18840b13b499c08ac2de96a99eda4bc ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm" 1136768653 1328 c834bbb027764024c09d3d2bf908b5f0 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm" 1136768653 1324 c910af8c371558dc20f2d7822f66fe64 ""
+  "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmbx9.tfm" 1136768653 1328 5442e22a7072966dbaf88ca900acf3f0 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmex10.tfm" 1136768653 992 662f679a0b3d2d53c1b94050fdaa3f50 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmmi10.tfm" 1136768653 1528 abec98dbc43e172678c11b3b9031252a ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmmi12.tfm" 1136768653 1524 4414a8315f39513458b80dfc63bff03a ""
@@ -40,6 +46,7 @@
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/latex-fonts/lasy6.tfm" 1136768653 520 4889cce2180234b97cad636b6039c722 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb" 1248133631 34811 78b52f49e893bcba91bd7581cdc144c0 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb" 1248133631 32080 340ef9bf63678554ee606688e7b5339d ""
+  "/usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb" 1248133631 32298 c6d25bb16d1eac01ebdc6d7084126a1e ""
   "/usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb" 1248133631 30251 6afa5cb1d0204815a708a080681d4674 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb" 1248133631 36299 5f9df58c2139e7edcf37c8fca4bd384d ""
   "/usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb" 1248133631 35469 70d41d2b9ea31d5d813066df7c99281c ""
@@ -138,7 +145,6 @@
   "/usr/local/texlive/2025/texmf-dist/tex/latex/base/article.cls" 1738182759 20144 63d8bacaf52e5abf4db3bc322373e1d4 ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/base/atbegshi-ltx.sty" 1738182759 2963 d8ec5a1b4e0a106c5c737900202763e4 ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/base/atveryend-ltx.sty" 1738182759 2378 14b657ee5031da98cf91648f19642694 ""
-  "/usr/local/texlive/2025/texmf-dist/tex/latex/base/omscmr.fd" 1738182759 2469 c75f72b1dc17277decdd842fa4a321a8 ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/base/size11.clo" 1738182759 8464 e73911cdcc738e82d6adccd28e654bb1 ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/booktabs/booktabs.sty" 1579038678 6078 f1cb470c9199e7110a27851508ed7a5c ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/codehigh/codehigh.sty" 1740176347 23364 da947b3743e7f18e813e4c6d7c4edb3b ""
@@ -195,10 +201,10 @@
   "/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1756236666 5467155 19efa205003f9ecad95fbbaa6ff24da1 ""
   "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1741450574 3345740 46b66fdb0378f7bf5921b5eabf1762b8 ""
   "/usr/local/texlive/2025/texmf.cnf" 1741450484 577 418a7058ec8e006d8704f60ecd22c938 ""
-  "Goerz_Segregation_Draft.aux" 1784219024.24301 16545 940b6af194b191d87cfa8c9c25c394b2 "pdflatex"
-  "Goerz_Segregation_Draft.bbl" 1784218802.67815 27685 7a3b0917ff8a5aff3e124181e431ca6c "bibtex Goerz_Segregation_Draft"
-  "Goerz_Segregation_Draft.out" 1784219024.2446 4571 051f65bc13cd73a53accf3be60ad5786 "pdflatex"
-  "Goerz_Segregation_Draft.tex" 1784219020.97596 69057 630a20440a43c740a2a3cc1ecfd63c2d ""
+  "Goerz_Segregation_Draft.aux" 1784235537.05587 19399 6c35c2886913f6b351bec88ccbef3f52 "pdflatex"
+  "Goerz_Segregation_Draft.bbl" 1784235533.06791 29551 8e21c097f8ef8a1b50cc08a3e453dcda "bibtex Goerz_Segregation_Draft"
+  "Goerz_Segregation_Draft.out" 1784235537.0578 5265 569010ea8892552e54c266debf984c12 "pdflatex"
+  "Goerz_Segregation_Draft.tex" 1784235527.92224 89721 380c599fc7a5afab16cd459a6425fcbf ""
   (generated)
   "Goerz_Segregation_Draft.aux"
   "Goerz_Segregation_Draft.log"

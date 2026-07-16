@@ -160,54 +160,6 @@ ols_m2_w = feols(death_age~county_dism + male + migrated + education + married |
   ) %>%
     save_tt(., output = here("FigTab","IV_results_table_rdi.tex"), overwrite = T)
 
-# ------------------------------- Estimate IV Models (Government) -------------------------------
-
-m1_b = feols(death_age~1|byear + STATEFIP_b + urb_code |county_dism~ln_gov + gov_rev_share_state, data = db, vcov = ~death_fips)
-m1_w = feols(death_age~1|byear + STATEFIP_b + urb_code |county_dism~ln_gov + gov_rev_share_state, data = dw, vcov = ~death_fips)
-m2_b = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~ln_gov + gov_rev_share_state, data = db,vcov = ~death_fips)
-m2_w = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~ln_gov + gov_rev_share_state, data = dw,vcov = ~death_fips)
-
-msummary(list("Black\\newline 1st Stage" = summary(m1_b,stage = 1),
-              "Black" = m1_b,
-              "Black\\newline Controls\\newline 1st Stage" = summary(m2_b,stage = 1),
-              "Black\\newline Controls" = m2_b,
-              "White\\newline 1st Stage" = summary(m1_w,stage = 1),
-              "White" = m1_w,
-              "White\\newline Controls\\newline 1st Stage" = summary(m2_w,stage = 1),
-              "White\\newline Controls" = m2_w),
-         fmt =3, 
-         stars = T,
-         coef_map = c(
-                      "fit_county_dism" = "D",
-                      "male" = "Male",
-                      "education" = "Education",
-                      "migratedMigrated" = "Migrated",
-                      "married" = "Married in 1940",
-                      "south" = "Died in South",
-                      "ln_gov" = "Log(Governments)",
-                      "gov_rev_share_state" = "Revenue Share"),
-         gof_map = c("nobs",
-                     "r.squared",
-                     "f"
-                     ),
-         align = "lcccccccc",
-         notes = "This table describes the first-stage models and IV estimates of the effect of segregation on longevity. Heteroskedasiticty Robust Standard Errors in parentheses.",
-         title = "Estimates of the Effect of Segregation on Longevity",
-          add_rows = data.frame(
-            FE = c("Birth Year","Birth State","Urban-Rural Code","Occupation"),
-            m1_fs = c("-","-","-","-"),
-            m1 = c("X","X","X","-"),
-            m2_fs = c("-","-","-","-"),
-            m2 = c("X","X","X","X"),
-            m3_fs = c("-","-","-","-"),
-            m3 = c("X","X","X","-"),
-            m4_fs = c("-","-","-","-"),
-            m4 = c("X","X","X","X")
-          ),
-         threeparttable = TRUE
-         ) %>% 
-  save_tt(.,output = here("FigTab","IV_results_table.tex"), overwrite = T)
-
 # ------------------------------- Estimate IV Models (Rivers) -------------------------------
 
 r1_b = feols(death_age~1|byear + STATEFIP_b + urb_code |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2 , data = db, vcov = "white")
@@ -497,139 +449,91 @@ ggsave(mech_plot, filename = here("FigTab", "mechanism_coefplot.jpeg"),
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # ------------------------------- Instrument Figure -------------------------------
-instrument = data_a %>% 
-  distinct(county_dism ,death_decade,ln_gov,gov_rev_share_state,death_fips) 
+instrument = data_a %>%
+  distinct(county_dism, death_decade, death_fips,
+           rdi, rail_km_per_km2,
+           n_named_rivers, n_named_rivers_sq, stream_km_per_km2)
 
-# ------------------------------- Binscatter regressions ------------------------------- 
-b_share = binsreg(instrument$county_dism,instrument$ln_gov,at = "mean",w = instrument$gov_rev_share_state)
-i_data = as.data.frame(b_share$data.plot)
+# ------------------------------- Binscatter regressions -------------------------------
+# Each panel bins segregation against the focal instrument, residualising on the
+# remaining instrument(s) in that strategy via the binsreg `w` argument.
+bins_rdi = binsreg(instrument$county_dism, instrument$rdi,
+                   at = "mean",
+                   w  = instrument$rail_km_per_km2)
+rdi_data = as.data.frame(bins_rdi$data.plot)
 
-bs = 
-  ggplot(data = i_data,aes(Group.Full.Sample.data.dots.x,Group.Full.Sample.data.dots.fit)) + 
-  geom_point(size =2) +
+bins_riv = binsreg(instrument$county_dism, instrument$n_named_rivers,
+                   at = "mean",
+                   w  = instrument$stream_km_per_km2)
+riv_data = as.data.frame(bins_riv$data.plot)
+
+# First-stage F-statistics, computed here so the captions cannot go stale.
+fs_rdi = feols(county_dism~rdi + rail_km_per_km2 | death_decade, data = instrument, vcov = ~death_fips)
+fs_riv = feols(county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2 | death_decade, data = instrument, vcov = ~death_fips)
+
+f_rdi_val = unlist(fitstat(fs_rdi, type = "f"))[1]
+f_riv_val = unlist(fitstat(fs_riv, type = "f"))[1]
+
+# ------------------------------- Panel A: RDI -------------------------------
+bs_rdi =
+  ggplot(data = rdi_data, aes(Group.Full.Sample.data.dots.x, Group.Full.Sample.data.dots.fit)) +
+  geom_point(size = 2) +
   geom_smooth(method = "lm",
-              alpha = 0, 
-              lwd = 2) + 
-  labs(x = "Ln(Governments)",
+              alpha = 0,
+              lwd = 2) +
+  labs(x = "Racial Diversity Index",
        y = "County Dissimilarity",
-       caption = str_wrap("This figure displays the association between government fragmentation and segregation.
-                          Segregation is measured by the index if dissimilarity that measures evenly distributed Black and White residents are within a county. 
-                          Dots represent means of bins at each level of the instrument. 
-                          The blue line corresponds to the fitted OLS regression line of segregation on the instruments. 
-                          Ln(Governments) refers to the log of the number of governments: the focal measure of government fragmentation.
-                          F-statistic = 236.53.",100)) + 
-  theme_cowplot() + 
-  theme(plot.caption = element_text(hjust = 0)) 
+       subtitle = paste0("F-statistic = ", round(f_rdi_val, 2))) +
+  theme_cowplot()
+
+# ------------------------------- Panel B: Rivers -------------------------------
+bs_riv =
+  ggplot(data = riv_data, aes(Group.Full.Sample.data.dots.x, Group.Full.Sample.data.dots.fit)) +
+  geom_point(size = 2) +
+  geom_smooth(method = "lm",
+              alpha = 0,
+              lwd = 2) +
+  labs(x = "Number of Named Rivers",
+       y = "County Dissimilarity",
+       subtitle = paste0("F-statistic = ", round(f_riv_val, 2))) +
+  theme_cowplot()
+
+# ------------------------------- Combine Panels -------------------------------
+fs_panels = plot_grid(bs_rdi, bs_riv,
+                      labels = c("A", "B"),
+                      nrow   = 1,
+                      align  = "hv",
+                      axis   = "tblr")
+
+fs_caption = ggdraw() +
+  draw_label(
+    str_wrap("This figure displays the association between each instrument and segregation.
+             Segregation is measured by the index of dissimilarity that measures how evenly distributed Black and White residents are within a county.
+             Panel A displays the Railroad Diversity Index first stage, adjusting for railroad density.
+             Panel B displays the named rivers first stage, adjusting for stream density.
+             Dots represent means of bins at each level of the instrument.
+             The blue line corresponds to the fitted OLS regression line of segregation on the instrument.", 140),
+    x = 0, hjust = 0, size = 10
+  ) +
+  theme(plot.margin = margin(0, 0, 0, 7))
+
+fs_plot_all = plot_grid(fs_panels, fs_caption,
+                        ncol        = 1,
+                        rel_heights = c(1, 0.25))
+
 # ------------------------------- Save -------------------------------
-ggsave(bs,filename = here("FigTab","fs_plot.jpeg"),
-       width = 10, 
-       height = 5,
+ggsave(fs_plot_all, filename = here("FigTab","fs_plot.jpeg"),
+       width = 12,
+       height = 6,
        dpi = 1000)
 
 # ------------------------------- Create Plots -------------------------------
 # Set Contrast for Plots
 contrast = 10
 
-
-# -------------------------------  OLS ------------------------------- 
-ols_m1 = ols_m1_b %>% tidy(conf.int = T) %>% filter(term == "county_dism")  %>%  mutate(Model = "Unadjusted", Race = "Black")
-ols_m2 = ols_m1_w %>% tidy(conf.int = T) %>% filter(term == "county_dism")  %>%  mutate(Model = "Unadjusted", Race = "White")
-ols_m3 = ols_m2_b %>% tidy(conf.int = T) %>% filter(term == "county_dism")  %>% mutate(Model = "Controls", Race = "Black")
-ols_m4 = ols_m2_w %>% tidy(conf.int = T) %>% filter(term == "county_dism")  %>% mutate(Model = "Controls", Race = "White")
-
-### Visualize cross-sample OLS comparison ### 
-ols_result = rbind(
-  ols_m1,
-  ols_m2 ,
-  ols_m3 ,
-  ols_m4                    
-) %>% mutate(Model = factor(Model,levels = unique(Model)),
-             estimate = estimate*contrast,
-             conf.low = conf.low*contrast,
-             conf.high = conf.high*contrast)
-
-### Visualize Results ### 
-ols_res_fig = 
-  ggplot(ols_result,aes(Model,
-                        estimate,
-                        ymin = conf.low,
-                        ymax = conf.high, 
-                        color = Race)) + 
-  geom_pointrange(lwd = 2,
-                  size =.75,
-                  position = position_dodge2(width = .1)) + 
-  theme_cowplot() + 
-  geom_hline(yintercept = 0, linetype = "dashed", lwd = 1) + 
-  theme(legend.position = "top") + 
-  labs(
-    caption = str_wrap("This figure displays estimates of the OLS association between racial segregation and longevity. 
-    The unadjusted model contains birth year, urban-rural, and birth state fixed effects. The model with controls adds covariates and occupation fixed effects.   
-    Estimates refer to a 10 point increase in Dissimilarity.",100),
-    x = "Model",
-    y = "Change in Life Expectancy") + 
-  scale_color_manual(values = c("darkgreen","darkblue"))  + 
-    theme(plot.caption = element_text(hjust = 0),
-          legend.position = "bottom") 
-  
-### Save Figure ### 
-ggsave(ols_res_fig,
-       filename = here("FigTab","ols_figure.jpeg"),
-       width = 8, 
-       height = 5,
-       dpi = 1000)
-
-### Plots of Main Effects
-m1_b_plot =   tidy(m1_b,conf.int = T) %>% filter(term =="fit_county_dism") %>% mutate(Race = "Black", Model = "Unadjusted")
-m1_w_plot =   tidy(m1_w,conf.int = T) %>% filter(term =="fit_county_dism") %>% mutate(Race = "White", Model = "Unadjusted")
-m2_b_plot =   tidy(m2_b,conf.int = T) %>% filter(term =="fit_county_dism") %>% mutate(Race = "Black", Model = "Controls")
-m2_w_plot =   tidy(m2_w,conf.int = T) %>% filter(term =="fit_county_dism") %>% mutate(Race = "White", Model = "Controls")
-
-iv_plot = rbind(m1_b_plot,
-                m1_w_plot,
-                m2_b_plot,
-                m2_w_plot)
-
-# ------------------------------- IV ------------------------------- 
-Iv_estimate_plot = 
-iv_plot %>% 
-  mutate(
-    # scale by contrast 
-    estimate = estimate*contrast,
-    conf.high = conf.high*contrast,
-    conf.low = conf.low*contrast,
-    Model = factor(Model, levels = unique(Model))
-  ) %>% 
-  ggplot(aes(Model,estimate,
-             ymin = conf.low,
-             ymax = conf.high, 
-             color = Race)) + 
-  geom_pointrange(position = position_dodge2(width =.1),
-                  size = .75,
-                  lwd = 2) + 
-  labs(y = "Change in Life Expectancy",
-       caption = str_wrap("This figure displays estimates from two-stage least squares regressions of the effect of racial segregation on longevity. 
-        The unadjusted model contains birth year, urban-rural, and birth state fixed effects. The model with controls adds covariates and occupation fixed effects.
-    Estimates refer to a 10 point increase in Dissimilarity.",100)
-  ) + 
-  scale_color_manual(values = c("darkgreen","darkblue")) + 
-  theme_cowplot() + 
-  geom_hline(yintercept = 0,linetype = "dashed",lwd = 1)    + 
-  theme(plot.caption = element_text(hjust = 0),
-        legend.position = "bottom") 
-
-ggsave(Iv_estimate_plot,filename = here("FigTab","iv_plot.jpeg"),
-       width = 8, 
-       height = 5,
-       dpi = 1000)
-
 # ------------------------------- All Estimates Plot -------------------------------
 
 all_estimates_plot_data = bind_rows(
-  # Gov IV
- # tidy(m1_b, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "Black", Model = "Unadjusted", Estimator = "Gov. IV"),
- # tidy(m1_w, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "White", Model = "Unadjusted", Estimator = "Gov. IV"),
-  tidy(m2_b, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "Black", Model = "Controls",    Estimator = "Gov. IV"),
-  tidy(m2_w, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "White", Model = "Controls",    Estimator = "Gov. IV"),
   # Rivers IV
   #tidy(r1_b, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "Black", Model = "Unadjusted", Estimator = "Rivers IV"),
   #tidy(r1_w, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "White", Model = "Unadjusted", Estimator = "Rivers IV"),
@@ -652,7 +556,7 @@ all_estimates_plot_data = bind_rows(
     conf.high = conf.high * contrast,
     conf.low  = conf.low  * contrast,
     Model     = factor(Model, levels = c("Unadjusted", "Controls")),
-    Estimator = factor(Estimator, levels = c("RDI IV","Gov. IV","Rivers IV","Sib. FE (Exact)","Sib. FE (Flexible)"))
+    Estimator = factor(Estimator, levels = c("RDI IV","Rivers IV","Sib. FE (Flexible)","Sib. FE (Exact)"))
   )
 
 all_estimates_plot =
@@ -668,7 +572,7 @@ all_estimates_plot =
   labs(y = "Change in Life Expectancy",
        x = NULL,
        caption = str_wrap("This figure displays estimates from all specifications of the effect of racial segregation on longevity.
-       IV models use government fragmentation (Gov. IV), named rivers (Rivers IV), and the Railroad Diversity Index (RDI IV) as instruments.
+       IV models use named rivers (Rivers IV) and the Railroad Diversity Index (RDI IV) as instruments.
        Sibling FE models include birth year, urban-rural, birth state, and occupation fixed effects plus a sibling group fixed effect.
        All estimates refer to a 10-point increase in Dissimilarity.", 120)) +
   scale_color_manual(values = c("darkgreen","darkblue")) +
@@ -679,6 +583,78 @@ all_estimates_plot =
         axis.text.x     = element_text(angle = 25, hjust = 1))
 
 ggsave(all_estimates_plot, filename = here("FigTab","iv_plot_all.jpeg"),
+       width = 14,
+       height = 6,
+       dpi = 1000)
+
+# ------------------------------- All OLS Estimates Plot -------------------------------
+# OLS analogue of the all-estimates plot: same samples, same controls and FE, but
+# D enters directly rather than through an instrument, and the sibling group FE is
+# dropped from the two sibling samples.
+
+# Restrict each OLS fit to the rows its IV counterpart actually used, so the only
+# thing that changes across estimators is the estimator itself.
+ols_on_iv_sample = function(iv_mod, data) {
+  feols(death_age~county_dism + male + migrated + education + married + south |
+          byear + STATEFIP_b + urb_code + OCC,
+        data = data[obs(iv_mod), ],
+        vcov = ~death_fips)
+}
+
+# OLS on each IV sample
+ols_rivers_b = ols_on_iv_sample(r2_b, db)
+ols_rivers_w = ols_on_iv_sample(r2_w, dw)
+ols_rdi_b    = ols_on_iv_sample(d2_b, db)
+ols_rdi_w    = ols_on_iv_sample(d2_w, dw)
+
+# OLS on the sibling samples, without the sibling group FE
+ols_sib_e_b = feols(death_age~county_dism + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC, data = db_f[obs(sib_m2_b), ], vcov = ~death_fips)
+ols_sib_e_w = feols(death_age~county_dism + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC, data = dw_f[obs(sib_m2_w), ], vcov = ~death_fips)
+ols_sib_f_b = feols(death_age~county_dism + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC, data = db_f[obs(sib_2_m2_b), ], vcov = ~death_fips)
+ols_sib_f_w = feols(death_age~county_dism + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC, data = dw_f[obs(sib_2_m2_w), ], vcov = ~death_fips)
+
+ols_estimates_plot_data = bind_rows(
+  tidy(ols_rivers_b, conf.int = T) |> filter(term == "county_dism") |> mutate(Race = "Black", Model = "Controls", Estimator = "OLS (Rivers Sample)"),
+  tidy(ols_rivers_w, conf.int = T) |> filter(term == "county_dism") |> mutate(Race = "White", Model = "Controls", Estimator = "OLS (Rivers Sample)"),
+  tidy(ols_rdi_b,    conf.int = T) |> filter(term == "county_dism") |> mutate(Race = "Black", Model = "Controls", Estimator = "OLS (RDI Sample)"),
+  tidy(ols_rdi_w,    conf.int = T) |> filter(term == "county_dism") |> mutate(Race = "White", Model = "Controls", Estimator = "OLS (RDI Sample)"),
+  tidy(ols_sib_e_b,  conf.int = T) |> filter(term == "county_dism") |> mutate(Race = "Black", Model = "Controls", Estimator = "OLS (Exact Sample)"),
+  tidy(ols_sib_e_w,  conf.int = T) |> filter(term == "county_dism") |> mutate(Race = "White", Model = "Controls", Estimator = "OLS (Exact Sample)"),
+  tidy(ols_sib_f_b,  conf.int = T) |> filter(term == "county_dism") |> mutate(Race = "Black", Model = "Controls", Estimator = "OLS (Flexible Sample)"),
+  tidy(ols_sib_f_w,  conf.int = T) |> filter(term == "county_dism") |> mutate(Race = "White", Model = "Controls", Estimator = "OLS (Flexible Sample)")
+) |>
+  mutate(
+    estimate  = estimate  * contrast,
+    conf.high = conf.high * contrast,
+    conf.low  = conf.low  * contrast,
+    Model     = factor(Model, levels = c("Unadjusted", "Controls")),
+    Estimator = factor(Estimator, levels = c("OLS (RDI Sample)","OLS (Rivers Sample)","OLS (Flexible Sample)","OLS (Exact Sample)"))
+  )
+
+ols_estimates_all =
+  ggplot(ols_estimates_plot_data,
+         aes(Estimator, estimate,
+             ymin = conf.low,
+             ymax = conf.high,
+             color = Race)) +
+  geom_pointrange(position = position_dodge2(width = .5),
+                  size = .75,
+                  lwd = .75,
+                  shape = 22) +
+  labs(y = "Change in Life Expectancy",
+       x = NULL,
+       caption = str_wrap("This figure displays OLS estimates of the association between racial segregation and longevity, estimated on the samples used by each specification in the corresponding IV figure.
+       The first two groups are OLS fit to the estimation samples of the named rivers (Rivers IV) and Railroad Diversity Index (RDI IV) models, with segregation entering directly rather than through an instrument.
+       The final two groups are OLS fit to the sibling samples with birth year, urban-rural, birth state, and occupation fixed effects but without the sibling group fixed effect.
+       All estimates refer to a 10-point increase in Dissimilarity.", 120)) +
+  scale_color_manual(values = c("darkgreen","darkblue")) +
+  theme_cowplot() +
+  geom_hline(yintercept = 0, linetype = "dashed", lwd = 1) +
+  theme(plot.caption    = element_text(hjust = 0),
+        legend.position = "bottom",
+        axis.text.x     = element_text(angle = 25, hjust = 1))
+
+ggsave(ols_estimates_all, filename = here("FigTab","ols_estimates_all.jpeg"),
        width = 14,
        height = 6,
        dpi = 1000)
@@ -721,15 +697,6 @@ extract_ed_slopes <- function(model, data_ref, strategy, fstat, pval) {
       )
     )
 }
-
-# ------------------------------- Gov. IV -------------------------------
-w_ed_c = feols(death_age~male + migrated + married + south + educ_cat |byear + STATEFIP_b +urb_code + OCC | county_dism~ ln_gov + gov_rev_share_state, data = dw, vcov = ~death_fips)
-b_ed_c = feols(death_age~male + migrated + married + south + educ_cat |byear + STATEFIP_b +urb_code + OCC | county_dism~ ln_gov + gov_rev_share_state, data = db, vcov = ~death_fips)
-w_ed   = feols(death_age~male + migrated + married + south |byear + STATEFIP_b +urb_code | county_dism*educ_cat~ ln_gov*educ_cat + gov_rev_share_state*educ_cat, data = dw, vcov = ~death_fips)
-b_ed   = feols(death_age~male + migrated + married + south |byear + STATEFIP_b +urb_code | county_dism*educ_cat~ ln_gov*educ_cat + gov_rev_share_state*educ_cat, data = db, vcov = ~death_fips)
-
-gov_ft_w <- ftest_vals(w_ed_c, w_ed)
-gov_ft_b <- ftest_vals(b_ed_c, b_ed)
 
 # ------------------------------- RDI IV -------------------------------
 w_ed_c_rdi = feols(death_age~male + migrated + married + south + educ_cat |byear + STATEFIP_b +urb_code + OCC | county_dism~ rdi + rail_km_per_km2, data = dw, vcov = ~death_fips)
@@ -798,7 +765,6 @@ sib_f_ft_b <- ftest_vals(b_ed_c_sib_f, b_ed_sib_f)
 # ------------------------------- Combine into ggplot-ready data frames -------------------------------
 
 education_white <- bind_rows(
-  extract_ed_slopes(w_ed,       dw,   "Gov. IV",            gov_ft_w$fstat,   gov_ft_w$pval),
   extract_ed_slopes(w_ed_rdi,   dw,   "RDI IV",             rdi_ft_w$fstat,   rdi_ft_w$pval),
   extract_ed_slopes(w_ed_riv,   dw,   "Rivers IV",          riv_ft_w$fstat,   riv_ft_w$pval),
   extract_ed_slopes(w_ed_sib_e, dw_f, "Sib. FE (Exact)",    sib_e_ft_w$fstat, sib_e_ft_w$pval),
@@ -806,11 +772,10 @@ education_white <- bind_rows(
 ) |>
   mutate(
     educ_cat = factor(educ_cat, levels = c("Less than HS","High School","Some College","College+")),
-    strategy = factor(strategy, levels = c("Gov. IV","Rivers IV","RDI IV","Sib. FE (Exact)","Sib. FE (Flexible)"))
+    strategy = factor(strategy, levels = c("Rivers IV","RDI IV","Sib. FE (Exact)","Sib. FE (Flexible)"))
   )
 
 education_black <- bind_rows(
-  extract_ed_slopes(b_ed,       db,   "Gov. IV",            gov_ft_b$fstat,   gov_ft_b$pval),
   extract_ed_slopes(b_ed_rdi,   db,   "RDI IV",             rdi_ft_b$fstat,   rdi_ft_b$pval),
   extract_ed_slopes(b_ed_riv,   db,   "Rivers IV",          riv_ft_b$fstat,   riv_ft_b$pval),
   extract_ed_slopes(b_ed_sib_e, db_f, "Sib. FE (Exact)",    sib_e_ft_b$fstat, sib_e_ft_b$pval),
@@ -818,7 +783,7 @@ education_black <- bind_rows(
 ) |>
   mutate(
     educ_cat = factor(educ_cat, levels = c("Less than HS","High School","Some College","College+")),
-    strategy = factor(strategy, levels = c("Gov. IV","Rivers IV","RDI IV","Sib. FE (Exact)","Sib. FE (Flexible)"))
+    strategy = factor(strategy, levels = c("Rivers IV","RDI IV","Sib. FE (Exact)","Sib. FE (Flexible)"))
   )
 
 saveRDS(education_white, here("Data","_Cleaned","education_white.rds"))
@@ -912,94 +877,174 @@ msummary(list("Black" = b_ed,
          )) %>%
   save_tt(.,output = here("FigTab","IV_by_Education_table.tex"), overwrite = T)
 
-# ------------------------------- Male V Female ------------------------------- 
-m2_b_m = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~ln_gov + gov_rev_share_state, data = subset(db,male ==1),vcov = "white")
-m2_w_m = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~ln_gov + gov_rev_share_state, data = subset(dw,male ==1),vcov = "white")
-m2_b_f = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~ln_gov + gov_rev_share_state, data = subset(db,male ==0),vcov = "white")
-m2_w_f = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~ln_gov + gov_rev_share_state, data = subset(dw,male ==0),vcov = "white")
+# ------------------------------- Male V Female -------------------------------
+# RDI IV
+d2_b_m = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~rdi + rail_km_per_km2, data = subset(db,male ==1),vcov = ~death_fips)
+d2_w_m = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~rdi + rail_km_per_km2, data = subset(dw,male ==1),vcov = ~death_fips)
+d2_b_f = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~rdi + rail_km_per_km2, data = subset(db,male ==0),vcov = ~death_fips)
+d2_w_f = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~rdi + rail_km_per_km2, data = subset(dw,male ==0),vcov = ~death_fips)
 
-msummary(list("Black (Men) " = m2_b_m,
-              "Black (Women)" = m2_b_f,
-              "White (Men) " = m2_w_m,
-              "White (Women)" = m2_w_f),fmt =3, stars = T,
+# Rivers IV
+r2_b_m = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = subset(db,male ==1),vcov = "white")
+r2_w_m = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = subset(dw,male ==1),vcov = "white")
+r2_b_f = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = subset(db,male ==0),vcov = "white")
+r2_w_f = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = subset(dw,male ==0),vcov = "white")
+
+# Sibling FE (Exact)
+sib_e_b_m = feols(death_age~county_dism + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_exact, data = subset(db_f,male ==1),vcov = ~death_fips)
+sib_e_w_m = feols(death_age~county_dism + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_exact, data = subset(dw_f,male ==1),vcov = ~death_fips)
+sib_e_b_f = feols(death_age~county_dism + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_exact, data = subset(db_f,male ==0),vcov = ~death_fips)
+sib_e_w_f = feols(death_age~county_dism + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_exact, data = subset(dw_f,male ==0),vcov = ~death_fips)
+
+# Sibling FE (Flexible)
+sib_f_b_m = feols(death_age~county_dism + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_flexible, data = subset(db_f,male ==1),vcov = ~death_fips)
+sib_f_w_m = feols(death_age~county_dism + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_flexible, data = subset(dw_f,male ==1),vcov = ~death_fips)
+sib_f_b_f = feols(death_age~county_dism + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_flexible, data = subset(db_f,male ==0),vcov = ~death_fips)
+sib_f_w_f = feols(death_age~county_dism + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_flexible, data = subset(dw_f,male ==0),vcov = ~death_fips)
+
+msummary(list("Black (Men) " = d2_b_m,
+              "Black (Women)" = d2_b_f,
+              "White (Men) " = d2_w_m,
+              "White (Women)" = d2_w_f,
+              "Black (Men) " = r2_b_m,
+              "Black (Women)" = r2_b_f,
+              "White (Men) " = r2_w_m,
+              "White (Women)" = r2_w_f,
+              "Black (Men) " = sib_e_b_m,
+              "Black (Women)" = sib_e_b_f,
+              "White (Men) " = sib_e_w_m,
+              "White (Women)" = sib_e_w_f,
+              "Black (Men) " = sib_f_b_m,
+              "Black (Women)" = sib_f_b_f,
+              "White (Men) " = sib_f_w_m,
+              "White (Women)" = sib_f_w_f),fmt =3, stars = T,
          coef_map = c("fit_county_dism" = "D",
+                      "county_dism" = "D",
                       "education" = "Education",
                       "migratedMigrated" = "Migrated",
                       "married" = "Married in 1940",
                       "south" = "Died in South"),
          gof_map = c("nobs",
                      "r.squared"
-                     
+
          ),
-         notes = "This table describes IV estimates of the effect of segregation on longevity by gender. 
+         notes = "This table describes estimates of the effect of segregation on longevity by gender across identification strategies.
+         Columns 1-4 use the Railroad Diversity Index instrument, columns 5-8 the named rivers instrument, and columns 9-16 sibling fixed effects (exact and flexible matches).
          First-stage regressions are supppressed for concision. Heteroskedasiticty Robust Standard Errors in parentheses.",
          title = "Estimates of the Effect of Segregation on Longevity (By Gender)",
-         add_rows = data.frame(`FE` = c("Birth Year","Birth State","Urban Rural Code","OCC"),
-                               m1 = c("Yes","Yes","Yes","Yes"),
-                               m2 = c("Yes","Yes","Yes","Yes"),
-                               m3 = c("Yes","Yes","Yes","Yes"),
-                               m4 = c("Yes","Yes","Yes","Yes")),
-         output = "tinytable") %>% 
+         add_rows = data.frame(`FE` = c("Birth Year","Birth State","Urban Rural Code","OCC","Sibling Group"),
+                               m1 = c("Yes","Yes","Yes","Yes","No"),
+                               m2 = c("Yes","Yes","Yes","Yes","No"),
+                               m3 = c("Yes","Yes","Yes","Yes","No"),
+                               m4 = c("Yes","Yes","Yes","Yes","No"),
+                               m5 = c("Yes","Yes","Yes","Yes","No"),
+                               m6 = c("Yes","Yes","Yes","Yes","No"),
+                               m7 = c("Yes","Yes","Yes","Yes","No"),
+                               m8 = c("Yes","Yes","Yes","Yes","No"),
+                               m9 = c("Yes","Yes","Yes","Yes","Yes"),
+                               m10 = c("Yes","Yes","Yes","Yes","Yes"),
+                               m11 = c("Yes","Yes","Yes","Yes","Yes"),
+                               m12 = c("Yes","Yes","Yes","Yes","Yes"),
+                               m13 = c("Yes","Yes","Yes","Yes","Yes"),
+                               m14 = c("Yes","Yes","Yes","Yes","Yes"),
+                               m15 = c("Yes","Yes","Yes","Yes","Yes"),
+                               m16 = c("Yes","Yes","Yes","Yes","Yes")),
+         output = "tinytable") %>%
   save_tt(.,output = "./FigTab/IV_results_table_gender.tex", overwrite = T)
 
 
 ## Plot by Gender
-m_b_m_plot =   tidy(m2_b_m,conf.int = T) %>% filter(term =="fit_county_dism") %>% mutate(Race = "Black", Model = "Men")
-m_b_w_plot =   tidy(m2_b_f,conf.int = T) %>% filter(term =="fit_county_dism") %>% mutate(Race = "Black", Model = "Women")
-m_w_m_plot =   tidy(m2_w_m,conf.int = T) %>% filter(term =="fit_county_dism") %>% mutate(Race = "White", Model = "Men")
-m_w_w_plot =   tidy(m2_w_f,conf.int = T) %>% filter(term =="fit_county_dism") %>% mutate(Race = "White", Model = "Women")
+gender_plot_data = bind_rows(
+  # RDI IV
+  tidy(d2_b_m, conf.int = T) %>% filter(term =="fit_county_dism") %>% mutate(Race = "Black", Model = "Men",   Estimator = "RDI IV"),
+  tidy(d2_b_f, conf.int = T) %>% filter(term =="fit_county_dism") %>% mutate(Race = "Black", Model = "Women", Estimator = "RDI IV"),
+  tidy(d2_w_m, conf.int = T) %>% filter(term =="fit_county_dism") %>% mutate(Race = "White", Model = "Men",   Estimator = "RDI IV"),
+  tidy(d2_w_f, conf.int = T) %>% filter(term =="fit_county_dism") %>% mutate(Race = "White", Model = "Women", Estimator = "RDI IV"),
+  # Rivers IV
+  tidy(r2_b_m, conf.int = T) %>% filter(term =="fit_county_dism") %>% mutate(Race = "Black", Model = "Men",   Estimator = "Rivers IV"),
+  tidy(r2_b_f, conf.int = T) %>% filter(term =="fit_county_dism") %>% mutate(Race = "Black", Model = "Women", Estimator = "Rivers IV"),
+  tidy(r2_w_m, conf.int = T) %>% filter(term =="fit_county_dism") %>% mutate(Race = "White", Model = "Men",   Estimator = "Rivers IV"),
+  tidy(r2_w_f, conf.int = T) %>% filter(term =="fit_county_dism") %>% mutate(Race = "White", Model = "Women", Estimator = "Rivers IV"),
+  # Sibling FE (Exact)
+  tidy(sib_e_b_m, conf.int = T) %>% filter(term =="county_dism") %>% mutate(Race = "Black", Model = "Men",   Estimator = "Sib. FE (Exact)"),
+  tidy(sib_e_b_f, conf.int = T) %>% filter(term =="county_dism") %>% mutate(Race = "Black", Model = "Women", Estimator = "Sib. FE (Exact)"),
+  tidy(sib_e_w_m, conf.int = T) %>% filter(term =="county_dism") %>% mutate(Race = "White", Model = "Men",   Estimator = "Sib. FE (Exact)"),
+  tidy(sib_e_w_f, conf.int = T) %>% filter(term =="county_dism") %>% mutate(Race = "White", Model = "Women", Estimator = "Sib. FE (Exact)"),
+  # Sibling FE (Flexible)
+  tidy(sib_f_b_m, conf.int = T) %>% filter(term =="county_dism") %>% mutate(Race = "Black", Model = "Men",   Estimator = "Sib. FE (Flexible)"),
+  tidy(sib_f_b_f, conf.int = T) %>% filter(term =="county_dism") %>% mutate(Race = "Black", Model = "Women", Estimator = "Sib. FE (Flexible)"),
+  tidy(sib_f_w_m, conf.int = T) %>% filter(term =="county_dism") %>% mutate(Race = "White", Model = "Men",   Estimator = "Sib. FE (Flexible)"),
+  tidy(sib_f_w_f, conf.int = T) %>% filter(term =="county_dism") %>% mutate(Race = "White", Model = "Women", Estimator = "Sib. FE (Flexible)")
+)
 
-iv_plot_g = rbind(m_b_m_plot,
-                m_b_w_plot,
-                m_w_m_plot,
-                m_w_w_plot)
-
-### Make Plot ### 
-Iv_estimate_plot_g = 
-  iv_plot_g %>% 
+### Make Plot ###
+Iv_estimate_plot_g =
+  gender_plot_data %>%
   mutate(
-    # scale by contrast 
+    # scale by contrast
     estimate = estimate*contrast,
     conf.high = conf.high*contrast,
     conf.low = conf.low*contrast,
-    Model = factor(Model, levels = unique(Model))
-  ) %>% 
+    Model = factor(Model, levels = c("Men","Women")),
+    Estimator = factor(Estimator, levels = c("RDI IV","Rivers IV","Sib. FE (Exact)","Sib. FE (Flexible)"))
+  ) %>%
   ggplot(aes(Model,estimate,
              ymin = conf.low,
-             ymax = conf.high, 
-             color = Race)) + 
-  geom_pointrange(position = position_dodge2(width =.1),
+             ymax = conf.high,
+             color = Race)) +
+  geom_pointrange(position = position_dodge2(width =.5),
                   size = .75,
-                  lwd = 2) + 
+                  lwd = 1) +
+  facet_wrap(~Estimator, nrow = 1) +
   labs(y = "Change in Years of Life",
-       caption = "This figure displays estimates from two-stage least squares regressions of the effect of racial segregation on longevity by gender. 
+       x = NULL,
+       caption = str_wrap("This figure displays estimates of the effect of racial segregation on longevity by gender across identification strategies.
+       IV models use the Railroad Diversity Index (RDI IV) and named rivers (Rivers IV) as instruments; sibling FE models compare siblings within a family.
        Estimates from models with all controls and fixed effects are presented.
-    Estimates refer to a 10 point increase in Dissimilarity."
-  ) + 
-  scale_color_manual(values = c("darkgreen","darkblue")) + 
-  theme_cowplot() + 
-  geom_hline(yintercept = 0,linetype = "dashed",lwd = 1)    + 
+       Estimates refer to a 10 point increase in Dissimilarity.", 120)
+  ) +
+  scale_color_manual(values = c("darkgreen","darkblue")) +
+  theme_cowplot() +
+  geom_hline(yintercept = 0,linetype = "dashed",lwd = 1)    +
   theme(plot.caption = element_text(hjust = 0),
-        legend.position = "bottom") 
+        legend.position = "bottom",
+        strip.background = element_rect(fill = "gray92"),
+        strip.text = element_text(face = "bold"))
 
 ggsave(Iv_estimate_plot_g,filename = here("FigTab","iv_plot_gender.jpeg"),
-       width = 8, 
+       width = 12,
        height = 5,
        dpi = 1000)
 
 
 #------------------------------- Weights -------------------------------  
 
-m1_b_w = feols(death_age~1|byear + STATEFIP_b + urb_code |county_dism~ln_gov + gov_rev_share_state, data = db,vcov = "white",weights = db$weight)
-m1_w_w = feols(death_age~1|byear + STATEFIP_b + urb_code |county_dism~ln_gov + gov_rev_share_state, data = dw,vcov = "white",weights = dw$weight)
-m2_b_w = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~ln_gov + gov_rev_share_state, data = db,vcov = "white",weights = db$weight)
-m2_w_w = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~ln_gov + gov_rev_share_state, data = dw,vcov = "white",weights = dw$weight)
+# RDI IV
+d2_b_wt = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~rdi + rail_km_per_km2, data = db,vcov = ~death_fips,weights = db$weight)
+d2_w_wt = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~rdi + rail_km_per_km2, data = dw,vcov = ~death_fips,weights = dw$weight)
 
-msummary(list("Black" = m1_b_w,
-              "Black\\newline Controls" = m2_b_w,
-              "White" = m1_w_w,
-              "White\\newline Controls" = m2_w_w),fmt =3, stars = T,
+# Rivers IV
+r2_b_wt = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = db,vcov = "white",weights = db$weight)
+r2_w_wt = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = dw,vcov = "white",weights = dw$weight)
+
+# Sibling FE (Exact)
+sib_e_b_wt = feols(death_age~county_dism + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_exact, data = db_f,vcov = ~death_fips,weights = db_f$weight)
+sib_e_w_wt = feols(death_age~county_dism + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_exact, data = dw_f,vcov = ~death_fips,weights = dw_f$weight)
+
+# Sibling FE (Flexible)
+sib_f_b_wt = feols(death_age~county_dism + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_flexible, data = db_f,vcov = ~death_fips,weights = db_f$weight)
+sib_f_w_wt = feols(death_age~county_dism + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_flexible, data = dw_f,vcov = ~death_fips,weights = dw_f$weight)
+
+msummary(list("Black\\newline RDI IV" = d2_b_wt,
+              "White\\newline RDI IV" = d2_w_wt,
+              "Black\\newline Rivers IV" = r2_b_wt,
+              "White\\newline Rivers IV" = r2_w_wt,
+              "Black\\newline Sib. FE (Exact)" = sib_e_b_wt,
+              "White\\newline Sib. FE (Exact)" = sib_e_w_wt,
+              "Black\\newline Sib. FE (Flexible)" = sib_f_b_wt,
+              "White\\newline Sib. FE (Flexible)" = sib_f_w_wt),fmt =3, stars = T,
          coef_map = c("fit_county_dism" = "D",
+                      "county_dism" = "D",
                       "male" = "Male",
                       "education" = "Education",
                       "migratedMigrated" = "Migrated",
@@ -1007,18 +1052,23 @@ msummary(list("Black" = m1_b_w,
                       "south" = "Died in South"),
          gof_map = c("nobs",
                      "r.squared"
-                     
+
          ),
-         notes = "This table describes IV estimates of the effect of segregation on longevity using post-stratification weights. 
+         notes = "This table describes estimates of the effect of segregation on longevity using post-stratification weights across identification strategies.
+         IV models use the Railroad Diversity Index and named rivers as instruments; sibling FE models compare siblings within a family.
          First-stage regressions are supppressed for concision. Heteroskedasiticty Robust Standard Errors in parentheses.",
          title = "Estimates of the Effect of Segregation on Longevity (Weights)",
-         add_rows = data.frame(`FE` = c("Birth Year","Birth State","Urban Rural Code","OCC"),
-                               m1 = c("Yes","Yes","Yes","No"),
-                               m2 = c("Yes","Yes","Yes","Yes"),
-                               m4 = c("Yes","Yes","Yes","No"),
-                               m5 = c("Yes","Yes","Yes","Yes")),
-         output = "tinytable") %>% 
-  save_tt(.,output = here("FigTab","IV_results_weights_table.tex"), overwrite = T) 
+         add_rows = data.frame(`FE` = c("Birth Year","Birth State","Urban Rural Code","OCC","Sibling Group"),
+                               m1 = c("Yes","Yes","Yes","Yes","No"),
+                               m2 = c("Yes","Yes","Yes","Yes","No"),
+                               m3 = c("Yes","Yes","Yes","Yes","No"),
+                               m4 = c("Yes","Yes","Yes","Yes","No"),
+                               m5 = c("Yes","Yes","Yes","Yes","Yes"),
+                               m6 = c("Yes","Yes","Yes","Yes","Yes"),
+                               m7 = c("Yes","Yes","Yes","Yes","Yes"),
+                               m8 = c("Yes","Yes","Yes","Yes","Yes")),
+         output = "tinytable") %>%
+  save_tt(.,output = here("FigTab","IV_results_weights_table.tex"), overwrite = T)
 
 
 
@@ -1027,60 +1077,175 @@ msummary(list("Black" = m1_b_w,
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-H_b = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |H_bw~ln_gov + gov_rev_share_state, data = db,vcov = "white")
-H_w = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |H_bw~ln_gov + gov_rev_share_state, data = dw,vcov = "white")
-I_b = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_isolb~ln_gov + gov_rev_share_state, data = db,vcov = "white")
-I_w = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_isolb~ln_gov + gov_rev_share_state, data = dw,vcov = "white")
-FD_w = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |D_star~ln_gov + gov_rev_share_state, data = dw,vcov = "white")
-FD_b = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |D_star~ln_gov + gov_rev_share_state, data = db,vcov = "white")
+# ------------------------------- RDI IV -------------------------------
+H_b_rdi  = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |H_bw~rdi + rail_km_per_km2, data = db,vcov = ~death_fips)
+H_w_rdi  = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |H_bw~rdi + rail_km_per_km2, data = dw,vcov = ~death_fips)
+I_b_rdi  = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_isolb~rdi + rail_km_per_km2, data = db,vcov = ~death_fips)
+I_w_rdi  = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_isolb~rdi + rail_km_per_km2, data = dw,vcov = ~death_fips)
+FD_b_rdi = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |D_star~rdi + rail_km_per_km2, data = db,vcov = ~death_fips)
+FD_w_rdi = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |D_star~rdi + rail_km_per_km2, data = dw,vcov = ~death_fips)
 
-msummary(list("Black (D)" = m2_b,
-              "Black (H)" = H_b,
-              "Black (I)" = I_b,
-              "Black (D*)" = FD_b,
-              "White (D)" = m2_w,
-              "White (H)" = H_w,
-              "White (I)" = I_w,
-              "White (D*)" = FD_w),fmt =3, stars = T,
-         coef_map = c("fit_county_dism" = "D",
-                      "fit_H_bw" = "H",
-                      "fit_county_isolb" = "I",
-                      "fit_D_star" = "D-Adjusted"),
+# ------------------------------- Rivers IV -------------------------------
+H_b_riv  = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |H_bw~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = db,vcov = "white")
+H_w_riv  = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |H_bw~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = dw,vcov = "white")
+I_b_riv  = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_isolb~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = db,vcov = "white")
+I_w_riv  = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_isolb~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = dw,vcov = "white")
+FD_b_riv = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |D_star~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = db,vcov = "white")
+FD_w_riv = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |D_star~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = dw,vcov = "white")
+
+# ------------------------------- Sibling FE (Exact) -------------------------------
+# The alternative measures enter directly; identification comes from the sibling group FE.
+H_b_sib_e  = feols(death_age~H_bw + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_exact, data = db_f,vcov = ~death_fips)
+H_w_sib_e  = feols(death_age~H_bw + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_exact, data = dw_f,vcov = ~death_fips)
+I_b_sib_e  = feols(death_age~county_isolb + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_exact, data = db_f,vcov = ~death_fips)
+I_w_sib_e  = feols(death_age~county_isolb + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_exact, data = dw_f,vcov = ~death_fips)
+FD_b_sib_e = feols(death_age~D_star + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_exact, data = db_f,vcov = ~death_fips)
+FD_w_sib_e = feols(death_age~D_star + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_exact, data = dw_f,vcov = ~death_fips)
+
+# ------------------------------- Sibling FE (Flexible) -------------------------------
+H_b_sib_f  = feols(death_age~H_bw + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_flexible, data = db_f,vcov = ~death_fips)
+H_w_sib_f  = feols(death_age~H_bw + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_flexible, data = dw_f,vcov = ~death_fips)
+I_b_sib_f  = feols(death_age~county_isolb + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_flexible, data = db_f,vcov = ~death_fips)
+I_w_sib_f  = feols(death_age~county_isolb + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_flexible, data = dw_f,vcov = ~death_fips)
+FD_b_sib_f = feols(death_age~D_star + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_flexible, data = db_f,vcov = ~death_fips)
+FD_w_sib_f = feols(death_age~D_star + male + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_flexible, data = dw_f,vcov = ~death_fips)
+
+alt_coef_map = c("fit_county_dism" = "D",
+                 "county_dism" = "D",
+                 "fit_H_bw" = "H",
+                 "H_bw" = "H",
+                 "fit_county_isolb" = "I",
+                 "county_isolb" = "I",
+                 "fit_D_star" = "D-Adjusted",
+                 "D_star" = "D-Adjusted")
+
+alt_notes = "This table describes estimates of the effect of segregation on longevity for alternative measures of D.
+         IV models use the Railroad Diversity Index and named rivers as instruments; sibling FE models compare siblings within a family, with each measure entering directly.
+         First-stage regressions are supppressed for concision. Heteroskedasiticty Robust Standard Errors in parentheses.
+         Models adjust for all covariates and FEs used in main analyses but are not shown in the model."
+
+alt_add_rows = data.frame(
+  FE = c("Birth Year","Birth State","Urban-Rural Code","Occupation"),
+  m1 = c("X","X","X","X"),
+  m2 = c("X","X","X","X"),
+  m3 = c("X","X","X","X"),
+  m4 = c("X","X","X","X"),
+  m5 = c("X","X","X","X"),
+  m6 = c("X","X","X","X"),
+  m7 = c("X","X","X","X"),
+  m8 = c("X","X","X","X")
+)
+
+# ------------------------------- RDI IV table -------------------------------
+msummary(list("Black (D)" = d2_b,
+              "Black (H)" = H_b_rdi,
+              "Black (I)" = I_b_rdi,
+              "Black (D*)" = FD_b_rdi,
+              "White (D)" = d2_w,
+              "White (H)" = H_w_rdi,
+              "White (I)" = I_w_rdi,
+              "White (D*)" = FD_w_rdi),fmt =3, stars = T,
+         coef_map = alt_coef_map,
          gof_map = c("nobs",
                      "r.squared"
-                     
+
          ),
-         notes = "This table describes IV estimates of the effect of segregation on longevity for alternative measures of D. 
-         First-stage regressions are supppressed for concision.Heteroskedasiticty Robust Standard Errors in parentheses. 
-         Models adjust for all covariates and FEs used in main analyses but are not shown in the model.",
-         title = "Estimates of the Effect of Segregation on Longevity (Alternative Measures)",
-         add_rows = data.frame(
-           FE = c("Birth Year","Birth State","Urban-Rural Code","Occupation"),
-           m1 = c("X","X","X","X"),
-           m2 = c("X","X","X","X"),
-           m3 = c("X","X","X","X"),
-           m4 = c("X","X","X","X"),
-           m5 = c("X","X","X","X"),
-           m6 = c("X","X","X","X"),
-           m7 = c("X","X","X","X"),
-           m8 = c("X","X","X","X")
-         ))  %>%
+         notes = alt_notes,
+         title = "Estimates of the Effect of Segregation on Longevity (Alternative Measures, RDI Instrument)",
+         add_rows = alt_add_rows)  %>%
   save_tt(.,output = here("FigTab","IV_results_table_alt_measure.tex"), overwrite = T)
+
+# ------------------------------- Rivers IV table -------------------------------
+msummary(list("Black (D)" = r2_b,
+              "Black (H)" = H_b_riv,
+              "Black (I)" = I_b_riv,
+              "Black (D*)" = FD_b_riv,
+              "White (D)" = r2_w,
+              "White (H)" = H_w_riv,
+              "White (I)" = I_w_riv,
+              "White (D*)" = FD_w_riv),fmt =3, stars = T,
+         coef_map = alt_coef_map,
+         gof_map = c("nobs",
+                     "r.squared"
+
+         ),
+         notes = alt_notes,
+         title = "Estimates of the Effect of Segregation on Longevity (Alternative Measures, Rivers Instrument)",
+         add_rows = alt_add_rows)  %>%
+  save_tt(.,output = here("FigTab","IV_results_table_alt_measure_rivers.tex"), overwrite = T)
+
+# ------------------------------- Sibling FE table -------------------------------
+msummary(list("Black (D)" = sib_m2_b,
+              "Black (H)" = H_b_sib_e,
+              "Black (I)" = I_b_sib_e,
+              "Black (D*)" = FD_b_sib_e,
+              "White (D)" = sib_m2_w,
+              "White (H)" = H_w_sib_e,
+              "White (I)" = I_w_sib_e,
+              "White (D*)" = FD_w_sib_e,
+              "Black (D)" = sib_2_m2_b,
+              "Black (H)" = H_b_sib_f,
+              "Black (I)" = I_b_sib_f,
+              "Black (D*)" = FD_b_sib_f,
+              "White (D)" = sib_2_m2_w,
+              "White (H)" = H_w_sib_f,
+              "White (I)" = I_w_sib_f,
+              "White (D*)" = FD_w_sib_f),fmt =3, stars = T,
+         coef_map = alt_coef_map,
+         gof_map = c("nobs",
+                     "r.squared"
+
+         ),
+         notes = "This table describes sibling fixed-effects estimates of the effect of segregation on longevity for alternative measures of D.
+         Columns 1-8 use exact sibling matches and columns 9-16 use flexible sibling matches.
+         Heteroskedasiticty Robust Standard Errors in parentheses.
+         Models adjust for all covariates and FEs used in main analyses but are not shown in the model.",
+         title = "Estimates of the Effect of Segregation on Longevity (Alternative Measures, Sibling FE)",
+         add_rows = data.frame(
+           FE = c("Birth Year","Birth State","Urban-Rural Code","Occupation","Sibling Group"),
+           m1 = c("X","X","X","X","X"),
+           m2 = c("X","X","X","X","X"),
+           m3 = c("X","X","X","X","X"),
+           m4 = c("X","X","X","X","X"),
+           m5 = c("X","X","X","X","X"),
+           m6 = c("X","X","X","X","X"),
+           m7 = c("X","X","X","X","X"),
+           m8 = c("X","X","X","X","X"),
+           m9 = c("X","X","X","X","X"),
+           m10 = c("X","X","X","X","X"),
+           m11 = c("X","X","X","X","X"),
+           m12 = c("X","X","X","X","X"),
+           m13 = c("X","X","X","X","X"),
+           m14 = c("X","X","X","X","X"),
+           m15 = c("X","X","X","X","X"),
+           m16 = c("X","X","X","X","X")
+         ))  %>%
+  save_tt(.,output = here("FigTab","IV_results_table_alt_measure_sib.tex"), overwrite = T)
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Monotonicity Descriptive
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-data_m = data_a %>% distinct(ln_gov, gov_rev_share_state,death_fips,death_decade,county_dism) 
+# Sibling FE has no first stage, so this check covers the two instruments only.
+data_m = data_a %>% distinct(rdi, rail_km_per_km2, n_named_rivers, n_named_rivers_sq, stream_km_per_km2,
+                             death_fips, death_decade, county_dism)
 
-mon_reg_1 = lm(county_dism~ln_gov +gov_rev_share_state,subset(data_m, death_decade == 1980))
-mon_reg_2 = lm(county_dism~ln_gov +gov_rev_share_state,subset(data_m, death_decade == 1990))
-mon_reg_3 = lm(county_dism~ln_gov +gov_rev_share_state,subset(data_m, death_decade == 2000))
+# ------------------------------- RDI IV -------------------------------
+mon_rdi_1 = lm(county_dism~rdi + rail_km_per_km2, subset(data_m, death_decade == 1980))
+mon_rdi_2 = lm(county_dism~rdi + rail_km_per_km2, subset(data_m, death_decade == 1990))
+mon_rdi_3 = lm(county_dism~rdi + rail_km_per_km2, subset(data_m, death_decade == 2000))
 
-mon_reg_1_r2 = summary(mon_reg_1)$r.squared[1]
-mon_reg_2_r2 = summary(mon_reg_2)$r.squared[1]
-mon_reg_3_r2 = summary(mon_reg_3)$r.squared[1]
+# ------------------------------- Rivers IV -------------------------------
+mon_riv_1 = lm(county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, subset(data_m, death_decade == 1980))
+mon_riv_2 = lm(county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, subset(data_m, death_decade == 1990))
+mon_riv_3 = lm(county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, subset(data_m, death_decade == 2000))
 
-data.frame(Decade = c(1980,1990,2000),
-           R2 = c(mon_reg_1_r2,mon_reg_2_r2,mon_reg_3_r2))
-# R2 Declines slightly over time
+data.frame(
+  Decade    = c(1980, 1990, 2000),
+  RDI_R2    = c(summary(mon_rdi_1)$r.squared[1],
+                summary(mon_rdi_2)$r.squared[1],
+                summary(mon_rdi_3)$r.squared[1]),
+  Rivers_R2 = c(summary(mon_riv_1)$r.squared[1],
+                summary(mon_riv_2)$r.squared[1],
+                summary(mon_riv_3)$r.squared[1])
+)

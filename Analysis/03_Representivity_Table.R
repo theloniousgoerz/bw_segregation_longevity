@@ -71,9 +71,9 @@ counties =
                  D_star)
 c_1 = counties %>% distinct(death_fips) %>% nrow()
 c_2 = counties %>% filter(nh_black >0) %>% distinct(death_fips) %>% nrow()
-c_3 = counties %>% 
+c_3 = counties %>%
   filter(nh_black >-0 &
-  !is.na(rdi)) %>% 
+  !is.na(rdi)) %>%
   distinct(death_fips) %>%
   nrow()
 
@@ -82,52 +82,123 @@ ind_1 =
     byear %in% 1905:1920) %>% nrow()
 ind_2 =
   data_a %>% filter(
-    byear %in% 1905:1920 & 
+    byear %in% 1905:1920 &
       nh_black >0) %>% nrow()
 ind_3 =
   data_a%>% filter(
-    byear %in% 1905:1920 & 
-      nh_black >0 & 
+    byear %in% 1905:1920 &
+      nh_black >0 &
 # Upstream Sample Selection
-      !is.na(rdi) & 
+      !is.na(rdi) &
       !is.na(rail_km_per_km2)) %>% nrow()
 ind_4 =
   data_a %>% filter(
-    byear %in% 1905:1920 & 
-      nh_black >0 & 
-      !is.na(rdi) & 
-      !is.na(rail_km_per_km2) & 
-      !is.na(male) &  
-      !is.na(migrated) & 
-      !is.na(educ_years) &  
+    byear %in% 1905:1920 &
+      nh_black >0 &
+      !is.na(rdi) &
+      !is.na(rail_km_per_km2) &
+      !is.na(male) &
+      !is.na(migrated) &
+      !is.na(educ_years) &
       !is.na(urb_code) &
       !is.na(south) &
       !is.na(married) &
-      !is.na(byear) & 
-      !is.na(OCC) & 
+      !is.na(byear) &
+      !is.na(OCC) &
       !is.na(STATEFIP_b) &
-      !is.na(weight) & 
+      !is.na(weight) &
       !is.na(county_dism) &
       !is.na(D_star)) %>% nrow()
 
-c_4 =   data_a %>% 
+c_4 =   data_a %>%
   filter(
-    byear %in% 1905:1920 & 
-    nh_black >0 & 
-    !is.na(rdi) & 
+    byear %in% 1905:1920 &
+    nh_black >0 &
+    !is.na(rdi) &
     !is.na(rail_km_per_km2) &
-    !is.na(male) &  
-    !is.na(migrated) & 
-    !is.na(educ_years) &  
+    !is.na(male) &
+    !is.na(migrated) &
+    !is.na(educ_years) &
     !is.na(urb_code) &
     !is.na(south) &
     !is.na(married) &
-    !is.na(byear) & 
-    !is.na(OCC) & 
+    !is.na(byear) &
+    !is.na(OCC) &
     !is.na(STATEFIP_b) &
-    !is.na(weight) & 
+    !is.na(weight) &
     !is.na(county_dism) &
-    !is.na(D_star)) %>% 
+    !is.na(D_star)) %>%
+  distinct(death_fips) %>% nrow()
+
+#  -------------------------------
+# Rivers instrument: same steps, with the rivers instruments in place of RDI
+#  -------------------------------
+counties_riv =
+  data_a %>% filter(byear %in% 1905:1920) %>%
+  distinct(death_fips,
+           nh_black,
+           n_named_rivers,
+           n_named_rivers_sq,
+           stream_km_per_km2)
+
+rc_1 = counties_riv %>% distinct(death_fips) %>% nrow()
+rc_2 = counties_riv %>% filter(nh_black >0) %>% distinct(death_fips) %>% nrow()
+rc_3 = counties_riv %>%
+  filter(nh_black >0 &
+           !is.na(n_named_rivers) &
+           !is.na(n_named_rivers_sq) &
+           !is.na(stream_km_per_km2)) %>%
+  distinct(death_fips) %>%
+  nrow()
+
+rind_1 = ind_1
+rind_2 = ind_2
+rind_3 =
+  data_a %>% filter(
+    byear %in% 1905:1920 &
+      nh_black >0 &
+      !is.na(n_named_rivers) &
+      !is.na(n_named_rivers_sq) &
+      !is.na(stream_km_per_km2)) %>% nrow()
+rind_4 =
+  data_a %>% filter(
+    byear %in% 1905:1920 &
+      nh_black >0 &
+      !is.na(n_named_rivers) &
+      !is.na(n_named_rivers_sq) &
+      !is.na(stream_km_per_km2) &
+      !is.na(male) &
+      !is.na(migrated) &
+      !is.na(educ_years) &
+      !is.na(urb_code) &
+      !is.na(south) &
+      !is.na(married) &
+      !is.na(byear) &
+      !is.na(OCC) &
+      !is.na(STATEFIP_b) &
+      !is.na(weight) &
+      !is.na(county_dism) &
+      !is.na(D_star)) %>% nrow()
+
+rc_4 = data_a %>%
+  filter(
+    byear %in% 1905:1920 &
+      nh_black >0 &
+      !is.na(n_named_rivers) &
+      !is.na(n_named_rivers_sq) &
+      !is.na(stream_km_per_km2) &
+      !is.na(male) &
+      !is.na(migrated) &
+      !is.na(educ_years) &
+      !is.na(urb_code) &
+      !is.na(south) &
+      !is.na(married) &
+      !is.na(byear) &
+      !is.na(OCC) &
+      !is.na(STATEFIP_b) &
+      !is.na(weight) &
+      !is.na(county_dism) &
+      !is.na(D_star)) %>%
   distinct(death_fips) %>% nrow()
 
 
@@ -135,19 +206,22 @@ c_4 =   data_a %>%
 data.frame(
   `Sample` = c("All Counties",
                "Counties With >0 NH Black Pop",
-               "Counties With non-Missing Government Revenue Share Data",
-               "Filter non-Missing Individual-and County-Level Variables."),
+               "Counties With non-missing Instrument",
+               "Filter non-Missing Individual-and County-Level Variables"),
   `N (Counties)` = c(c_1,c_2,c_3,c_4),
   `N (Persons)` = c(ind_1,ind_2,ind_3,ind_4),
+  `N (Counties) ` = c(rc_1,rc_2,rc_3,rc_4),
+  `N (Persons) ` = c(rind_1,rind_2,rind_3,rind_4),
   check.names = F
-) %>% 
+) %>%
   datasummary_df(
-    align = "lcc",
-    notes = "Individual-level characteristics include demographics, education, and fixed effects. Individuals are also filtered by not missing post-stratification weights.",
+    align = "lcccc",
+    notes = "Individual-level characteristics include demographics, education, and fixed effects. Individuals are also filtered by not missing post-stratification weights. The instrument filter is non-missing RDI and railroad density in the RDI columns, and non-missing named rivers and stream density in the rivers columns.",
   output = "tinytable",
   title = "Sample Filtering Criteria",
   fmt = 0
-  ) %>% 
+  ) %>%
+  group_tt(j = list("RDI IV" = 2:3, "Rivers IV" = 4:5)) %>%
   save_tt(here("FigTab","Filtering_table.tex"),overwrite = T)
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -257,8 +331,6 @@ dw_f %<>%
   ),
   educ_cat = factor(educ_cat, levels = c("Less than HS","High School","Some College","College+")))
 
-db$county_dism
-
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ### Save Data for Analysis ###
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -308,6 +380,28 @@ fulldata = data %>%
     ownhome = ifelse(OWNERSHP ==1,1,0),
     employed = case_when(EMPSTAT == 1 ~ 1,
                          EMPSTAT == 2 ~ 0))
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Age distribution within the sample 
+
+age_dist = fulldata %>% 
+  group_by(death_age,RACE) %>% 
+  summarise(Count = n()) %>% 
+  data.frame() %>% 
+  ungroup() %>% 
+  group_by(RACE) %>% 
+  mutate(Percent = Count/sum(Count),
+         RACE = ifelse(RACE == 1,"White","Black")) %>% 
+  rename(Race = RACE)
+
+
+median(fulldata$death_age)
+age_dist %>% 
+  ggplot(aes(death_age, Percent,fill = Race)) + 
+  geom_col() + 
+  facet_grid(~Race)
+
+
 
 
 

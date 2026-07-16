@@ -2,19 +2,32 @@
 \centering
 \begin{talltblr}[         %% tabularray outer open
 caption={Sample Filtering Criteria},
-note{}={Individual-level characteristics include demographics, education, and fixed effects. Individuals are also filtered by not missing post-stratification weights.},
+note{}={Individual-level characteristics include demographics, education, and fixed effects. Individuals are also filtered by not missing post-stratification weights. The instrument filter is non-missing RDI and railroad density in the RDI columns, and non-missing named rivers and stream density in the rivers columns.},
 ]                     %% tabularray outer close
 {                     %% tabularray inner open
-colspec={Q[]Q[]Q[]},
-column{2,3}={}{halign=c,},
+colspec={Q[]Q[]Q[]Q[]Q[]},
+column{3,5}={}{halign=c,},
 column{1}={}{halign=l,},
+cell{2}{2}={}{halign=c,},
+cell{2}{4}={}{halign=c,},
+cell{3}{2}={}{halign=c,},
+cell{3}{4}={}{halign=c,},
+cell{4}{2}={}{halign=c,},
+cell{4}{4}={}{halign=c,},
+cell{5}{2}={}{halign=c,},
+cell{5}{4}={}{halign=c,},
+cell{6}{2}={}{halign=c,},
+cell{6}{4}={}{halign=c,},
+cell{1}{2}={c=2,}{halign=c, halign=c,},
+cell{1}{4}={c=2,}{halign=c, halign=c,},
 }                     %% tabularray inner close
 \toprule
-Sample & N (Counties) & N (Persons) \\ \midrule %% TinyTableHeader
-All Counties                                              & 3125 & 2613272 \\
-Counties With >0 NH Black Pop                             & 3091 & 2605102 \\
-Counties With non-Missing Government Revenue Share Data   & 3067 & 2601884 \\
-Filter non-Missing Individual-and County-Level Variables. & 2955 & 2412213 \\
+& RDI IV &  & Rivers IV &  \\ \cmidrule[lr]{2-3}\cmidrule[lr]{4-5}
+Sample & N (Counties) & N (Persons) & N (Counties)  & N (Persons)  \\ \midrule %% TinyTableHeader
+All Counties                                             & 3125 & 2613272 & 3125 & 2613272 \\
+Counties With >0 NH Black Pop                            & 3091 & 2605102 & 3091 & 2605102 \\
+Counties With non-missing Instrument                     & 3067 & 2601884 & 3067 & 2601884 \\
+Filter non-Missing Individual-and County-Level Variables & 2955 & 2412213 & 2955 & 2412213 \\
 \bottomrule
 \end{talltblr}
 \end{table}

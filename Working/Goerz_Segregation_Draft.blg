@@ -3,6 +3,9 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: Goerz_Segregation_Draft.aux
 The style file: apalike.bst
 Database file #1: ref.bib
+Warning--I didn't find a database entry for "quillian_does_2011"
+Warning--I didn't find a database entry for "moulton_illustration_1990"
+Warning--I didn't find a database entry for "breen_black_2026"
 Warning--empty journal in arias_united_2020
 Warning--empty publisher in dubois_black_1935
 Warning--empty journal in logan_political_nodate
@@ -12,45 +15,45 @@ Warning--can't use both author and editor fields in weber_economy_1922
 Warning--empty journal in wilson_truly_1987
 Warning--empty journal in wrigley-field_three_2025
 Warning--empty journal in zimran_internal_2022
-You've used 109 entries,
+You've used 116 entries,
             1935 wiz_defined-function locations,
-            1070 strings with 23804 characters,
-and the built_in function-call counts, 42134 in all, are:
-= -- 4185
-> -- 1581
-< -- 71
-+ -- 564
-- -- 516
-* -- 3705
-:= -- 7335
-add.period$ -- 321
-call.type$ -- 109
-change.case$ -- 795
-chr.to.int$ -- 109
-cite$ -- 118
-duplicate$ -- 1533
-empty$ -- 2990
-format.name$ -- 691
-if$ -- 8108
+            1108 strings with 25109 characters,
+and the built_in function-call counts, 45200 in all, are:
+= -- 4512
+> -- 1671
+< -- 78
++ -- 598
+- -- 544
+* -- 3943
+:= -- 7819
+add.period$ -- 343
+call.type$ -- 116
+change.case$ -- 844
+chr.to.int$ -- 116
+cite$ -- 125
+duplicate$ -- 1665
+empty$ -- 3206
+format.name$ -- 736
+if$ -- 8740
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 118
-newline$ -- 542
-num.names$ -- 327
-pop$ -- 597
+missing$ -- 125
+newline$ -- 578
+num.names$ -- 348
+pop$ -- 630
 preamble$ -- 1
-purify$ -- 803
+purify$ -- 852
 quote$ -- 0
-skip$ -- 1193
+skip$ -- 1319
 stack$ -- 0
-substring$ -- 3281
-swap$ -- 137
-text.length$ -- 2
+substring$ -- 3548
+swap$ -- 179
+text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 628
+type$ -- 670
 warning$ -- 9
-while$ -- 367
+while$ -- 392
 width$ -- 0
-write$ -- 1397
-(There were 9 warnings)
+write$ -- 1489
+(There were 12 warnings)
