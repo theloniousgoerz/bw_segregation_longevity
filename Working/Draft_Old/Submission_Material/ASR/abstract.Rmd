@@ -1,0 +1,17 @@
+---
+title: "Untitled"
+author: "Thelonious Goerz"
+date: "2025-11-12"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+Persistent Black-White segregation is a key mechanism shaping profound Black-White inequalities.
+While segregation is typitcally seen segregation as producing zero-sum relationships with Black-White outcomes, segregation also shapes broader, macro-level dynamics, including income segregation, the availability of public goods, and policy outcomes that likely impact all residents regardless of race.
+This paper evaluates the veracity of zero-sum frameworks for understanding the effects of segregation.
+Empirically, I track individuals born between 1905-1920 in the complete-count 1940 Census linked to Social Security death records and utilize an instrumental variable design that leverages county-level variation in government fragmentation to estimate the causal effect of segregation on Black and White longevity.
+Results reveal that a 10-point increase in Black-White segregation decreased Black longevity by 0.44 years and White longevity by 0.29 years.
+For Whites with lower education, segregation is particularly harmful, but for those with the highest education, the effects are attenuated by 0.10 years.
+These results highlight how processes of racial stratification also affect White outcomes and contest straightforward zero-sum conceptions of segregation effects.

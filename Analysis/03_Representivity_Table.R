@@ -18,6 +18,8 @@ library(here)
 data_a =    read_csv(here("Data", "_Cleaned","analytic_sample.csv"))
 data =      read_csv(here("Data", "_Cleaned","fulldata.csv"))
 county_d =  read_csv(here("Data", "_Cleaned","county_data.csv"))
+rivers =      read_csv(here("Data","derived","tiger_hydrography_county_instruments_2023.csv"))
+rdi =   read_csv(here("Data","derived","atack_rail_county_instruments_1911.csv"))
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -44,7 +46,15 @@ state_region <- data.frame(
     rep("West", 13)
   )
 )
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+#  -------------------------------
+# Merge on rdi and river instruments
+#  -------------------------------
+rdi %<>% mutate(death_fips = GEOID)
+rivers %<>% mutate(death_fips = GEOID)
+
+data_a %<>% left_join(rdi,by = c("death_fips")) %>% left_join(rivers, by = c("death_fips")) 
+data %<>% left_join(rdi,by = c("death_fips")) %>% left_join(rivers, by = c("death_fips")) 
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Filtering 
@@ -57,14 +67,16 @@ counties =
                   gov_rev_share_state,
                   nh_black,
                   death_decade,
+                 rdi,
                  D_star)
 c_1 = counties %>% distinct(death_fips) %>% nrow()
 c_2 = counties %>% filter(nh_black >0) %>% distinct(death_fips) %>% nrow()
 c_3 = counties %>% 
   filter(nh_black >-0 &
-  !is.na(gov_rev_share_state)) %>% 
+  !is.na(rdi)) %>% 
   distinct(death_fips) %>%
   nrow()
+
 ind_1 =
   data_a %>% filter(
     byear %in% 1905:1920) %>% nrow()
@@ -76,14 +88,15 @@ ind_3 =
   data_a%>% filter(
     byear %in% 1905:1920 & 
       nh_black >0 & 
-      !is.na(gov_rev_share_state) & 
-      !is.na(n_governments)) %>% nrow()
+# Upstream Sample Selection
+      !is.na(rdi) & 
+      !is.na(rail_km_per_km2)) %>% nrow()
 ind_4 =
   data_a %>% filter(
     byear %in% 1905:1920 & 
       nh_black >0 & 
-      !is.na(gov_rev_share_state) & 
-      !is.na(n_governments) &
+      !is.na(rdi) & 
+      !is.na(rail_km_per_km2) & 
       !is.na(male) &  
       !is.na(migrated) & 
       !is.na(educ_years) &  
@@ -97,11 +110,12 @@ ind_4 =
       !is.na(county_dism) &
       !is.na(D_star)) %>% nrow()
 
-c_4 =   data_a %>% filter(
-  byear %in% 1905:1920 & 
+c_4 =   data_a %>% 
+  filter(
+    byear %in% 1905:1920 & 
     nh_black >0 & 
-    !is.na(gov_rev_share_state) & 
-    !is.na(n_governments) &
+    !is.na(rdi) & 
+    !is.na(rail_km_per_km2) &
     !is.na(male) &  
     !is.na(migrated) & 
     !is.na(educ_years) &  
@@ -139,11 +153,15 @@ data.frame(
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ### Filter Analytic Data ###
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 data_a =
   data_a %>% filter(
     byear %in% 1905:1920 & 
       nh_black >0 & 
-      !is.na(gov_rev_share_state) & 
+      #!is.na(gov_rev_share_state) & 
+      #  !is.na(n_governments)
+      !is.na(rdi) & 
+      !is.na(rail_km_per_km2) &
       !is.na(male) &  
       !is.na(migrated) & 
       !is.na(educ_years) &  
@@ -154,8 +172,7 @@ data_a =
       !is.na(STATEFIP_b) &
       !is.na(weight) & 
       !is.na(county_dism) &
-      !is.na(D_star) &
-      !is.na(n_governments))
+      !is.na(D_star))
 
 
 
@@ -178,6 +195,69 @@ db =  data_a %>% filter(Race == "Black") %>% mutate(education = educ_years)
 dw =  data_a %>% filter(Race == "White") %>% mutate(education = educ_years)
 db_f =  data %>% filter(Race == "Black" & !is.na(sib_group_id_flexible)) %>% mutate(education = educ_years)
 dw_f =  data %>% filter(Race == "White" & !is.na(sib_group_id_flexible)) %>% mutate(education = educ_years)
+
+## Rescale D for analysis -------------------------------
+
+data_a %<>% mutate(county_dism = county_dism*100)
+db %<>% mutate(county_dism = county_dism*100,
+               county_isolb = county_isolb*100,
+               H_bw = H_bw*100,
+               D_star = D_star*100)
+
+dw %<>% mutate(county_dism = county_dism*100,
+               county_isolb = county_isolb*100,
+               H_bw = H_bw*100,
+               D_star = D_star*100
+)
+
+db_f %<>% mutate(county_dism = county_dism*100,
+                 county_isolb = county_isolb*100,
+                 H_bw = H_bw*100,
+                 D_star = D_star*100)
+
+dw_f %<>% mutate(county_dism = county_dism*100,
+                 county_isolb = county_isolb*100,
+                 H_bw = H_bw*100,
+                 D_star = D_star*100
+)
+#  -------------------------------
+# Education multi-category
+#  -------------------------------
+db %<>% 
+  mutate(educ_cat = case_when(
+    educ_years <12 ~ "Less than HS",
+    educ_years == 12 ~ "High School",
+    educ_years >12 & educ_years < 16 ~ "Some College",
+    educ_years >=16 ~ "College+"
+  ),
+  educ_cat = factor(educ_cat, levels = c("Less than HS","High School","Some College","College+")))
+dw %<>% 
+  mutate(educ_cat = case_when(
+    educ_years <12 ~ "Less than HS",
+    educ_years == 12 ~ "High School",
+    educ_years > 12 & educ_years < 16 ~ "Some College",
+    educ_years >=16 ~ "College+"
+  ),
+  educ_cat = factor(educ_cat, levels = c("Less than HS","High School","Some College","College+")))
+
+db_f %<>% 
+  mutate(educ_cat = case_when(
+    educ_years <12 ~ "Less than HS",
+    educ_years == 12 ~ "High School",
+    educ_years >12 & educ_years < 16 ~ "Some College",
+    educ_years >=16 ~ "College+"
+  ),
+  educ_cat = factor(educ_cat, levels = c("Less than HS","High School","Some College","College+")))
+dw_f %<>% 
+  mutate(educ_cat = case_when(
+    educ_years <12 ~ "Less than HS",
+    educ_years == 12 ~ "High School",
+    educ_years > 12 & educ_years < 16 ~ "Some College",
+    educ_years >=16 ~ "College+"
+  ),
+  educ_cat = factor(educ_cat, levels = c("Less than HS","High School","Some College","College+")))
+
+db$county_dism
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ### Save Data for Analysis ###
@@ -448,8 +528,94 @@ datasummary(
 ) %>%
   save_tt(output = here("FigTab", "sibling_representivity_table.tex"), overwrite = TRUE)
 
- 
- 
- 
- 
- 
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#### Representativeness Table By Race and Sample ####
+# Black/White columns under each of: full data, IV sample, flexible sibling sample
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# County population is rescaled to thousands so the six columns fit the page width.
+rep_base <- fulldata %>%
+  filter(!is.na(weight) & !is.na(migrated)) %>%
+  mutate(migrated = ifelse(migrated == "Migrated", 1, 0),
+         pop      = pop/1000)
+
+# The sibling sample is the flexible sibling match on the full data and carries no
+# RDI restriction, so it is not a subset of the IV column. This matches db_f/dw_f.
+samples <- bind_rows(
+  rep_base %>% mutate(Sample = "Full Data"),
+  rep_base %>% filter(iv_sample == "IV Sample") %>% mutate(Sample = "IV Sample"),
+  rep_base %>% filter(!is.na(sib_group_id_flexible)) %>% mutate(Sample = "Sibling Sample")
+) %>%
+  mutate(
+    Sample = factor(Sample, levels = c("Full Data", "IV Sample", "Sibling Sample")),
+    Race   = factor(Race, levels = c("Black", "White"))
+  )
+
+race_var_labels <- c(
+  death_age   = "Age at Death",
+  male        = "Male",
+  educ_years  = "Education (Years)",
+  married     = "Married (In 1940)",
+  migrated    = "Migrated (Birth to Death County)",
+  south       = "Reside in South at Death",
+  county_dism = "County D at Death",
+  pop         = "County Population (1000s)",
+  pblack      = "County Pr. Black"
+)
+
+race_col_order <- c(
+  "Full Data__Black",      "Full Data__White",
+  "IV Sample__Black",      "IV Sample__White",
+  "Sibling Sample__Black", "Sibling Sample__White"
+)
+
+fmt_race_num <- function(x) formatC(x, format = "f", digits = 2, big.mark = ",")
+
+race_stats <- samples %>%
+  select(all_of(names(race_var_labels)), Race, Sample) %>%
+  pivot_longer(all_of(names(race_var_labels)), names_to = "variable", values_to = "value") %>%
+  group_by(variable, Sample, Race) %>%
+  summarise(m = mean(value, na.rm = TRUE), s = sd(value, na.rm = TRUE), .groups = "drop") %>%
+  mutate(col = paste0(Sample, "__", Race))
+
+race_means <- race_stats %>%
+  mutate(val = fmt_race_num(m)) %>%
+  select(variable, col, val) %>%
+  pivot_wider(names_from = col, values_from = val)
+
+race_sds <- race_stats %>%
+  mutate(val = paste0("(", fmt_race_num(s), ")")) %>%
+  select(variable, col, val) %>%
+  pivot_wider(names_from = col, values_from = val)
+
+# Interleave: mean row carries the label, SD row sits directly beneath it unlabelled.
+race_body <- map_dfr(names(race_var_labels), function(v) {
+  bind_rows(
+    race_means %>% filter(variable == v) %>% mutate(Variable = race_var_labels[[v]]),
+    race_sds   %>% filter(variable == v) %>% mutate(Variable = "")
+  )
+}) %>%
+  select(Variable, all_of(race_col_order))
+
+race_n <- samples %>%
+  count(Sample, Race) %>%
+  mutate(col = paste0(Sample, "__", Race),
+         n   = formatC(n, format = "d", big.mark = ",")) %>%
+  select(col, n) %>%
+  pivot_wider(names_from = col, values_from = n) %>%
+  mutate(Variable = "N") %>%
+  select(Variable, all_of(race_col_order))
+
+rep_race_table <- bind_rows(race_body, race_n)
+names(rep_race_table) <- c("Variable", rep(c("Black", "White"), 3))
+
+datasummary_df(
+  rep_race_table,
+  align  = "lcccccc",
+  title  = "Representativeness of Analytic Samples by Race",
+  notes  = "Cell entries are unweighted means with standard deviations in parentheses. The IV sample is restricted to counties with non-missing railroad division index and to individuals with non-missing analytic covariates. The sibling sample is the flexible sibling-group match on the full data and is not restricted to counties with non-missing railroad division index data, so it is not a subset of the IV sample.",
+  threeparttable = TRUE,
+  output = "tinytable"
+) %>%
+  group_tt(j = list("Full Data" = 2:3, "IV Sample" = 4:5, "Sibling Sample" = 6:7)) %>%
+  save_tt(output = here("FigTab", "representivity_table_by_race.tex"), overwrite = TRUE)

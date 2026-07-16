@@ -191,9 +191,10 @@ data_a = data %>% filter(byear %in% 1905:1920 &
          employed = case_when(EMPSTAT == 1 ~ 1,
                               EMPSTAT == 2 ~ 0)) %>% 
            filter(!is.na(pblack) & 
-                    !is.na(educ_years) & 
-                    !is.na(married) & !is.na(ownhome) & 
-                    !is.na(county_dism)
+                   !is.na(educ_years) & 
+                   !is.na(married) & 
+                   !is.na(ownhome) & 
+                   !is.na(county_dism)
                   )
 
 

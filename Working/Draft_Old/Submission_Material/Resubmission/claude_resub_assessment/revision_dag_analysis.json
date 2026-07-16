@@ -1,0 +1,777 @@
+{
+  "validation": {
+    "is_acyclic": true,
+    "cycles": [],
+    "warnings": []
+  },
+  "metadata": {
+    "total_tasks": 33,
+    "total_dependencies": 52
+  },
+  "execution_order": [
+    "A_RA1_framing_fork",
+    "A_RI1_outcome_def",
+    "A_RA8_multilevel",
+    "A_EiC2_RI6_exclusion",
+    "A_EiC6_alt_instruments",
+    "A_EiC3_residential_selection",
+    "A_RA11_birthFE_interp",
+    "A_EiC5_census_quality",
+    "C_RA4_logan_karbeah",
+    "C_RE5_citations",
+    "C_RI7_activity_space",
+    "C_RI5_zerosum_def",
+    "C_RI2_gap_literature",
+    "B_RE1_survivor",
+    "B_RE3_mechanisms",
+    "B_RA7_montez_policy",
+    "B_RA9_county_controls",
+    "B_RE6_migration",
+    "C_RI8_magnitude",
+    "B_EiC7_weight_evidence",
+    "D_RA5_prune_dynamic",
+    "C_RI4_race_moderation",
+    "C_RA3_nonzerosum_case",
+    "C_RE2_lifecourse_nuance",
+    "C_RI3_causal_motivation",
+    "C_RA6_proxy_mechanisms",
+    "D_RE4_relocate_mechlit",
+    "B_RA10_msem",
+    "E_RI10_white_advantage_claim",
+    "D_RA2_frontend",
+    "D_capstone_narrative",
+    "E_RA13_typos",
+    "E_RI9_p7_copyedits"
+  ],
+  "parallel_batches": [
+    [
+      "A_EiC2_RI6_exclusion",
+      "A_EiC3_residential_selection",
+      "A_EiC5_census_quality",
+      "A_EiC6_alt_instruments",
+      "A_RA11_birthFE_interp",
+      "A_RA1_framing_fork",
+      "A_RA8_multilevel",
+      "A_RI1_outcome_def"
+    ],
+    [
+      "B_EiC7_weight_evidence",
+      "B_RA7_montez_policy",
+      "B_RA9_county_controls",
+      "B_RE1_survivor",
+      "B_RE3_mechanisms",
+      "B_RE6_migration",
+      "C_RA4_logan_karbeah",
+      "C_RE5_citations",
+      "C_RI2_gap_literature",
+      "C_RI5_zerosum_def",
+      "C_RI7_activity_space",
+      "C_RI8_magnitude"
+    ],
+    [
+      "B_RA10_msem",
+      "C_RA3_nonzerosum_case",
+      "C_RA6_proxy_mechanisms",
+      "C_RE2_lifecourse_nuance",
+      "C_RI3_causal_motivation",
+      "C_RI4_race_moderation",
+      "D_RA5_prune_dynamic",
+      "D_RE4_relocate_mechlit"
+    ],
+    [
+      "D_RA2_frontend",
+      "E_RI10_white_advantage_claim"
+    ],
+    [
+      "D_capstone_narrative"
+    ],
+    [
+      "E_RA13_typos",
+      "E_RI9_p7_copyedits"
+    ]
+  ],
+  "critical_path": [
+    "A_RA1_framing_fork",
+    "B_RE3_mechanisms",
+    "C_RI3_causal_motivation",
+    "D_RA2_frontend",
+    "D_capstone_narrative",
+    "E_RA13_typos"
+  ],
+  "bottlenecks": [
+    {
+      "task_id": "A_RA1_framing_fork",
+      "direct_dependents": 15,
+      "total_downstream": 21,
+      "in_degree": 0,
+      "description": "DECISION: choose descriptive vs explanatory framing; paper currently 'falls between two stools' (RA.1)"
+    },
+    {
+      "task_id": "A_RA8_multilevel",
+      "direct_dependents": 8,
+      "total_downstream": 16,
+      "in_degree": 0,
+      "description": "Replace baseline OLS with multilevel models (persons L1, county+D-index L2); fix non-independence and inflated effective N (RA.2.methods)"
+    },
+    {
+      "task_id": "A_RI1_outcome_def",
+      "direct_dependents": 4,
+      "total_downstream": 10,
+      "in_degree": 0,
+      "description": "DECISION: resolve whether outcome is longevity LEVEL or the Black-White longevity GAP; title/framing/lit review currently inconsistent (RI.1)"
+    },
+    {
+      "task_id": "B_RE3_mechanisms",
+      "direct_dependents": 4,
+      "total_downstream": 8,
+      "in_degree": 2,
+      "description": "Test mechanisms linking segregation to longevity rather than only reviewing them (RE.mechanisms = EiC.1 causal logic)"
+    },
+    {
+      "task_id": "C_RI5_zerosum_def",
+      "direct_dependents": 3,
+      "total_downstream": 7,
+      "in_degree": 2,
+      "description": "Define 'zero-sum' precisely and derive testable hypotheses; fix p.10 and intro (Quillian 2014) sentences; avoid strawman within-race-homogeneity null (RI.zerosum)"
+    },
+    {
+      "task_id": "C_RA3_nonzerosum_case",
+      "direct_dependents": 2,
+      "total_downstream": 5,
+      "in_degree": 2,
+      "description": "Lay out the non-zero-sum case without picking unnecessary arguments; focus on existing evidence for non-zero-sum Black-White health/mortality differences [descriptive path] (RA.1.optionA)"
+    },
+    {
+      "task_id": "D_capstone_narrative",
+      "direct_dependents": 2,
+      "total_downstream": 2,
+      "in_degree": 8,
+      "description": "Rewrite intro/discussion/conclusion into one coherent narrative with consistent outcome, defended identification, and settled results (capstone)"
+    }
+  ],
+  "block_analysis": {
+    "A": {
+      "task_count": 8,
+      "tasks": [
+        "A_EiC2_RI6_exclusion",
+        "A_EiC3_residential_selection",
+        "A_EiC5_census_quality",
+        "A_EiC6_alt_instruments",
+        "A_RA11_birthFE_interp",
+        "A_RA1_framing_fork",
+        "A_RA8_multilevel",
+        "A_RI1_outcome_def"
+      ],
+      "internal_edges": [],
+      "external_dependencies": {}
+    },
+    "B": {
+      "task_count": 7,
+      "tasks": [
+        "B_EiC7_weight_evidence",
+        "B_RA10_msem",
+        "B_RA7_montez_policy",
+        "B_RA9_county_controls",
+        "B_RE1_survivor",
+        "B_RE3_mechanisms",
+        "B_RE6_migration"
+      ],
+      "internal_edges": [
+        [
+          "B_RA7_montez_policy",
+          "B_RA10_msem"
+        ],
+        [
+          "B_RE3_mechanisms",
+          "B_RA10_msem"
+        ]
+      ],
+      "external_dependencies": {
+        "B_RE1_survivor": [
+          "A_RA8_multilevel",
+          "A_RA1_framing_fork"
+        ],
+        "B_RE3_mechanisms": [
+          "A_RA1_framing_fork",
+          "A_RA8_multilevel"
+        ],
+        "B_RA7_montez_policy": [
+          "A_RA1_framing_fork",
+          "A_RA8_multilevel"
+        ],
+        "B_RA9_county_controls": [
+          "A_RA1_framing_fork",
+          "A_RA8_multilevel"
+        ],
+        "B_RA10_msem": [
+          "A_RA1_framing_fork",
+          "A_RA8_multilevel"
+        ],
+        "B_RE6_migration": [
+          "A_RA8_multilevel"
+        ],
+        "B_EiC7_weight_evidence": [
+          "A_EiC2_RI6_exclusion",
+          "A_EiC6_alt_instruments",
+          "A_RA8_multilevel"
+        ]
+      }
+    },
+    "C": {
+      "task_count": 11,
+      "tasks": [
+        "C_RA3_nonzerosum_case",
+        "C_RA4_logan_karbeah",
+        "C_RA6_proxy_mechanisms",
+        "C_RE2_lifecourse_nuance",
+        "C_RE5_citations",
+        "C_RI2_gap_literature",
+        "C_RI3_causal_motivation",
+        "C_RI4_race_moderation",
+        "C_RI5_zerosum_def",
+        "C_RI7_activity_space",
+        "C_RI8_magnitude"
+      ],
+      "internal_edges": [
+        [
+          "C_RI5_zerosum_def",
+          "C_RI4_race_moderation"
+        ],
+        [
+          "C_RI5_zerosum_def",
+          "C_RA3_nonzerosum_case"
+        ]
+      ],
+      "external_dependencies": {
+        "C_RI5_zerosum_def": [
+          "A_RA1_framing_fork",
+          "A_RI1_outcome_def"
+        ],
+        "C_RI4_race_moderation": [
+          "A_RI1_outcome_def"
+        ],
+        "C_RI3_causal_motivation": [
+          "A_RA1_framing_fork",
+          "B_RE3_mechanisms"
+        ],
+        "C_RI2_gap_literature": [
+          "A_RI1_outcome_def"
+        ],
+        "C_RA3_nonzerosum_case": [
+          "A_RA1_framing_fork"
+        ],
+        "C_RA4_logan_karbeah": [
+          "A_RA1_framing_fork"
+        ],
+        "C_RA6_proxy_mechanisms": [
+          "A_RA1_framing_fork",
+          "B_RE3_mechanisms"
+        ],
+        "C_RE5_citations": [
+          "A_RA1_framing_fork"
+        ],
+        "C_RE2_lifecourse_nuance": [
+          "A_RI1_outcome_def",
+          "B_RE1_survivor"
+        ],
+        "C_RI7_activity_space": [
+          "A_RA1_framing_fork"
+        ],
+        "C_RI8_magnitude": [
+          "A_RA8_multilevel"
+        ]
+      }
+    },
+    "D": {
+      "task_count": 4,
+      "tasks": [
+        "D_RA2_frontend",
+        "D_RA5_prune_dynamic",
+        "D_RE4_relocate_mechlit",
+        "D_capstone_narrative"
+      ],
+      "internal_edges": [
+        [
+          "D_RA2_frontend",
+          "D_capstone_narrative"
+        ],
+        [
+          "D_RA5_prune_dynamic",
+          "D_capstone_narrative"
+        ],
+        [
+          "D_RE4_relocate_mechlit",
+          "D_capstone_narrative"
+        ]
+      ],
+      "external_dependencies": {
+        "D_RA2_frontend": [
+          "A_RA1_framing_fork",
+          "C_RI5_zerosum_def",
+          "C_RI3_causal_motivation",
+          "C_RA3_nonzerosum_case"
+        ],
+        "D_RA5_prune_dynamic": [
+          "A_RA1_framing_fork",
+          "C_RI7_activity_space"
+        ],
+        "D_RE4_relocate_mechlit": [
+          "A_RA1_framing_fork",
+          "B_RE3_mechanisms"
+        ],
+        "D_capstone_narrative": [
+          "C_RI4_race_moderation",
+          "C_RI2_gap_literature",
+          "C_RE2_lifecourse_nuance",
+          "C_RI8_magnitude",
+          "B_EiC7_weight_evidence"
+        ]
+      }
+    },
+    "E": {
+      "task_count": 3,
+      "tasks": [
+        "E_RA13_typos",
+        "E_RI10_white_advantage_claim",
+        "E_RI9_p7_copyedits"
+      ],
+      "internal_edges": [],
+      "external_dependencies": {
+        "E_RA13_typos": [
+          "D_capstone_narrative"
+        ],
+        "E_RI9_p7_copyedits": [
+          "D_capstone_narrative"
+        ],
+        "E_RI10_white_advantage_claim": [
+          "C_RA3_nonzerosum_case"
+        ]
+      }
+    }
+  },
+  "impact_details": {
+    "A_RA1_framing_fork": {
+      "task_id": "A_RA1_framing_fork",
+      "info": {
+        "category": "ARGUMENTATIVE",
+        "block": "A",
+        "description": "DECISION: choose descriptive vs explanatory framing; paper currently 'falls between two stools' (RA.1)",
+        "depends_on": []
+      },
+      "direct_prerequisites": [],
+      "direct_dependents": [
+        "B_RA10_msem",
+        "B_RA7_montez_policy",
+        "B_RA9_county_controls",
+        "B_RE1_survivor",
+        "B_RE3_mechanisms",
+        "C_RA3_nonzerosum_case",
+        "C_RA4_logan_karbeah",
+        "C_RA6_proxy_mechanisms",
+        "C_RE5_citations",
+        "C_RI3_causal_motivation",
+        "C_RI5_zerosum_def",
+        "C_RI7_activity_space",
+        "D_RA2_frontend",
+        "D_RA5_prune_dynamic",
+        "D_RE4_relocate_mechlit"
+      ],
+      "all_prerequisites": [],
+      "all_dependents": [
+        "B_RA10_msem",
+        "B_RA7_montez_policy",
+        "B_RA9_county_controls",
+        "B_RE1_survivor",
+        "B_RE3_mechanisms",
+        "C_RA3_nonzerosum_case",
+        "C_RA4_logan_karbeah",
+        "C_RA6_proxy_mechanisms",
+        "C_RE2_lifecourse_nuance",
+        "C_RE5_citations",
+        "C_RI3_causal_motivation",
+        "C_RI4_race_moderation",
+        "C_RI5_zerosum_def",
+        "C_RI7_activity_space",
+        "D_RA2_frontend",
+        "D_RA5_prune_dynamic",
+        "D_RE4_relocate_mechlit",
+        "D_capstone_narrative",
+        "E_RA13_typos",
+        "E_RI10_white_advantage_claim",
+        "E_RI9_p7_copyedits"
+      ],
+      "in_degree": 0,
+      "out_degree": 15
+    },
+    "A_RA8_multilevel": {
+      "task_id": "A_RA8_multilevel",
+      "info": {
+        "category": "EMPIRICAL",
+        "block": "A",
+        "description": "Replace baseline OLS with multilevel models (persons L1, county+D-index L2); fix non-independence and inflated effective N (RA.2.methods)",
+        "depends_on": [],
+        "collateral_risks": [
+          {
+            "task_id": "D_capstone_narrative",
+            "risk": "Correct effective sample size may weaken significance of the segregation effect, changing core claims"
+          },
+          {
+            "task_id": "C_RI8_magnitude",
+            "risk": "Re-estimated coefficients change the magnitude comparisons to prior longevity studies"
+          }
+        ]
+      },
+      "direct_prerequisites": [],
+      "direct_dependents": [
+        "B_EiC7_weight_evidence",
+        "B_RA10_msem",
+        "B_RA7_montez_policy",
+        "B_RA9_county_controls",
+        "B_RE1_survivor",
+        "B_RE3_mechanisms",
+        "B_RE6_migration",
+        "C_RI8_magnitude"
+      ],
+      "all_prerequisites": [],
+      "all_dependents": [
+        "B_EiC7_weight_evidence",
+        "B_RA10_msem",
+        "B_RA7_montez_policy",
+        "B_RA9_county_controls",
+        "B_RE1_survivor",
+        "B_RE3_mechanisms",
+        "B_RE6_migration",
+        "C_RA6_proxy_mechanisms",
+        "C_RE2_lifecourse_nuance",
+        "C_RI3_causal_motivation",
+        "C_RI8_magnitude",
+        "D_RA2_frontend",
+        "D_RE4_relocate_mechlit",
+        "D_capstone_narrative",
+        "E_RA13_typos",
+        "E_RI9_p7_copyedits"
+      ],
+      "in_degree": 0,
+      "out_degree": 8
+    },
+    "A_RI1_outcome_def": {
+      "task_id": "A_RI1_outcome_def",
+      "info": {
+        "category": "ARGUMENTATIVE",
+        "block": "A",
+        "description": "DECISION: resolve whether outcome is longevity LEVEL or the Black-White longevity GAP; title/framing/lit review currently inconsistent (RI.1)",
+        "depends_on": []
+      },
+      "direct_prerequisites": [],
+      "direct_dependents": [
+        "C_RE2_lifecourse_nuance",
+        "C_RI2_gap_literature",
+        "C_RI4_race_moderation",
+        "C_RI5_zerosum_def"
+      ],
+      "all_prerequisites": [],
+      "all_dependents": [
+        "C_RA3_nonzerosum_case",
+        "C_RE2_lifecourse_nuance",
+        "C_RI2_gap_literature",
+        "C_RI4_race_moderation",
+        "C_RI5_zerosum_def",
+        "D_RA2_frontend",
+        "D_capstone_narrative",
+        "E_RA13_typos",
+        "E_RI10_white_advantage_claim",
+        "E_RI9_p7_copyedits"
+      ],
+      "in_degree": 0,
+      "out_degree": 4
+    },
+    "B_RE3_mechanisms": {
+      "task_id": "B_RE3_mechanisms",
+      "info": {
+        "category": "EMPIRICAL",
+        "block": "B",
+        "description": "Test mechanisms linking segregation to longevity rather than only reviewing them (RE.mechanisms = EiC.1 causal logic)",
+        "depends_on": [
+          "A_RA1_framing_fork",
+          "A_RA8_multilevel"
+        ],
+        "collateral_risks": [
+          {
+            "task_id": "A_RA1_framing_fork",
+            "risk": "If no proxy mechanism mediates, the explanatory path is not viable and the paper must revert to descriptive"
+          },
+          {
+            "task_id": "C_RI3_causal_motivation",
+            "risk": "Mechanism results determine whether a DIRECT segregation->longevity effect is defensible"
+          }
+        ]
+      },
+      "direct_prerequisites": [
+        "A_RA1_framing_fork",
+        "A_RA8_multilevel"
+      ],
+      "direct_dependents": [
+        "B_RA10_msem",
+        "C_RA6_proxy_mechanisms",
+        "C_RI3_causal_motivation",
+        "D_RE4_relocate_mechlit"
+      ],
+      "all_prerequisites": [
+        "A_RA1_framing_fork",
+        "A_RA8_multilevel"
+      ],
+      "all_dependents": [
+        "B_RA10_msem",
+        "C_RA6_proxy_mechanisms",
+        "C_RI3_causal_motivation",
+        "D_RA2_frontend",
+        "D_RE4_relocate_mechlit",
+        "D_capstone_narrative",
+        "E_RA13_typos",
+        "E_RI9_p7_copyedits"
+      ],
+      "in_degree": 2,
+      "out_degree": 4
+    },
+    "C_RA3_nonzerosum_case": {
+      "task_id": "C_RA3_nonzerosum_case",
+      "info": {
+        "category": "ARGUMENTATIVE",
+        "block": "C",
+        "description": "Lay out the non-zero-sum case without picking unnecessary arguments; focus on existing evidence for non-zero-sum Black-White health/mortality differences [descriptive path] (RA.1.optionA)",
+        "depends_on": [
+          "A_RA1_framing_fork",
+          "C_RI5_zerosum_def"
+        ]
+      },
+      "direct_prerequisites": [
+        "A_RA1_framing_fork",
+        "C_RI5_zerosum_def"
+      ],
+      "direct_dependents": [
+        "D_RA2_frontend",
+        "E_RI10_white_advantage_claim"
+      ],
+      "all_prerequisites": [
+        "A_RA1_framing_fork",
+        "A_RI1_outcome_def",
+        "C_RI5_zerosum_def"
+      ],
+      "all_dependents": [
+        "D_RA2_frontend",
+        "D_capstone_narrative",
+        "E_RA13_typos",
+        "E_RI10_white_advantage_claim",
+        "E_RI9_p7_copyedits"
+      ],
+      "in_degree": 2,
+      "out_degree": 2
+    },
+    "C_RI3_causal_motivation": {
+      "task_id": "C_RI3_causal_motivation",
+      "info": {
+        "category": "ARGUMENTATIVE",
+        "block": "C",
+        "description": "Strengthen motivation for a DIRECT causal segregation->longevity link vs an effect mediated by violence/income/crime/policy (RI.theory = EiC.1)",
+        "depends_on": [
+          "A_RA1_framing_fork",
+          "B_RE3_mechanisms"
+        ]
+      },
+      "direct_prerequisites": [
+        "A_RA1_framing_fork",
+        "B_RE3_mechanisms"
+      ],
+      "direct_dependents": [
+        "D_RA2_frontend"
+      ],
+      "all_prerequisites": [
+        "A_RA1_framing_fork",
+        "A_RA8_multilevel",
+        "B_RE3_mechanisms"
+      ],
+      "all_dependents": [
+        "D_RA2_frontend",
+        "D_capstone_narrative",
+        "E_RA13_typos",
+        "E_RI9_p7_copyedits"
+      ],
+      "in_degree": 2,
+      "out_degree": 1
+    },
+    "C_RI5_zerosum_def": {
+      "task_id": "C_RI5_zerosum_def",
+      "info": {
+        "category": "ARGUMENTATIVE",
+        "block": "C",
+        "description": "Define 'zero-sum' precisely and derive testable hypotheses; fix p.10 and intro (Quillian 2014) sentences; avoid strawman within-race-homogeneity null (RI.zerosum)",
+        "depends_on": [
+          "A_RA1_framing_fork",
+          "A_RI1_outcome_def"
+        ]
+      },
+      "direct_prerequisites": [
+        "A_RA1_framing_fork",
+        "A_RI1_outcome_def"
+      ],
+      "direct_dependents": [
+        "C_RA3_nonzerosum_case",
+        "C_RI4_race_moderation",
+        "D_RA2_frontend"
+      ],
+      "all_prerequisites": [
+        "A_RA1_framing_fork",
+        "A_RI1_outcome_def"
+      ],
+      "all_dependents": [
+        "C_RA3_nonzerosum_case",
+        "C_RI4_race_moderation",
+        "D_RA2_frontend",
+        "D_capstone_narrative",
+        "E_RA13_typos",
+        "E_RI10_white_advantage_claim",
+        "E_RI9_p7_copyedits"
+      ],
+      "in_degree": 2,
+      "out_degree": 3
+    },
+    "D_RA2_frontend": {
+      "task_id": "D_RA2_frontend",
+      "info": {
+        "category": "STRUCTURAL",
+        "block": "D",
+        "description": "Tighten/restructure front-end (pp.2-15); cut tangential digressions so front-end maps onto back-end constructs (RA.1)",
+        "depends_on": [
+          "A_RA1_framing_fork",
+          "C_RI5_zerosum_def",
+          "C_RI3_causal_motivation",
+          "C_RA3_nonzerosum_case"
+        ]
+      },
+      "direct_prerequisites": [
+        "A_RA1_framing_fork",
+        "C_RA3_nonzerosum_case",
+        "C_RI3_causal_motivation",
+        "C_RI5_zerosum_def"
+      ],
+      "direct_dependents": [
+        "D_capstone_narrative"
+      ],
+      "all_prerequisites": [
+        "A_RA1_framing_fork",
+        "A_RA8_multilevel",
+        "A_RI1_outcome_def",
+        "B_RE3_mechanisms",
+        "C_RA3_nonzerosum_case",
+        "C_RI3_causal_motivation",
+        "C_RI5_zerosum_def"
+      ],
+      "all_dependents": [
+        "D_capstone_narrative",
+        "E_RA13_typos",
+        "E_RI9_p7_copyedits"
+      ],
+      "in_degree": 4,
+      "out_degree": 1
+    },
+    "D_capstone_narrative": {
+      "task_id": "D_capstone_narrative",
+      "info": {
+        "category": "ARGUMENTATIVE",
+        "block": "D",
+        "description": "Rewrite intro/discussion/conclusion into one coherent narrative with consistent outcome, defended identification, and settled results (capstone)",
+        "depends_on": [
+          "D_RA2_frontend",
+          "D_RA5_prune_dynamic",
+          "D_RE4_relocate_mechlit",
+          "C_RI4_race_moderation",
+          "C_RI2_gap_literature",
+          "C_RE2_lifecourse_nuance",
+          "C_RI8_magnitude",
+          "B_EiC7_weight_evidence"
+        ]
+      },
+      "direct_prerequisites": [
+        "B_EiC7_weight_evidence",
+        "C_RE2_lifecourse_nuance",
+        "C_RI2_gap_literature",
+        "C_RI4_race_moderation",
+        "C_RI8_magnitude",
+        "D_RA2_frontend",
+        "D_RA5_prune_dynamic",
+        "D_RE4_relocate_mechlit"
+      ],
+      "direct_dependents": [
+        "E_RA13_typos",
+        "E_RI9_p7_copyedits"
+      ],
+      "all_prerequisites": [
+        "A_EiC2_RI6_exclusion",
+        "A_EiC6_alt_instruments",
+        "A_RA1_framing_fork",
+        "A_RA8_multilevel",
+        "A_RI1_outcome_def",
+        "B_EiC7_weight_evidence",
+        "B_RE1_survivor",
+        "B_RE3_mechanisms",
+        "C_RA3_nonzerosum_case",
+        "C_RE2_lifecourse_nuance",
+        "C_RI2_gap_literature",
+        "C_RI3_causal_motivation",
+        "C_RI4_race_moderation",
+        "C_RI5_zerosum_def",
+        "C_RI7_activity_space",
+        "C_RI8_magnitude",
+        "D_RA2_frontend",
+        "D_RA5_prune_dynamic",
+        "D_RE4_relocate_mechlit"
+      ],
+      "all_dependents": [
+        "E_RA13_typos",
+        "E_RI9_p7_copyedits"
+      ],
+      "in_degree": 8,
+      "out_degree": 2
+    },
+    "E_RA13_typos": {
+      "task_id": "E_RA13_typos",
+      "info": {
+        "category": "EDITORIAL",
+        "block": "E",
+        "description": "Fix typos/elisions/repetition: 'full count' p.16, p.4 elisions, 'In the following section' x2 p.8, footnote 5 (RA.4)",
+        "depends_on": [
+          "D_capstone_narrative"
+        ]
+      },
+      "direct_prerequisites": [
+        "D_capstone_narrative"
+      ],
+      "direct_dependents": [],
+      "all_prerequisites": [
+        "A_EiC2_RI6_exclusion",
+        "A_EiC6_alt_instruments",
+        "A_RA1_framing_fork",
+        "A_RA8_multilevel",
+        "A_RI1_outcome_def",
+        "B_EiC7_weight_evidence",
+        "B_RE1_survivor",
+        "B_RE3_mechanisms",
+        "C_RA3_nonzerosum_case",
+        "C_RE2_lifecourse_nuance",
+        "C_RI2_gap_literature",
+        "C_RI3_causal_motivation",
+        "C_RI4_race_moderation",
+        "C_RI5_zerosum_def",
+        "C_RI7_activity_space",
+        "C_RI8_magnitude",
+        "D_RA2_frontend",
+        "D_RA5_prune_dynamic",
+        "D_RE4_relocate_mechlit",
+        "D_capstone_narrative"
+      ],
+      "all_dependents": [],
+      "in_degree": 1,
+      "out_degree": 0
+    }
+  }
+}

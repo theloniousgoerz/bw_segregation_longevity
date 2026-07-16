@@ -50,9 +50,7 @@ rdi =   read_csv(here("Data","derived","atack_rail_county_instruments_1911.csv")
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Data Cleaning for Analysis
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-## Rescale D for analysis -------------------------------
-
-data_a %<>% mutate(county_dism = county_dism*100)
+## Rescale D for analysis ------------------------------
 
 #  -------------------------------
 # Merge on rdi and river instruments
@@ -91,39 +89,41 @@ policy_panel <- policy_data %>%
                 \(x) log(if_else(x == 0, 0.01, x)),
                 .names = "log_{.col}"),
          death_decade = decade,
-         death_fips = fips5) %>%
-  left_join(., segregation_data, by = c("death_fips","death_decade"))
+         death_fips = fips5) %>% 
+  left_join(., segregation_data, by = c("death_fips","death_decade")) %>% 
+  mutate(gov_party_b = ifelse(gov_party == "Dem",1,0),
+         county_dism = county_dism/100)
 
-m_lib     = feols(county_lib_index ~ county_dism + south |  death_decade + urb_code, data = policy_panel, vcov = ~death_fips)
-m_lib_c   = feols(lib_index_final  ~ county_dism + south | death_decade + urb_code, data = policy_panel, vcov = ~death_fips)
-m_welf    = feols(welf_direct_pc   ~ county_dism + south | death_decade + urb_code, data = policy_panel, vcov = ~death_fips)
-m_health  = feols(health_pc        ~ county_dism + south | death_decade + urb_code, data = policy_panel, vcov = ~death_fips)
-m_cash    = feols(cash_asst_pc     ~ county_dism + south | death_decade + urb_code, data = policy_panel, vcov = ~death_fips)
-m_medical = feols(medicaid_pc      ~ county_dism + south | death_decade + urb_code, data = policy_panel, vcov = ~death_fips)
-m_taxes   = feols(taxes_pc         ~ county_dism + south | death_decade + urb_code, data = policy_panel, vcov = ~death_fips)
-m_inc_seg = feols(Hr_all           ~ county_dism + south  |  death_decade + urb_code, data =  policy_panel, vcov = ~death_fips)
-m_tanf    = feols(comp_tanf        ~ county_dism + south | death_decade + urb_code, data = policy_panel, vcov = ~death_fips)
-m_snap    = feols(comp_snap        ~ county_dism + south | death_decade + urb_code, data = policy_panel, vcov = ~death_fips)
-m_eitc    = feols(comp_eitc        ~ county_dism + south | death_decade + urb_code, data = policy_panel, vcov = ~death_fips)
-m_educ    = feols(educ_pc          ~ county_dism + south | death_decade + urb_code, data = policy_panel, vcov = ~death_fips)
+# cash assistance,
+#    Medicaid vendor payments, direct welfare, health/hospital spending
+# z_cash
+# z_medical
+# z_welf
+# z_health
+
+m_welf    = feols(welf_direct_pc    ~ county_dism   | death_decade + urb_code + south , data = policy_panel, vcov = ~death_fips)
+m_cash    = feols(cash_asst_pc      ~ county_dism   | death_decade + urb_code + south , data = policy_panel, vcov = ~death_fips)
+m_medicaid = feols(comp_medicaid    ~ county_dism  |  death_decade + urb_code + south, data = policy_panel, vcov = ~death_fips)
+m_taxes   = feols(taxes_pc          ~ county_dism   | death_decade + urb_code + south , data = policy_panel, vcov = ~death_fips)
+m_snap    = feols(comp_snap         ~ county_dism   | death_decade + urb_code + south , data = policy_panel, vcov = ~death_fips)
+# Lib index
+m_health  = feols(health_pc      ~ county_dism   |death_decade, data = policy_panel, vcov = ~death_fips)
 
 msummary(
   list(
-    "Lib. Index"    = m_lib,
-    "Lib Index (c)"     =m_lib_c,
     "Welfare"       = m_welf,
-    "Health"        = m_health,
     "Cash Asst."    = m_cash,
     "Medicaid"      = m_medical,
     "Taxes"         = m_taxes,
-    "Income Seg"   = m_inc_seg
+    "Snap" = m_snap,
+    "Health"           = m_health
   ),
-#  coef_map  = c("county_dism" = "D"),
+  coef_map  = c("county_dism" = "D (0,1)"),
   gof_map   = c("nobs", "r.squared"),
   stars     = TRUE,
   fmt       = 3,
   title     = "OLS Association Between Segregation and Mechanisms",
-  notes     = "Standard errors clustered at the county level. All models include decade fixed effects (1980, 1990, 2000). Per-capita spending variables winsorized at the 99th percentile.",
+  notes     = "Standard errors clustered at the county level. All models include decade fixed effects (1980, 1990, 2000).",
  # add_rows  = data.frame(FE = "Decade FE",
  #                        m1 = "X", m2 = "X", m3 = "X",
  #                        m4 = "X", m5 = "X", m6 = "X"),
@@ -133,30 +133,23 @@ msummary(
 ) %>%
   save_tt(here("FigTab","gov_policy_table.tex"), overwrite = TRUE)
 
-
-m_lib_iv        = feols(county_lib_index ~ 1 + south| death_decade + urb_code | county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
-m_lib_c_iv      = feols(lib_index_final  ~ 1 + south| death_decade + urb_code | county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
-m_welf_iv       = feols(welf_direct_pc   ~ 1 + south| death_decade + urb_code | county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
-m_health_iv     = feols(health_pc        ~ 1 + south| death_decade + urb_code | county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
-m_cash_iv       = feols(cash_asst_pc     ~ 1 + south| death_decade + urb_code | county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
-m_medical_iv    = feols(medicaid_pc      ~ 1 + south| death_decade + urb_code | county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
-m_taxes_iv      = feols(taxes_pc         ~ 1 + south| death_decade + urb_code | county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
-m_income_seg_iv = feols(Hr_all           ~ 1 + south| death_decade + urb_code | county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
-m_tanf_iv       = feols(comp_tanf        ~ 1 + south| death_decade + urb_code | county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
-m_snap_iv       = feols(comp_snap        ~ 1 + south| death_decade + urb_code | county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
-m_eitc_iv       = feols(comp_eitc        ~ 1 + south| death_decade + urb_code | county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
-m_educ_iv       = feols(educ_pc          ~ 1 + south| death_decade + urb_code | county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
+m_lib_iv        = feols(county_lib_index ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
+m_welf_iv       = feols(welf_direct_pc   ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
+m_cash_iv       = feols(cash_asst_pc     ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
+m_medical_iv    = feols(medicaid_pc      ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
+m_taxes_iv      = feols(taxes_pc         ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
+m_snap_iv       = feols(comp_snap        ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
+m_health_iv       = feols(health_pc      ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
 
 msummary(
   list(
-    "Lib. Index"    = m_lib_iv,
-    "Lib Index (c)"    = m_lib_c_iv,
     "Welfare"       = m_welf_iv,
-    "Health"        = m_health_iv,
     "Cash Asst."    = m_cash_iv,
     "Medicaid"      = m_medical_iv,
     "Taxes"         = m_taxes_iv,
-    "Income Seg"    = m_income_seg_iv
+    "Snap" = m_snap_iv,
+   "Health" =  m_health_iv
+   
   ),
   coef_map  = c("fit_county_dism" = "D"),
   gof_map   = c("nobs", "r.squared"),
@@ -172,6 +165,76 @@ msummary(
   output    = "tinytable"
 ) %>%
   save_tt(here("FigTab","gov_policy_table.tex"), overwrite = TRUE)
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Combined OLS + IV Table: Effect of D on County Fiscal Policy Mechanisms
+# Two D rows (OLS and IV) per mechanism, with a single observations row (IV sample).
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# Helper: format one D coefficient (+ stars) and its SE from a fixest model
+fmt_D <- function(model, term) {
+  ct   <- coeftable(model)[term, ]
+  est  <- ct[["Estimate"]]
+  se   <- ct[["Std. Error"]]
+  p    <- ct[["Pr(>|t|)"]]
+  star <- dplyr::case_when(
+    p < 0.001 ~ "***",
+    p < 0.01  ~ "**",
+    p < 0.05  ~ "*",
+    p < 0.1   ~ "+",
+    TRUE      ~ ""
+  )
+  list(coef = sprintf("%.3f%s", est, star),
+       se   = sprintf("(%.3f)", se))
+}
+
+# Column order: label, OLS model, IV model
+mech_cols <- list(
+  list(label = "Lib. Index", ols = m_lib,     iv = m_lib_iv),
+  list(label = "Welfare",    ols = m_welf,    iv = m_welf_iv),
+  list(label = "Cash Asst.", ols = m_cash,    iv = m_cash_iv),
+  list(label = "Medicaid",   ols = m_medical, iv = m_medical_iv),
+  list(label = "Taxes",      ols = m_taxes,   iv = m_taxes_iv),
+  list(label = "Snap",       ols = m_snap,    iv = m_snap_iv),
+  list(label = "Gov",        ols = m_party,   iv = m_gov_iv)
+)
+
+ols_D  <- lapply(mech_cols, \(x) fmt_D(x$ols, "county_dism"))
+iv_D   <- lapply(mech_cols, \(x) fmt_D(x$iv,  "fit_county_dism"))
+n_iv   <- vapply(mech_cols, \(x) format(nobs(x$iv), big.mark = "", trim = TRUE), character(1))
+labels <- vapply(mech_cols, \(x) x$label, character(1))
+
+ncol_data <- length(mech_cols)                 # number of estimate columns
+col_ids   <- paste(seq_len(ncol_data + 1), collapse = ",")   # 1..(k+1) for tabularray specs
+row_line  <- function(cells) paste(cells, collapse = " & ")
+
+combined_tex <- c(
+  "\\begin{table}",
+  "\\centering",
+  "\\begin{talltblr}[         %% tabularray outer open",
+  "caption={Effect of Segregation on County Fiscal Policy Mechanisms: OLS and IV},",
+  "note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},",
+  "note{ }={OLS and IV (RDI instrument) estimates of the effect of segregation (D) on each county fiscal policy mechanism. Each column is a separate outcome. All models include decade fixed effects (1980, 1990, 2000). Standard errors clustered at the county level in parentheses.},",
+  "]                     %% tabularray outer close",
+  "{                     %% tabularray inner open",
+  paste0("colspec={", paste(rep("Q[]", ncol_data + 1), collapse = ""), "},"),
+  paste0("column{", paste(seq(2, ncol_data + 1), collapse = ","), "}={}{halign=c,},"),
+  "column{1}={}{halign=l,},",
+  paste0("hline{6}={", col_ids, "}{solid, black, 0.05em},"),
+  "}                     %% tabularray inner close",
+  "\\toprule",
+  paste0(row_line(c("", labels)), " \\\\ \\midrule %% TinyTableHeader"),
+  paste0(row_line(c("D (OLS)",  vapply(ols_D, \(x) x$coef, character(1)))), " \\\\"),
+  paste0(row_line(c("",         vapply(ols_D, \(x) x$se,   character(1)))), " \\\\"),
+  paste0(row_line(c("D (IV)",   vapply(iv_D,  \(x) x$coef, character(1)))), " \\\\"),
+  paste0(row_line(c("",         vapply(iv_D,  \(x) x$se,   character(1)))), " \\\\"),
+  paste0(row_line(c("Num.Obs.", n_iv)), " \\\\"),
+  "\\bottomrule",
+  "\\end{talltblr}",
+  "\\end{table}"
+)
+
+writeLines(combined_tex, here("FigTab", "mechanism_ols_iv_table.tex"))
 
 # -----------------------
 # Combined OLS + IV coefficient plot across mechanism outcomes

@@ -1,0 +1,220 @@
+{
+  "A_RA1_framing_fork": {
+    "category": "ARGUMENTATIVE",
+    "block": "A",
+    "description": "DECISION: choose descriptive vs explanatory framing; paper currently 'falls between two stools' (RA.1)",
+    "depends_on": []
+  },
+  "A_RI1_outcome_def": {
+    "category": "ARGUMENTATIVE",
+    "block": "A",
+    "description": "DECISION: resolve whether outcome is longevity LEVEL or the Black-White longevity GAP; title/framing/lit review currently inconsistent (RI.1)",
+    "depends_on": []
+  },
+  "A_RA8_multilevel": {
+    "category": "EMPIRICAL",
+    "block": "A",
+    "description": "Replace baseline OLS with multilevel models (persons L1, county+D-index L2); fix non-independence and inflated effective N (RA.2.methods)",
+    "depends_on": [],
+    "collateral_risks": [
+      {"task_id": "D_capstone_narrative", "risk": "Correct effective sample size may weaken significance of the segregation effect, changing core claims"},
+      {"task_id": "C_RI8_magnitude", "risk": "Re-estimated coefficients change the magnitude comparisons to prior longevity studies"}
+    ]
+  },
+  "A_EiC2_RI6_exclusion": {
+    "category": "EMPIRICAL",
+    "block": "A",
+    "description": "Defend exclusion restriction / exogeneity of government-fragmentation instrument; show it is uncorrelated with the health error term (EiC.2 = RI.6)",
+    "depends_on": [],
+    "collateral_risks": [
+      {"task_id": "D_capstone_narrative", "risk": "If exclusion restriction cannot be defended, the entire causal interpretation collapses to descriptive"}
+    ]
+  },
+  "A_EiC6_alt_instruments": {
+    "category": "EMPIRICAL",
+    "block": "A",
+    "description": "Try alternative identification strategies and instruments per editor (EiC.6)",
+    "depends_on": [],
+    "collateral_risks": [
+      {"task_id": "B_EiC7_weight_evidence", "risk": "Alternative instruments may yield divergent estimates, altering the weight-of-evidence assessment"}
+    ]
+  },
+  "A_EiC3_residential_selection": {
+    "category": "EMPIRICAL",
+    "block": "A",
+    "description": "Address strong selectivity of residential location into segregated counties (EiC.3)",
+    "depends_on": []
+  },
+  "A_RA11_birthFE_interp": {
+    "category": "CLARIFICATION",
+    "block": "A",
+    "description": "Resolve the p.18 'experience at birth' assumption; with birth-county FE estimates reflect RECENT not historical exposure (RA.2.methods)",
+    "depends_on": []
+  },
+  "A_EiC5_census_quality": {
+    "category": "EMPIRICAL",
+    "block": "A",
+    "description": "Assess problematic nature of matched census data for measuring racial differences across these cohorts (EiC.5)",
+    "depends_on": [],
+    "collateral_risks": [
+      {"task_id": "B_RE1_survivor", "risk": "Census-match error by race could itself drive the near-identical Black/White age-at-death in Table 2"}
+    ]
+  },
+  "B_RE1_survivor": {
+    "category": "EMPIRICAL",
+    "block": "B",
+    "description": "Address survivor/selection bias from conditioning on survival to 65; engage racial mortality-crossover literature; explain ~0.5yr Black-White age-at-death gap in Table 2 (RE.sample)",
+    "depends_on": ["A_RA8_multilevel", "A_RA1_framing_fork"],
+    "collateral_risks": [
+      {"task_id": "D_capstone_narrative", "risk": "Severe survivor selection may mean 65+ estimates cannot support a longevity claim, forcing a reframing of scope"}
+    ]
+  },
+  "B_RE3_mechanisms": {
+    "category": "EMPIRICAL",
+    "block": "B",
+    "description": "Test mechanisms linking segregation to longevity rather than only reviewing them (RE.mechanisms = EiC.1 causal logic)",
+    "depends_on": ["A_RA1_framing_fork", "A_RA8_multilevel"],
+    "collateral_risks": [
+      {"task_id": "A_RA1_framing_fork", "risk": "If no proxy mechanism mediates, the explanatory path is not viable and the paper must revert to descriptive"},
+      {"task_id": "C_RI3_causal_motivation", "risk": "Mechanism results determine whether a DIRECT segregation->longevity effect is defensible"}
+    ]
+  },
+  "B_RA7_montez_policy": {
+    "category": "EMPIRICAL",
+    "block": "B",
+    "description": "Add Montez et al. state-level policy controls (18 domains, 1980s-2005) as moderators/mediators [explanatory path] (RA.1.optionB)",
+    "depends_on": ["A_RA1_framing_fork", "A_RA8_multilevel"]
+  },
+  "B_RA9_county_controls": {
+    "category": "EMPIRICAL",
+    "block": "B",
+    "description": "Expand county-at-death controls (demographic + industrial composition) to rule out spuriousness [descriptive path] (RA.2.methods)",
+    "depends_on": ["A_RA1_framing_fork", "A_RA8_multilevel"]
+  },
+  "B_RA10_msem": {
+    "category": "EMPIRICAL",
+    "block": "B",
+    "description": "Estimate multilevel SEM to combine instrumented + mediating + moderating variables [explanatory path] (RA.3.results)",
+    "depends_on": ["A_RA1_framing_fork", "A_RA8_multilevel", "B_RA7_montez_policy", "B_RE3_mechanisms"]
+  },
+  "B_RE6_migration": {
+    "category": "EMPIRICAL",
+    "block": "B",
+    "description": "Examine older-age migration: 'returning home to die' and retirement migration to warmer states (RE.migration)",
+    "depends_on": ["A_RA8_multilevel"]
+  },
+  "B_EiC7_weight_evidence": {
+    "category": "EMPIRICAL",
+    "block": "B",
+    "description": "Assess overall weight of evidence for the observed association (sensitivity / bounding analyses) (EiC.7)",
+    "depends_on": ["A_EiC2_RI6_exclusion", "A_EiC6_alt_instruments", "A_RA8_multilevel"]
+  },
+  "C_RI5_zerosum_def": {
+    "category": "ARGUMENTATIVE",
+    "block": "C",
+    "description": "Define 'zero-sum' precisely and derive testable hypotheses; fix p.10 and intro (Quillian 2014) sentences; avoid strawman within-race-homogeneity null (RI.zerosum)",
+    "depends_on": ["A_RA1_framing_fork", "A_RI1_outcome_def"]
+  },
+  "C_RI4_race_moderation": {
+    "category": "ARGUMENTATIVE",
+    "block": "C",
+    "description": "Theoretically motivate WHY the segregation->longevity effect is moderated by race (RI.theory)",
+    "depends_on": ["A_RI1_outcome_def", "C_RI5_zerosum_def"]
+  },
+  "C_RI3_causal_motivation": {
+    "category": "ARGUMENTATIVE",
+    "block": "C",
+    "description": "Strengthen motivation for a DIRECT causal segregation->longevity link vs an effect mediated by violence/income/crime/policy (RI.theory = EiC.1)",
+    "depends_on": ["A_RA1_framing_fork", "B_RE3_mechanisms"]
+  },
+  "C_RI2_gap_literature": {
+    "category": "ARGUMENTATIVE",
+    "block": "C",
+    "description": "If outcome is the gap, add literature (section-4 style) explaining differential racial effects (RI.theory)",
+    "depends_on": ["A_RI1_outcome_def"]
+  },
+  "C_RA3_nonzerosum_case": {
+    "category": "ARGUMENTATIVE",
+    "block": "C",
+    "description": "Lay out the non-zero-sum case without picking unnecessary arguments; focus on existing evidence for non-zero-sum Black-White health/mortality differences [descriptive path] (RA.1.optionA)",
+    "depends_on": ["A_RA1_framing_fork", "C_RI5_zerosum_def"]
+  },
+  "C_RA4_logan_karbeah": {
+    "category": "CLARIFICATION",
+    "block": "C",
+    "description": "Correct characterization of Logan & Parman (2018) and Karbeah & Hacker (2023): neighbor-based measures are MORE granular / less MAUP-prone; real limit is subpopulation focus (RA.1)",
+    "depends_on": ["A_RA1_framing_fork"]
+  },
+  "C_RA6_proxy_mechanisms": {
+    "category": "ARGUMENTATIVE",
+    "block": "C",
+    "description": "Reframe to emphasize mechanisms with empirical proxies (contra p.8 disclaimer); connect to prior work [explanatory path] (RA.1.optionB)",
+    "depends_on": ["A_RA1_framing_fork", "B_RE3_mechanisms"]
+  },
+  "C_RE5_citations": {
+    "category": "CLARIFICATION",
+    "block": "C",
+    "description": "Add Williams & Collins (segregation as fundamental cause of health) and Zinzi Bailey review (RE.mechanisms)",
+    "depends_on": ["A_RA1_framing_fork"]
+  },
+  "C_RE2_lifecourse_nuance": {
+    "category": "ARGUMENTATIVE",
+    "block": "C",
+    "description": "Add life-course nuance about the meaning of segregation at 65+ (possibly protective: kin proximity, multigenerational living, reduced loneliness); reconsider 'longevity' scope (RE.lifecourse = EiC.4)",
+    "depends_on": ["A_RI1_outcome_def", "B_RE1_survivor"]
+  },
+  "C_RI7_activity_space": {
+    "category": "CLARIFICATION",
+    "block": "C",
+    "description": "Reconcile activity-space critique (sec 3.2) with the within-county/between-neighborhood D-index spatial level (RI.methods)",
+    "depends_on": ["A_RA1_framing_fork"]
+  },
+  "C_RI8_magnitude": {
+    "category": "ARGUMENTATIVE",
+    "block": "C",
+    "description": "Move effect-magnitude comparisons vs other longevity studies into lit review and findings, not only discussion (RI.methods)",
+    "depends_on": ["A_RA8_multilevel"]
+  },
+  "D_RA2_frontend": {
+    "category": "STRUCTURAL",
+    "block": "D",
+    "description": "Tighten/restructure front-end (pp.2-15); cut tangential digressions so front-end maps onto back-end constructs (RA.1)",
+    "depends_on": ["A_RA1_framing_fork", "C_RI5_zerosum_def", "C_RI3_causal_motivation", "C_RA3_nonzerosum_case"]
+  },
+  "D_RA5_prune_dynamic": {
+    "category": "STRUCTURAL",
+    "block": "D",
+    "description": "Prune 'dynamic environments' / activity-space material (pp.10-11) not tracked by the measure [if explanatory path retained] (RA.1.optionB)",
+    "depends_on": ["A_RA1_framing_fork", "C_RI7_activity_space"]
+  },
+  "D_RE4_relocate_mechlit": {
+    "category": "STRUCTURAL",
+    "block": "D",
+    "description": "Relocate mechanisms lit review to discussion to explain findings rather than set up disappointment [if mechanisms not tested] (RE.mechanisms)",
+    "depends_on": ["A_RA1_framing_fork", "B_RE3_mechanisms"]
+  },
+  "D_capstone_narrative": {
+    "category": "ARGUMENTATIVE",
+    "block": "D",
+    "description": "Rewrite intro/discussion/conclusion into one coherent narrative with consistent outcome, defended identification, and settled results (capstone)",
+    "depends_on": ["D_RA2_frontend", "D_RA5_prune_dynamic", "D_RE4_relocate_mechlit", "C_RI4_race_moderation", "C_RI2_gap_literature", "C_RE2_lifecourse_nuance", "C_RI8_magnitude", "B_EiC7_weight_evidence"]
+  },
+  "E_RA13_typos": {
+    "category": "EDITORIAL",
+    "block": "E",
+    "description": "Fix typos/elisions/repetition: 'full count' p.16, p.4 elisions, 'In the following section' x2 p.8, footnote 5 (RA.4)",
+    "depends_on": ["D_capstone_narrative"]
+  },
+  "E_RI9_p7_copyedits": {
+    "category": "EDITORIAL",
+    "block": "E",
+    "description": "Copyedit page 7 ('Despite notable progress toward...'; awkward Civil Rights sentence) (RI.minor)",
+    "depends_on": ["D_capstone_narrative"]
+  },
+  "E_RI10_white_advantage_claim": {
+    "category": "CLARIFICATION",
+    "block": "E",
+    "description": "Fix the false claim that evidence for segregation->White advantage 'remains limited' (e.g., White homeowners benefit from higher prices, sec 3.1) (RI.minor)",
+    "depends_on": ["C_RA3_nonzerosum_case"]
+  }
+}

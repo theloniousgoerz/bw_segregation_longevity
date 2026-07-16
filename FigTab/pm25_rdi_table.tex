@@ -1,0 +1,22 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Association between county-level PM2.5 concentration (1990,2000)},
+note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
+note{ }={Models include decade fixed effects and adjust for track length. Modles use cluster-robust standard errors. },
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]},
+column{2}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{4}={1,2}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& pm2.5/m3 \\ \midrule %% TinyTableHeader
+RDI      & 0.356*  \\
+& (0.162) \\
+Num.Obs. & 4186    \\
+R2       & 0.298   \\
+\bottomrule
+\end{talltblr}
+\end{table}

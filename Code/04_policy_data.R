@@ -206,6 +206,7 @@ county_hybrid <- pop_data %>%
     county_pc %>% select(fips5, decade, welf_direct_pc, cash_asst_pc,
                          medicaid_pc, health_pc, educ_pc, taxes_pc,
                          prop_tax_pc, inc_tax_pc, n_years_observed,
+                         starts_with("z"),
                          county_lib_index),
     by = c("fips5", "decade")
   ) %>%
@@ -287,6 +288,7 @@ county_policy %>%
     comp_medicaid, medicaid_source,
     comp_ui, comp_psl, comp_no_rtw, comp_less_preempt,
     comp_tobacco, comp_firearms,
+    starts_with("z"),
     # Indexes
     county_lib_index, lib_sum, lib_index_final, lib_source
   ) %>%

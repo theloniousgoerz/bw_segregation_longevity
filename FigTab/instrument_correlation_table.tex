@@ -1,0 +1,26 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+entry=none,label=none,
+note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
+note{ }={This table displays coefficients and R-squared statistics for bivariate models of the relationships between instruments.
+  Because the instruments are constant, these regressions are run on a each of their distinct values rather than the full sample of county-year observations. 
+  All models include robust standard errors.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]},
+column{2,3,4}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{6}={1,2,3,4}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& RDI-Gov & RDI-Rivers & Gov-Rivers \\ \midrule %% TinyTableHeader
+Ln(Gov)  & 0.110*** &         &         \\
+& (0.008)  &         &         \\
+N Rivers &          & 0.000** & 0.001*  \\
+&          & (0.000) & (0.000) \\
+Num.Obs. & 1760     & 2955    & 1760    \\
+R2       & 0.084    & 0.002   & 0.004   \\
+\bottomrule
+\end{talltblr}
+\end{table}
