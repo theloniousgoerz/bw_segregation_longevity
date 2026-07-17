@@ -210,18 +210,18 @@ data.frame(
                "Filter non-Missing Individual-and County-Level Variables"),
   `N (Counties)` = c(c_1,c_2,c_3,c_4),
   `N (Persons)` = c(ind_1,ind_2,ind_3,ind_4),
-  `N (Counties) ` = c(rc_1,rc_2,rc_3,rc_4),
-  `N (Persons) ` = c(rind_1,rind_2,rind_3,rind_4),
+  #`N (Counties) ` = c(rc_1,rc_2,rc_3,rc_4),
+  #`N (Persons) ` = c(rind_1,rind_2,rind_3,rind_4),
   check.names = F
 ) %>%
   datasummary_df(
     align = "lcccc",
-    notes = "Individual-level characteristics include demographics, education, and fixed effects. Individuals are also filtered by not missing post-stratification weights. The instrument filter is non-missing RDI and railroad density in the RDI columns, and non-missing named rivers and stream density in the rivers columns.",
+    notes = "Individual-level characteristics include demographics, education, and fixed effects. Individuals are also filtered by not missing post-stratification weights. The instrument filter is non-missing RDI and railroad density and non-missing named rivers and stream density.",
   output = "tinytable",
   title = "Sample Filtering Criteria",
   fmt = 0
   ) %>%
-  group_tt(j = list("RDI IV" = 2:3, "Rivers IV" = 4:5)) %>%
+  group_tt(j = list(" " = 2:3)) %>%
   save_tt(here("FigTab","Filtering_table.tex"),overwrite = T)
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

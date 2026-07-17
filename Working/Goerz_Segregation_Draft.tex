@@ -17,6 +17,7 @@
 \usepackage{xcolor}
 \usepackage{natbib}
 \usepackage{tikz}
+\usepackage{pdflscape}
 \usetikzlibrary{arrows.meta,positioning,fit,backgrounds}
 
 % Required by the tinytable output written to FigTab/ by the Analysis scripts.
@@ -256,8 +257,7 @@ Each measure is expressed per 1{,}000 county residents using decennial census po
 
 \subsection{Analytic Sample}
 
-My main analytic sample consists of ($N = 2,412,213$) individuals residing in $X$ counties at their time of death over three decades from 1980-2000. The resulting counties are filtered from all counties in the U.S. such that they have a Black population greater than 0 and coverage of the RDI instrument \footnote{The data filtering procedure and stepwise sample sizes are included in table A1 in the Appendix.}.
-\note{Update the filtering criteria, footnote, and Table A1 (FigTab/Filtering\_table.tex): the sample previously also conditioned on non-missing 1967 Census of Governments finance measures used for the government-fragmentation instrument, which is now removed. Restate the filtering steps for the railroad and river instruments (e.g., counties with valid RDI/hydrography measures) and report the new stepwise Ns.} The sibling sample, described in the Methods section, relies on a subset of the sample containing information on siblings in the CenSoc Numident
+My main analytic sample consists of ($N = 2,412,213$) individuals residing in $X$ counties at their time of death over three decades from 1980-2000. The resulting counties are filtered from all counties in the U.S. such that they have a Black population greater than 0 and coverage of the instruments \footnote{The data filtering procedure and stepwise sample sizes are included in table A1 in the Appendix.}. The sibling sample, described in the Methods section, relies on a subset of the sample containing information on siblings in the CenSoc Numident
 
 Table 1 displays the individual and county characteristics of the 1905-1920 birth cohorts, separately for Black and White decedents, across the full data, the IV sample, and the flexible sibling sample.
 
@@ -270,25 +270,9 @@ Table 1 demonstrates that there is striking consistency in the observable charac
 % =====================================================================
 \section{Empirical Strategy}
 % =====================================================================
-%\note{Biggest empirical upgrades live here: multilevel estimation (A\_RA8),
-%the three-instrument exclusion-restriction defense (EiC.2/RI.6), sibling
-%FE (A\_EiC3), and the mediation/MSEM apparatus for the mechanism test
-%(B\_RA10 / B\_RE3). Keep Eq.(2) but update the estimator.}
-%
-%\subsection{Estimand and the level outcome}
-%\begin{itemize}[leftmargin=1.5em]
-%  \item Define the estimand as the effect of a 10-point change in D on \emph{the level} of longevity, estimated \emph{within} each racial %group. \note{A\_RI1 again --- make the model object match the title and theory}
-%  \item Be explicit that the Black--White gap implied by the two estimates is reported as a derived contrast, with a sign interpretation tied %to H1 vs.\ H2.
-%\end{itemize}
-%
-%\subsection{Instrumental-variables identification}
-%\begin{itemize}[leftmargin=1.5em]
-%  \item Restate the three IV assumptions (relevance, exclusion, monotonicity).
-%  \item \textbf{First stage / relevance:} report F-stats for all three instruments. \note{keep the strong-first-stage evidence}
-%  \end{itemize}
-%  
 
-Next, I turn to the main analysis plan which estimates the causal effect of racial segregation on the longevity of Black and White Americans using a set of instrumental variables (IV) and a sibling fixed effects models. The logic of these instruments utilize quasi-random natural and historical variation in physical barriers that divide up counties to instrument strategy instrument for racial segregation. Greater spatial division of a county, thus facilitates more segregation within places \footnote{Similar instrumental variable designs have been used to examine the effect of segregation on educational outcomes \citep{cutler_are_1997,quillian_does_2014}, poverty and life expectancy \citep{ananat_wrong_2011,hendi_where_2024}, political composition \citep{ananat_segregation_2009}, and public spending \citep{trounstine_segregation_2016}.}. Instrumental variable designs are powerful because they offer one strategy to identify the effects of segregation in a setting where there are many individual selection factors that may shape where individuals live, which in turn shapes their health. They also offer a high degree of geographic representivity in the sample, but rely on strong assumptions that are difficult to test. My approach in this paper is to traingulate the plausibly causal effect of segregation on longevity using a vriety of complementary strategies anchored by the IV estimates. I first describe the necessary IV asusmptions and evidence in support of their validiety, then I present a complementary instrument strategy, and finally an alternative sibling fixed effects design.
+Next, I turn to the main analysis plan which estimates the causal effect of racial segregation on the longevity of Black and White Americans using a set of instrumental variables (IV) and a sibling fixed effects models. The logic of these instruments utilize quasi-random natural and historical variation in physical barriers that divide up counties to instrument strategy instrument for racial segregation. Greater spatial division of a county, thus facilitates more segregation within places \footnote{Similar instrumental variable designs have been used to examine the effect of segregation on educational outcomes \citep{cutler_are_1997,quillian_does_2014}, poverty and life expectancy \citep{ananat_wrong_2011,hendi_where_2024}, political composition \citep{ananat_segregation_2009}, and public spending \citep{trounstine_segregation_2016}.}. 
+\note{Instrumental variable designs are powerful because they offer one strategy to identify the effects of segregation in a setting where there are many individual selection factors that may shape where individuals live, which in turn shapes their health. (Create more grounded justification)} They also offer a high degree of geographic representivity in the sample, but rely on strong assumptions that are difficult to test. My approach in this paper is to traingulate the plausibly causal effect of segregation on longevity using a vriety of complementary strategies anchored by the IV estimates. I first describe the necessary IV asusmptions and evidence in support of their validiety, then I present a complementary instrument strategy, and finally an alternative sibling fixed effects design.
 
 IV designs rely on three core assumptions. First, relevance requires that the instruments strongly predict segregation \citep{angrist_one_2021}. Second, the exclusion restriction requires that instruments affect longevity only through segregation. It is important to recall that the instruments used in this setting measure the \textit{configuration} of barriers within a county rather than any quality of the barriers themselves or of the places they divide. I take the threats to this assumption seriously and address them at length below, testing whether the RDI is directly associated with education, income, and pollution exposure, and complementing the railroad strategy with natural boundaries that are not the product of human placement.\footnote{Because there are more instruments than endogenous regressors, a natural test of the validity of many instruments are overidentification tests. These tests are commonly interpreted as testing the ``validity'' of the instruments, however overidentification tests must first assume that one instrument is valid (e.g., in the just-identified case) \citep{felton_handle_2024}, which is not informative for assessing validity. A more informative interpretation from \citet{mogstad_causal_2021} is that rejection of overidentification tests suggests that there is heterogeneity in treatment effects across subpopulations affected by the different instruments, which is not in reference to validity. Additionally, overidentification tests assume constant treatment effects, which is unreasonable in a setting where the IV estimate is a local average treatment effect. As expected, the instruments generally fail to pass these tests given the large sample size of my data, where observations are in the millions. An alternative to overidentification tests is placebo analyses that require a researcher find an additional instrument that shares all the same confounders as the original instrument but is thought to not affect the treatment \citep{felton_handle_2024}. While informative, the shared confounders assumption of placebo instruments is also quite strong and the search for a candidate placebo instrument faces the same challenges as the search for a credible instrument.} Third, monotonicity requires that the instruments push segregation in the same direction for all units. While a direct test of this assumption is not possible, I examine demographic patterns that would be consistent with monotonicity and discuss them in Appendix B. Conditional on these assumptions, IV estimates are interpreted as the local average treatment effect (LATE) \citep{imbens_identification_1994,mogstad_causal_2021}, or the treatment effect among those living in counties where segregation increased because of greater physical division.
 
@@ -300,7 +284,7 @@ RDI = 1 - \sum_i (a_i/A)^2
 
 The intuition behind the RDI is that historical railroads provided natural barriers within places that populations could cluster around, thus creating higher levels of baseline segregation. \citep{ananat_wrong_2011} also demonstrates that historical White segregationist efforts often utilized natural barriers such as rail lines to establish communities and neighborhoods, because these barriers are naturally difficult to navigate. 
 
-There are two leading issues that may undermine exclusion. First, in its original usage \citep{ananat_wrong_2011}, the RDI is constructed for Northern metropolitan areas, because the majority of African Americans lived almost entirely in the South before the 1900s when the railroads were laid. Therefore only in non-Southern cities can railroad configuration be treated as exogenous to race and thought to induce segregation by Black inflows from the great migration. This the logic of exclusion rests on this restriction but limits the geographic generalizability of estimates. To overcome this, I examine the consistency of results in models stratified by those living in the South versus the non-South and adjust for residence in the South in all models and these results are quantitatively similar (Appendix table Axx). 
+There are two leading issues that may undermine exclusion. First, in its original usage \citep{ananat_wrong_2011}, the RDI is constructed for Northern metropolitan areas, because the majority of African Americans lived almost entirely in the South before the 1900s when the railroads were laid. Therefore only in non-Southern cities can railroad configuration be treated as exogenous to race and thought to induce segregation by Black inflows from the great migration. This the logic of exclusion rests on this restriction but limits the geographic generalizability of estimates. To overcome this, I adjust for residence in the South in all models and test the robustness of these results using an alternative set of instruments described in this section as well as sibling fixed effects estimates that do not require similar exclusion restrictions. 
 
 Second, it is important to note that while railroad division does not directly relate to railroad \textit{exposure} per se, they are inherently related. The exclusion restriction hinges on the assumption that early 20th Century railroads do not affect mortality directly. On one hand, railroads could affect mortality by generating financial prosperity in areas surrounding tracks which could promote better health. \citep{black_impact_2015}, using railroad proximity to instrument for migration, they show that railroads had little association with economic outcomes for a non-selective group of Southern-born White older adults, indicating that the long-term health impacts of railroad induced prosperity are likely minimal. To test this possibility directly, I regress education and income of 1905-1920 birth cohorts in 1940 on the RDI to test whether railroad division is directly related to socioeconomic outcomes. I conduct this procedure for those that did not migrate during their lifetime to capture the potential impact of the RDI for those exposed continuously to the same place as well as the full sample to capture the relationship between exposure to the RDI in one's county at death (Appendix tables Axx). These tests indicate that the RDI is not significantly associated with the educational attainment of Blacks or Whites, regardless of sample. However, the RDI is associated actually slightly negatively associated income for Blacks and Whites at a similar magnitude ($-.04$). However it is important to note the small magnitude of this association. The RDI ranges from 0-1, indicating that a one point increase in railroad division (RDI/100) would translate to approximately a $0.004\%$ decrease in earnings in 1940. While these estimates are significantly negative, they are quite insignificant substantively. \footnote{It is important to highlight that the regression results for income and education for those who did not migrate during their lifetime (i.e., those that were can confidently attribute their RDI value to birth place as well as death place) are highly similar to the full sample results, suggesting that whether we capture RDI exposure early or later in life, any impacts do not appear to compound over time in ways that exacerbate exclusion restriction violations.}
 
@@ -367,9 +351,9 @@ Finally, while the conceptual interest of this paper is to understand the \emph{
 % =====================================================================
 \section{Results}
 % =====================================================================
-I present the results in the order that the empirical strategy sets up. I begin with the relevance of the instruments, because the credibility of the instruments rest on this assumption first. I then report the OLS associations between segregation and longevity separately for Black and White individuals, which establish the sign and magnitude of the relationship in the dataset. I then turn to the instrumental variable estimates and sibling fixed effects estimates to triangulate the effects of segregation on longevity across empirical strategies. Throughout, I estimate all models separately by race and express the estimates as the effect of a 10-point increase in the dissimilarity index.
+I present the main results in the order described in the Empirical Strategy. I begin with the relevance of the instruments, because the credibility of the instruments rest on this assumption. I then report the OLS associations between segregation and longevity separately for Black and White individuals, which establish the sign and magnitude of the relationship in the dataset. I then turn to the instrumental variable estimates and sibling fixed effects estimates to triangulate the effects of segregation on longevity across empirical strategies. Throughout, I estimate all models separately by race and express the estimates as the effect of a 10-point increase in the dissimilarity index.
 
-I begin by testing the relevance assumption, which requires that the instruments strongly predict segregation. Figure 2 displays the first-stage relationship between each instrument and county dissimilarity, residualized on the remaining instrument in each strategy. Panel A shows that counties more finely divided by the pre-1911 railroad network are substantially more segregated: a county at the top of the RDI distribution is roughly $9$--$13$ points more segregated than an undivided county, and the first-stage $F$-statistic of $78.0$ far exceeds conventional thresholds for instrument strength. Panel B shows the analogous relationship for the natural-boundary strategy, where counties containing more named rivers are more segregated, with a first-stage $F$-statistic of $34.0$. In the race-stratified first stages reported in Tables 3 and 4, the RDI coefficient is $8.9$ in the Black sample and $7.5$ in the White sample, and both are precisely estimated. The instruments are therefore strong predictors of segregation in both samples, and the two strategies recover first stages of similar magnitude despite drawing on entirely different sources of spatial division.
+First, the relevance assumption requires that the instruments strongly predict segregation. Figure 2 displays binned scatterplots of the first-stage relationship between each instrument and county dissimilarity, residualized on the instrument in each strategy \footnote{The binscatter plot is a method to intuitively visualize bivariate relationships in large datasets. Because there are $2,955$ unique counties, examining a scatterplot with individual points can be hard to visualize. The binscatter approach bins the distribution of the independent variable and then take the average of the outcome variable in each bin. These binned $y-x$ relationships are then visualized in a scatterplot to approximate the relationship. Full regression results are available in the Appendix.}. Panel A shows that counties more granularly divided by the pre-1911 railroad network are substantially more segregated: a county at the top of the RDI distribution is roughly $9$--$13$ points more segregated than an undivided county Consistent with the relevance assumption, the first-stage $F$-statistic of $78.0$ far exceeds conventional thresholds for instrument strength. Panel B shows the analogous relationship for the natural-boundary strategy, where counties containing more named rivers are more segregated, with a first-stage $F$-statistic of $34.0$. Race-stratified first stages for individual-level regressions are reported in reported in Tables 4 and 5. The instruments are therefore strong predictors of segregation in both samples, and the two strategies recover first stages of similar magnitude despite drawing on entirely different sources of spatial division.
 
 \begin{figure}[h!tbp]
 \centering
@@ -380,11 +364,9 @@ I begin by testing the relevance assumption, which requires that the instruments
 
 \subsection{Main Estimates of Segregation on Longevity}
 
-Table 3 reports the OLS association between segregation and longevity, estimated separately for Black and White decedents with birth year, birth state, and urban-rural fixed effects, and with the addition of individual controls and occupation fixed effects in the even-numbered columns. The association is negative for both groups and is essentially unchanged by the inclusion of controls. Among Black individuals, a 10-point increase in dissimilarity is associated with $0.71$ fewer years of life; among White individuals, the same increase is associated with $0.65$ fewer years. The stability of these coefficients across specifications is notable: adding sex, education, marital status, migration status, and occupation fixed effects moves the Black estimate not at all and the White estimate by less than a hundredth of a year, which suggests that the association is not an artifact of the individual-level composition of segregated counties.
+Next, I present main estimates of the OLS association between segregation and longevity across samples by race and the IV and sibling fixed effects estimates. Figure 3 reports OLS association between segregation and longevity, estimated separately for Black and White decedents with birth year, birth state, and urban-rural fixed effects, and with the addition of individual controls and occupation fixed effects. Because the samples used by each identification strategy differ, the details of which are described in the Appendix, I re-estimate the OLS association on each of the three estimation samples that the subsequent models use.In the IV sample, the association is consistently negative for both groups regardless of the sample considered and with the inclusion of controls. Among Black individuals, a 10-point increase in dissimilarity is associated with $0.71$ fewer years of life; among White individuals, the same increase is associated with $0.65$ fewer years. A key takeaway from Figure 3 is that the associations are remarkably insensitive to which sample it is estimated on. Across the IV, flexible sibling, and exact sibling samples, the Black estimate ranges from $-0.73$ to $-0.61$ years and the White estimate remains stable across models at $-0.65$ years per 10-point increase in dissimilarity. The Black estimates are less precise in the sibling samples, which is expected given that the sibling subsample contains $12{,}314$ Black individuals compared with $125{,}075$ in the IV sample, but the point estimates sit within the confidence intervals of the full-sample estimates. Whatever variation in sample composition the identification strategies introduce, it does not by itself move the association. 
 
-%\input{../FigTab/OLS_results_table.tex}
-
-Because the samples used by each identification strategy differ, the details of which are described in the Appendix, I re-estimate the OLS association on each of the four estimation samples that the subsequent models use. Figure 3 displays these estimates. The point of this figure is that the OLS association is remarkably insensitive to which sample it is estimated on. Across the RDI, rivers, flexible sibling, and exact sibling samples, the Black estimate ranges from $-0.73$ to $-0.61$ years and the White estimate is essentially fixed at $-0.65$ years per 10-point increase in dissimilarity. The Black estimates are less precise in the sibling samples, which is expected given that the sibling subsample contains $12{,}314$ Black individuals compared with $125{,}075$ in the IV sample, but the point estimates sit within the confidence intervals of the full-sample estimates. Whatever variation in sample composition the identification strategies introduce, it does not by itself move the association.
+Recall that Figure 1 described three stylized race-specific relationships between segregation and longevity that are consistent with Black-White disparities. These OLS associations provide initial support in favor of interpretation (A) mutual harm from segregation not a zero-sum relationship, which requires a positive coefficient for Whites. In this scenario, a Black-White gap in the coefficients of $0.06$--$0.08$ years emerges. These associations are nevertheless descriptive. Individuals sort into counties for reasons plausibly related to their health, so I turn to the instrumental variable and sibling fixed effects estimates to recover the causal effect.
 
 \begin{figure}[h!tbp]
 \centering
@@ -393,26 +375,34 @@ Because the samples used by each identification strategy differ, the details of 
 \label{fig:ols-all}
 \end{figure}
 
-Two features of these associations deserve emphasis before turning to the causal estimates. First, the coefficient is negative for \textit{both} groups. This is the pattern that Panel (A) of Figure 1 describes and is inconsistent with the zero-sum expectation in Panel (B), which requires a positive coefficient for Whites. Second, the Black coefficient is larger in magnitude than the White coefficient, so the difference between them, which is the implied contribution of segregation to the Black-White longevity gap, is roughly $0.06$--$0.08$ years per 10-point increase in dissimilarity. A Black-White gap therefore emerges here not because Whites gain from segregation but because Blacks lose more from it than Whites do. These associations are nevertheless descriptive. Individuals sort into counties for reasons plausibly related to their health, so I turn to the instrumental variable estimates to recover the causal effect.
+Figure 4 and 5 display the two-stage least squares estimates using the RDI and rivers instruments. Consistent with the OLS associations, segregation reduces the longevity of both Black and White Americans. Using the RDI instrument in the fully specified models, a 10-point increase in dissimilarity reduces Black longevity by $0.62$ years (95\% CI: $-0.75$, $-0.48$) and White longevity by $0.53$ years (95\% CI: $-0.66$, $-0.41$). 
 
-\subsection{Instrumental Variable Estimates}
+\begin{figure}[h!tbp]
+\centering
+\includegraphics[width=.5\textwidth]{../FigTab/rdi_iv_estimates.jpeg}
+\caption{IV Estimates of the Effect of Segregation on Longevity, By Race (RDI)}
+\label{fig:iv_rdi-all}
+\end{figure}
 
-Tables 4 and 5 report the two-stage least squares estimates using the railroad and rivers instruments, and Figure 4 displays the estimates from all four identification strategies side by side. Consistent with the OLS associations, segregation reduces the longevity of both Black and White Americans, and every estimate in Figure 4 lies below zero.
+The rivers instrument, yields estimates of $0.33$ fewer years for Black individuals (95\% CI: $-0.51$, $-0.16$) and $0.37$ fewer years for White individuals (95\% CI: $-0.41$, $-0.33$). The two strategies bracket a common conclusion. A 10-point increase in segregation costs Black Americans between roughly four and seven months of life and White Americans between roughly four and six months.
 
-%\input{../FigTab/IV_results_table_rdi.tex}
-%\input{../FigTab/IV_results_table_rivers.tex}
+\begin{figure}[h!tbp]
+\centering
+\includegraphics[width=.5\textwidth]{../FigTab/rivers_iv_estimates.jpeg}
+\caption{IV Estimates of the Effect of Segregation on Longevity, By Race (Rivers)}
+\label{fig:iv_rivers-all}
+\end{figure}
 
-Using the RDI instrument in the fully specified models, a 10-point increase in dissimilarity reduces Black longevity by $0.62$ years (95\% CI: $-0.75$, $-0.48$) and White longevity by $0.53$ years (95\% CI: $-0.66$, $-0.41$). The rivers instrument, which relies on natural rather than human-placed boundaries, yields estimates of $0.33$ fewer years for Black individuals (95\% CI: $-0.51$, $-0.16$) and $0.37$ fewer years for White individuals (95\% CI: $-0.41$, $-0.33$). The two strategies bracket a common conclusion. A 10-point increase in segregation costs Black Americans between roughly four and seven months of life and White Americans between roughly four and six months, and in no specification is the White estimate positive or statistically indistinguishable from zero.
+To assess the consistency of these estimates to a different identification strategy, Figure 5 displays the same specifications between unpaired and paired sibling fixed effects regression models. The pattern ...That the two sibling matching procedures agree so closely suggests that the estimates are not sensitive to how siblings are identified.
 
-The sign pattern is the central result. The zero-sum account summarized in Panel (B) of Figure 1 requires that the coefficient on segregation be negative for Blacks and \textit{positive} for Whites. That pattern does not appear in any specification, in either instrument strategy, or in either sibling design. Nor do the estimates support the Black-specific harm account in Panel (C), which requires a null effect for Whites; the White estimates are negative and precisely estimated, with confidence intervals that exclude zero by a wide margin in every case. The results are instead consistent with Panel (A): segregation is harmful to both groups, and the Black-White gap arises because the harm is unequal in size rather than because it is opposite in sign.
+\begin{figure}[h!tbp]
+\centering
+\includegraphics[width=.5\textwidth]{../FigTab/sibling_fe_estimates.jpeg}
+\caption{Sibling FE Estimates of the Effect of Segregation on Longevity, By Race}
+\label{fig:sib_fe-all}
+\end{figure}
 
-Reading the gap off the levels makes this concrete. Under the RDI estimates, a 10-point increase in dissimilarity widens the Black-White longevity gap by $0.09$ years, but it does so while lowering the longevity of both groups. The gap and the levels tell different stories about the same coefficients: an analysis that examined only the gap would recover a Black disadvantage of about a month per 10 points of segregation and would be silent on the fact that both groups lose roughly half a year. This is precisely the ambiguity that Figure 1 describes, and it is why the group-specific estimates rather than the difference between them carry the substantive interpretation.
-
-The magnitude of these effects is substantial when placed against other predictors of longevity in these data. In the fully specified OLS models, one additional year of education is associated with $0.04$ additional years of life for Black individuals and $0.055$ for White individuals. A 10-point increase in segregation therefore costs Black individuals the longevity equivalent of roughly $15$ years of additional schooling and White individuals the equivalent of roughly $10$ years. Put differently, the effect of a 10-point increase in dissimilarity is comparable in magnitude to about two-thirds of the estimated penalty of being male in these cohorts ($-1.00$ years for Blacks, $-0.93$ for Whites). Segregation is not a marginal input into how long these cohorts lived.
-
-\subsection{Triangulation Across Identification Strategies}
-
-Figure 4 assembles the estimates from all four strategies. The value of this comparison is that each design fails in a different way. The IV designs recover a local average treatment effect among compliers and depend on an exclusion restriction that cannot be tested directly; the sibling fixed effects design requires no exclusion restriction but identifies the effect only from siblings who ended up in counties with different levels of segregation, and does so on a much smaller and potentially selective sample. If the estimates converge despite these differences, it is unlikely that any single design's assumptions are generating the result.
+While each of these identification strategies faces certain strengths and weaknesses ranging from the testability of the assumptions to external validity, their strength is in their comparison to each other. The IV designs recover a local average treatment effect among compliers and depend on an exclusion restriction that cannot be tested directly; the sibling fixed effects design requires no exclusion restriction but identifies the effect only from siblings who reside in counties with different levels of segregation and in a much smaller sample. If the estimates converge despite these differences, it is unlikely that any single design's assumptions are generating the result. Figure 6 assembles fully-adjusted estimates from all four strategies.
 
 \begin{figure}[h!tbp]
 \centering
@@ -421,21 +411,14 @@ Figure 4 assembles the estimates from all four strategies. The value of this com
 \label{fig:iv-all}
 \end{figure}
 
-They converge. All eight estimates in Figure 4 are negative and statistically distinguishable from zero, and they span a range of roughly $0.33$ to $0.95$ fewer years of life per 10-point increase in dissimilarity. The sibling fixed effects estimates are the largest in magnitude: $0.95$ fewer years for Black individuals and $0.80$ for White individuals under the flexible match, with the exact match yielding nearly identical values of $0.94$ and $0.79$. That the two sibling matching procedures agree so closely suggests that the estimates are not sensitive to how siblings are identified. The IV estimates are the most conservative, and the OLS associations in Figure 3 sit between the two IV strategies. Notably, the sibling estimates exceed the OLS associations estimated on the same samples, which is the pattern expected if families that sort into more segregated counties are positively selected on unobserved determinants of longevity, such that failing to difference out family-level heterogeneity biases the association toward zero.
+Across specifications, the results a quite consistent. The estimates are negative and significant across specifications, with some variability. The sibling fixed effects estimates are the largest in magnitude, while the IV estimates are the most conservative. Across designs, the ordering of the two groups is preserved: Blacks are significantly penalized by segregation at a magnitude larger than the White estimate in three of the four strategies. In the rivers IV specification the two are indistinguishable from one another \footnote{It is important to note that, because models are race-stratified, statistical comparisons cannot be made by coefficients. Despite this, the qualitative equivalence between the Black and White results in the rivers IV specification is notable.}. The consistent takeaway cross models is that higher segregation means shorter lives for Black and White Americans alike.
 
-Across every design, the ordering of the two groups is preserved: the Black estimate is larger in magnitude than the White estimate in three of the four strategies, and in the rivers specification the two are statistically indistinguishable from one another. What does not vary across designs is the sign. Whether segregation is instrumented by nineteenth-century railroad configuration, by the arrangement of natural waterways, or differenced out at the family level, more segregation means shorter lives for Black and White Americans alike.
+Under fully-adjusted RDI estimates, a 10-point increase in dissimilarity widens the Black-White longevity gap by $0.09$ years. The gap and the individual-level regressions tell different stories about the ostensibly same relationship. This longevity gap arises not from a zero sum process, but from lowering the longevity of both groups. An analysis that examined only the gap would recover a Black disadvantage of about a month, while missing the social conext that both groups are disadvantaged by segregation. 
 
-\subsection{Heterogeneity by education and gender}
-\begin{itemize}[leftmargin=1.5em]
-  \item Whites: harm declines with education but never vanishes (college+ still harmed). \note{supports H3}
-  \item Blacks: harm roughly education-invariant. \note{supports H3 + differential-returns lit}
-  \item Tie explicitly back to the DuBois-derived H3, not just reported as a subgroup split. \note{closes the loop RA flagged on front/back-end connection}
-\end{itemize}
+How should one understand the magnitude of these effects substantively? In the context of contemporary demographic research on the social determinants of longevity, these effects are substantial. Consider the effects of educational expansion, homeownership, and x.
 
 
-\note{Keep Gender but compress --- it's secondary.}
-
-\subsection{Mechanism: political-economy mediation}
+\subsection{Political-Economic Mechanisms of Segregation}
 \note{NEW headline subsection --- B\_RE3 payoff.}
 \begin{itemize}[leftmargin=1.5em]
   \item Show segregation $\rightarrow$ policy mediators $\rightarrow$ longevity.
@@ -443,7 +426,7 @@ Across every design, the ordering of the two groups is preserved: the Black esti
   \item Interpret: supports the macro/shared channel (H2) as a real pathway, not just a residual. \note{C\_RI3 --- mediated account, stated carefully}
 \end{itemize}
 
-To test the importance of several political-economic mechanisms linking segregation to longevity, I conduct a stepwise analysis of mechanisms compared to the baseline IV regressions (equation 4). I start with estimates using the RDI stratified by race and include 
+What explains the the common effects of segregation on longevity for White and Black Americans?To test the importance of several political-economic mechanisms motivated by prior theoretical and empirical scholarship, I conduct a stepwise analysis of mechanisms compared to the baseline IV regressions (equation 4) \footnote{A descriptive table on the segregation mechanisms tested here are displayed in Appendix Table Axx.}. I start with estimates using the RDI stratified by race and include. 
 
 \subsection{Double Truncation and Mortality Crossover }
 Thus far the estimates presented suggest that segregation had significant, negative effects on the longevity of both Black and White Americans aged 65 and older. However, because of this selective period in life, this raises the possibility that race-specfic processes of mortality selection could bias these estimates. Indeed, a large literature in demography focused on the so-called Black-White mortality crossover has found that advanced ages, positively-selected Black older adults have lower mortality risk compared to White older adults of the same age. In this setting, it could be perfectly feasible that the magnitude of the negative estimates for Whites could be accounted for by this selection and the magnitude of the estimates for Blacks could be a significant underestimate of the full magnitude. I present two peices of evidence against this conclusion. 
@@ -457,8 +440,6 @@ Figure X provides a graphical representation of my main regression estimates by 
 \includegraphics[width=.5\textwidth,height=.5\textheight,keepaspectratio]{../FigTab/gompertz_figure.jpeg}
 \caption{Double-Truncation-Corrected Estimates of the Relationship Between Segregation and Longevity}
 \end{figure}
-
-\subsection{Millitary and cohort variation}
 
 % =====================================================================
 \section{Discussion}
@@ -485,27 +466,35 @@ political economy of segregated places.}
 % =====================================================================
 
  % Prompt: I want you to read through the text and update this list of tables wnd figures with the tables and figures that I  % reference in the text (e.g., Axx or verbally as being necessary.
+
 \note{Reuse most existing exhibits; new/changed ones marked NEW/CHANGED.}
 \begin{enumerate}[leftmargin=1.5em]
-  \item Fig 1 --- Zero-sum processes
-  \item Fig 2 --- OLS/multilevel level estimates by race 
-  \item Fig 3 --- IV level estimates by race. \note{CHANGED --- level framing}
-  \item Fig 4 --- \textbf{Triangulation panel:} all instruments + sibling FE. \note{NEW --- lead figure}
-  \item Fig 5 --- IV by education, Whites. (keep)
-  \item Fig 6 --- IV by education, Blacks. (keep)
+ % \item Fig 1 --- Zero-sum processes
+  %\item Fig 2 --- OLS/multilevel level estimates by race 
+% \item Fig 3 --- IV level estimates by race. \note{CHANGED --- level framing}
+ % \item Fig 4 --- \textbf{Triangulation panel:} all instruments + sibling FE. \note{NEW --- lead figure}
   \item Fig 7 --- \textbf{Mediation: segregation $\rightarrow$ policy $\rightarrow$ longevity.} \note{NEW}
   \item Table 1 --- Representativeness (+ race-specific match quality). \note{CHANGED}
   \item Table 2 --- Descriptives by race. (keep)
-  \item Table 3 --- OLS/multilevel results. \note{CHANGED}
-  \item Table 4 --- IV results (level, by race). \note{CHANGED}
-  \item Table 5 --- IV by gender. (keep)
-  \item Table 6 --- IV by education. (keep)
-  \item Table 7 --- \textbf{Mediation / MSEM results.} \note{NEW}
 \end{enumerate}
 
 \section{Appendix}
 \subsection{A}
+
+\begin{enumerate}
+  \item Table 3 --- OLS/multilevel results. \note{CHANGED}
+  \item Table 4 --- IV results (level, by race). \note{CHANGED}
+  \item Table 7 --- \textbf{Mediation} \note{NEW}
+\end{enumerate}
 \input{../FigTab/Filtering_table.tex}
+
+\begin{landscape}
+\input{../FigTab/OLS_results_table.tex}
+\input{../FigTab/IV_results_table_rdi.tex}
+\input{../FigTab/IV_results_table_rivers.tex}
+\input{../FigTab/sibling_fe_table.tex}
+\end{landscape}
+
 \begin{enumerate}
   \item Table 1 ---- filtering table; 
   \item Table 2 ---- F-stats
@@ -513,15 +502,40 @@ political economy of segregated places.}
   \item Table  ----  weighted models
   \item Table  ---- alt-index models; 
   \item Table  ---- migration check; 
+  \item Table ---- Mechanism descriptive table 
   \item Table  ---- map 
 \end{enumerate}
 
-\subsection{B: Robustness checks}
+\subsection{B: Robustness}
+
+\begin{itemize}
+   \item Table --- IV by education, Whites
+   \item Table --- IV by education, Blacks
+   \item Table --- IV by gender 
+   \item Table --- IV by birth cohort 
+\end{itemize}
+
 \subsection{Monotonicity}
 
  It is well known that segregation levels have declined over time. If part of that decline reflects less economic and racial residential sorting, then we would expect the association between physical division and segregation to weaken year-over-year. Following \citet{rauscher_why_2020}, evidence for monotoniciy would suggest that the instrument strength declines over decades. Consistent with this assumption, the strength of the association between the instruments and segregation, measured by $R^2$, decreases between 1980 and 2000. While this does not represent a conclusive test, these patterns are consistent with monotonicity.
 \note{Compress the robustness prose into a paragraph + appendix pointer:
 weights, alt indices, migration, cohort bins all concordant.}
+
+
+\subsection{Heterogeneity by Cohort, Gender, and Education}
+
+Thus far, the main estimates suggest overall that segregation harms Black and White individuals' longevity in substantial ways. How do these patterns vary by important social axes? In this section I consider variation by birth cohorts, education levels, and gender to probe the consistency of these results. 
+
+Examining cohorts serve two purposes. The first is to probe how the results vary when considering individuals who were born in earlier versus later historical periods; the second is to provide a partial asessment of the selective impacts of military service on longevity. While no cohorts in my sample are completely excluded from military participation to facilitate a clean comparison between those who served and did not, birth cohort-stratified models offer the ability for a characterization of those who were more or less likely to have served. [Flesh out logic here]
+
+\begin{itemize}[leftmargin=1.5em]
+  \item Whites: harm declines with education but never vanishes (college+ still harmed). \note{supports H3}
+  \item Blacks: harm roughly education-invariant. \note{supports H3 + differential-returns lit}
+  \item Tie explicitly back to the DuBois-derived H3, not just reported as a subgroup split. \note{closes the loop RA flagged on front/back-end connection}
+\end{itemize}
+
+\note{Keep Gender but compress --- it's secondary.}
+
 % =====================================================================
 % References
 % =====================================================================

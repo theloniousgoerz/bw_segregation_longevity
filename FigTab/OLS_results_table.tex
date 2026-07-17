@@ -3,32 +3,69 @@
 \begin{talltblr}[         %% tabularray outer open
 caption={Estimates of the Association Betwen Segregation and Longevity},
 note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
-note{ }={Heteroskedasiticty Robust Standard Errors in parentheses.},
+note{ }={Heteroskedasiticty Robust Standard Errors in parentheses. The Exact and Flexible columns are OLS estimated on the exact- and flexible-match sibling samples, without the sibling group fixed effect.},
 ]                     %% tabularray outer close
 {                     %% tabularray inner open
-colspec={Q[]Q[]Q[]Q[]Q[]},
-column{2,3,4,5}={}{halign=c,},
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
+column{3,4,5,7,8,9}={}{halign=c,},
 column{1}={}{halign=l,},
-hline{12}={1,2,3,4,5}{solid, black, 0.05em},
+cell{2}{2}={}{halign=c,},
+cell{2}{6}={}{halign=c,},
+cell{3}{2}={}{halign=c,},
+cell{3}{6}={}{halign=c,},
+cell{4}{2}={}{halign=c,},
+cell{4}{6}={}{halign=c,},
+cell{5}{2}={}{halign=c,},
+cell{5}{6}={}{halign=c,},
+cell{6}{2}={}{halign=c,},
+cell{6}{6}={}{halign=c,},
+cell{7}{2}={}{halign=c,},
+cell{7}{6}={}{halign=c,},
+cell{8}{2}={}{halign=c,},
+cell{8}{6}={}{halign=c,},
+cell{9}{2}={}{halign=c,},
+cell{9}{6}={}{halign=c,},
+cell{10}{2}={}{halign=c,},
+cell{10}{6}={}{halign=c,},
+cell{11}{2}={}{halign=c,},
+cell{11}{6}={}{halign=c,},
+cell{12}{2}={}{halign=c,},
+cell{12}{6}={}{halign=c,},
+cell{13}{2}={}{halign=c,},
+cell{13}{6}={}{halign=c,},
+cell{14}{2}={}{halign=c,},
+cell{14}{6}={}{halign=c,},
+cell{15}{2}={}{halign=c,},
+cell{15}{6}={}{halign=c,},
+cell{16}{2}={}{halign=c,},
+cell{16}{6}={}{halign=c,},
+cell{17}{2}={}{halign=c,},
+cell{17}{6}={}{halign=c,},
+cell{18}{2}={}{halign=c,},
+cell{18}{6}={}{halign=c,},
+cell{1}{2}={c=4,}{halign=c, halign=c,},
+cell{1}{6}={c=4,}{halign=c, halign=c,},
+hline{13}={1,2,3,4,5,6,7,8,9}{solid, black, 0.05em},
 }                     %% tabularray inner close
 \toprule
-& Black & Black\newline Controls & White & White\newline Controls \\ \midrule %% TinyTableHeader
-D                & -0.071*** & -0.071*** & -0.066*** & -0.065*** \\
-& (0.001)   & (0.001)   & (0.000)   & (0.000)   \\
-Male             &           & -0.987*** &           & -0.923*** \\
-&           & (0.041)   &           & (0.009)   \\
-Education        &           & 0.040***  &           & 0.055***  \\
-&           & (0.005)   &           & (0.001)   \\
-Migrated         &           & -0.394*** &           & 0.002     \\
-&           & (0.033)   &           & (0.007)   \\
-Married in 1940  &           & 0.110***  &           & -0.030*** \\
-&           & (0.030)   &           & (0.007)   \\
-Num.Obs.         & 125074    & 125059    & 2287138   & 2287138   \\
-R2               & 0.378     & 0.387     & 0.349     & 0.357     \\
-Birth Year       & X         & X         & X         & X         \\
-Birth State      & X         & X         & X         & X         \\
-Urban-Rural Code & X         & X         & X         & X         \\
-Occupation       & -         & X         & -         & X         \\
+& Black &  &  &  & White &  &  &  \\ \cmidrule[lr]{2-5}\cmidrule[lr]{6-9}
+& Base & Controls & Exact & Flexible & Base  & Controls  & Exact  & Flexible  \\ \midrule %% TinyTableHeader
+D                & -0.071*** & -0.071*** & -0.061*** & -0.064*** & -0.066*** & -0.065*** & -0.065*** & -0.065*** \\
+& (0.006)   & (0.006)   & (0.008)   & (0.008)   & (0.003)   & (0.003)   & (0.003)   & (0.003)   \\
+Male             &           & -0.987*** & -1.256*** & -1.226*** &           & -0.923*** & -0.893*** & -0.891*** \\
+&           & (0.043)   & (0.254)   & (0.210)   &           & (0.014)   & (0.033)   & (0.028)   \\
+Education        &           & 0.040***  & 0.012     & 0.012     &           & 0.055***  & 0.051***  & 0.054***  \\
+&           & (0.005)   & (0.026)   & (0.023)   &           & (0.002)   & (0.004)   & (0.004)   \\
+Migrated         &           & -0.394*** & -0.256    & -0.499**  &           & 0.002     & -0.018    & -0.016    \\
+&           & (0.050)   & (0.198)   & (0.172)   &           & (0.040)   & (0.045)   & (0.046)   \\
+Married in 1940  &           & 0.110***  & -0.066    & -0.024    &           & -0.030**  & -0.088**  & -0.052*   \\
+&           & (0.032)   & (0.203)   & (0.157)   &           & (0.011)   & (0.027)   & (0.024)   \\
+Num.Obs.         & 125074    & 125059    & 3344      & 4652      & 2287138   & 2287138   & 184760    & 242822    \\
+R2               & 0.378     & 0.387     & 0.373     & 0.373     & 0.349     & 0.357     & 0.318     & 0.319     \\
+Birth Year       & X         & X         & X         & X         & X         & X         & X         & X         \\
+Birth State      & X         & X         & X         & X         & X         & X         & X         & X         \\
+Urban-Rural Code & X         & X         & X         & X         & X         & X         & X         & X         \\
+Occupation       & -         & X         & X         & X         & -         & X         & X         & X         \\
 \bottomrule
 \end{talltblr}
 \end{table}
