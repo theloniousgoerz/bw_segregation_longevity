@@ -1,0 +1,34 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={RDI IV: Segregation x Military Service Interaction (Men)},
+note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
+note{ }={Men only. `served` = 1 if the person's HISTID matches the CenSoc WWII Army enlistment-to-1940-Census file (else 'not observed to have served'). Each model interacts segregation (D) with service: 'D' is the slope for non-servers, 'D x Served' the difference for servers, 'Served' the main service effect. Controls: migrated, education, married (and 'Died in South' for the IV models); `male` is dropped (constant within men). Fixed effects: birth year, birth state, urbanicity, occupation. IV instruments D and D x Served with the Railroad Division Index and track density, each also interacted with service.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]},
+column{2,3}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{16}={1,2,3}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Black & White \\ \midrule %% TinyTableHeader
+D               & -0.064*** & -0.055*** \\
+& (0.008)   & (0.007)   \\
+D x Served      & -0.002    & 0.001     \\
+& (0.004)   & (0.001)   \\
+Served (=1)     & 0.109     & -0.077    \\
+& (0.247)   & (0.073)   \\
+Education       & 0.049***  & 0.077***  \\
+& (0.008)   & (0.002)   \\
+Migrated        & -0.359*** & 0.007     \\
+& (0.068)   & (0.030)   \\
+Married in 1940 & 0.128*    & -0.090*** \\
+& (0.051)   & (0.014)   \\
+Died in South   & -0.242    & 0.198*    \\
+& (0.154)   & (0.096)   \\
+Num.Obs.        & 52544     & 998363    \\
+R2              & 0.322     & 0.253     \\
+\bottomrule
+\end{talltblr}
+\end{table}

@@ -193,8 +193,8 @@ ols_m2_w = feols(death_age~county_dism + male + migrated + education + married |
 
 r1_b = feols(death_age~1|byear + STATEFIP_b + urb_code |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2 , data = db, vcov = "white")
 r1_w = feols(death_age~1|byear + STATEFIP_b + urb_code |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2 , data = dw, vcov = "white")
-r2_b = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC |county_dism~n_named_rivers + n_named_rivers_sq +  stream_km_per_km2, data = db, vcov ="white")
-r2_w = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC |county_dism~n_named_rivers + n_named_rivers_sq +  stream_km_per_km2, data = dw, vcov ="white")
+r2_b = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC |county_dism~n_named_rivers + n_named_rivers_sq +  stream_km_per_km2, data = db, vcov =~death_fips)
+r2_w = feols(death_age~male + migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC |county_dism~n_named_rivers + n_named_rivers_sq +  stream_km_per_km2, data = dw, vcov =~death_fips)
 
 msummary(list("1st" = summary(r1_b, stage = 1),
               "IV"  = r1_b,
@@ -284,79 +284,6 @@ msummary(list("Unpaired" = ols_sib_e_b,
   group_tt(j = list("Exact Match" = 2:5, "Flexible Match" = 6:9)) %>%
   save_tt(., output = here("FigTab","sibling_fe_table.tex"), overwrite = T)
 
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Results for children ineligible for war 
-
-## 1. Five-year birth-year bins spanning 1905–1920.
-##    Last bin keeps your 1915:1920 definition, so it is 6 years wide.
-bins <- list(
-  "1905-1909" = 1905:1909,
-  "1910-1914" = 1910:1914,
-  "1915-1920" = 1915:1920
-)
-
-est_bin <- function(data, years, sex_val) {
-  d <- data[data$byear %in% years & data$male == sex_val, ]   # explicit, no NSE
-  feols(
-    death_age ~ migrated + education + married + south |
-      byear + STATEFIP_b + urb_code + OCC |
-      county_dism ~ rdi + rail_km_per_km2,
-    data  = d,
-    vcov  = ~death_fips
-  )
-}
-
-collect <- function(data, race_label, sex_val, sex_label) {
-  do.call(rbind, lapply(names(bins), function(b) {
-    m  <- est_bin(data, bins[[b]], sex_val)
-    ct <- coeftable(m)["fit_county_dism", ]
-    data.frame(
-      bin      = b,
-      sample   = race_label,
-      sex      = sex_label,
-      estimate = ct[["Estimate"]],
-      se       = ct[["Std. Error"]],
-      fstat    = tryCatch(fitstat(m, "ivf1")[[1]]$stat,
-                          error = function(e) NA_real_),
-      stringsAsFactors = FALSE
-    )
-  }))
-}
-
-## 4. All four Race × Sex combinations.
-res <- rbind(
-  collect(db, "Black", 1, "Men"),
-  collect(db, "Black", 0, "Women"),
-  collect(dw, "White", 1, "Men"),
-  collect(dw, "White", 0, "Women")
-)
-
-res$lo  <- res$estimate - 1.96 * res$se
-res$hi  <- res$estimate + 1.96 * res$se
-res$bin <- factor(res$bin, levels = names(bins))
-res$sex <- factor(res$sex, levels = c("Men", "Women"))
-
-## 5. Figure: faceted by sex, colored by race.
-res %>%
-  mutate(estimate = estimate * 10,
-         lo       = lo * 10,
-         hi       = hi * 10) %>%
-  ggplot(aes(bin, estimate, 
-             color = sample,  
-             shape = sex)) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey60") +
-  geom_pointrange(aes(ymin = lo, ymax = hi),
-                  position = position_dodge(width = 0.35),
-                  linewidth = 0.7, fatten = 2.5, 
-                  size = 1) +
-  labs(
-    x = "Birth-year bin",
-    y = "Years of Life",
-    color = "Group"
-  ) +
-  theme_cowplot() +
-  theme(legend.position = "top") +
-  scale_color_manual(values = c("Black" = "#1b7837", "White" = "#2166ac"))
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Mechanisms
@@ -1055,10 +982,10 @@ d2_b_f = feols(death_age~migrated + education + married + south|byear + STATEFIP
 d2_w_f = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~rdi + rail_km_per_km2, data = subset(dw,male ==0),vcov = ~death_fips)
 
 # Rivers IV
-r2_b_m = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = subset(db,male ==1),vcov = "white")
-r2_w_m = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = subset(dw,male ==1),vcov = "white")
-r2_b_f = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = subset(db,male ==0),vcov = "white")
-r2_w_f = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = subset(dw,male ==0),vcov = "white")
+r2_b_m = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = subset(db,male ==1),vcov = ~death_fips)
+r2_w_m = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = subset(dw,male ==1),vcov = ~death_fips)
+r2_b_f = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = subset(db,male ==0),vcov = ~death_fips)
+r2_w_f = feols(death_age~migrated + education + married + south|byear + STATEFIP_b + urb_code + OCC  |county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, data = subset(dw,male ==0),vcov = ~death_fips)
 
 # Sibling FE (Exact)
 sib_e_b_m = feols(death_age~county_dism + migrated + education + married |byear + STATEFIP_b + urb_code + OCC + sib_group_id_exact, data = subset(db_f,male ==1),vcov = ~death_fips)
@@ -1391,31 +1318,3 @@ msummary(list("Black (D)" = sib_m2_b,
            m16 = c("X","X","X","X","X")
          ))  %>%
   save_tt(.,output = here("FigTab","IV_results_table_alt_measure_sib.tex"), overwrite = T)
-
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Monotonicity Descriptive
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-# Sibling FE has no first stage, so this check covers the two instruments only.
-data_m = data_a %>% distinct(rdi, rail_km_per_km2, n_named_rivers, n_named_rivers_sq, stream_km_per_km2,
-                             death_fips, death_decade, county_dism)
-
-# ------------------------------- RDI IV -------------------------------
-mon_rdi_1 = lm(county_dism~rdi + rail_km_per_km2, subset(data_m, death_decade == 1980))
-mon_rdi_2 = lm(county_dism~rdi + rail_km_per_km2, subset(data_m, death_decade == 1990))
-mon_rdi_3 = lm(county_dism~rdi + rail_km_per_km2, subset(data_m, death_decade == 2000))
-
-# ------------------------------- Rivers IV -------------------------------
-mon_riv_1 = lm(county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, subset(data_m, death_decade == 1980))
-mon_riv_2 = lm(county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, subset(data_m, death_decade == 1990))
-mon_riv_3 = lm(county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, subset(data_m, death_decade == 2000))
-
-data.frame(
-  Decade    = c(1980, 1990, 2000),
-  RDI_R2    = c(summary(mon_rdi_1)$r.squared[1],
-                summary(mon_rdi_2)$r.squared[1],
-                summary(mon_rdi_3)$r.squared[1]),
-  Rivers_R2 = c(summary(mon_riv_1)$r.squared[1],
-                summary(mon_riv_2)$r.squared[1],
-                summary(mon_riv_3)$r.squared[1])
-)

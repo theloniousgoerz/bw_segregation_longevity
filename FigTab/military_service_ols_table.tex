@@ -1,0 +1,32 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={OLS: Segregation x Military Service Interaction (Men)},
+note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
+note{ }={Men only. `served` = 1 if the person's HISTID matches the CenSoc WWII Army enlistment-to-1940-Census file (else 'not observed to have served'). Each model interacts segregation (D) with service: 'D' is the slope for non-servers, 'D x Served' the difference for servers, 'Served' the main service effect. Controls: migrated, education, married (and 'Died in South' for the IV models); `male` is dropped (constant within men). Fixed effects: birth year, birth state, urbanicity, occupation.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]},
+column{2,3}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{14}={1,2,3}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Black & White \\ \midrule %% TinyTableHeader
+D               & -0.074*** & -0.067*** \\
+& (0.006)   & (0.004)   \\
+D x Served      & -0.001    & 0.001+    \\
+& (0.002)   & (0.001)   \\
+Served (=1)     & 0.084     & -0.095*   \\
+& (0.151)   & (0.045)   \\
+Education       & 0.052***  & 0.076***  \\
+& (0.008)   & (0.003)   \\
+Migrated        & -0.455*** & 0.031     \\
+& (0.063)   & (0.041)   \\
+Married in 1940 & 0.127*    & -0.094*** \\
+& (0.051)   & (0.015)   \\
+Num.Obs.        & 52544     & 998363    \\
+R2              & 0.347     & 0.281     \\
+\bottomrule
+\end{talltblr}
+\end{table}
