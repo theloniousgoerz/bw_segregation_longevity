@@ -1,0 +1,23 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Effect of Segregation on County Fiscal Policy Mechanisms: OLS and IV},
+note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
+note{ }={OLS and IV (RDI instrument) estimates of the effect of segregation (D) on each county fiscal policy mechanism. Each column is a separate outcome, and the columns are the same policy channels controlled for in the longevity models. All models include decade (1980, 1990, 2000), urban-rural, and region fixed effects. Standard errors clustered at the county level in parentheses.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]},
+column{2,3,4,5}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{6}={1,2,3,4,5}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+ & Taxes & Medicaid & Health & Welfare \\ \midrule %% TinyTableHeader
+D (OLS) & -193.736*** & 1.960* & -38.418 & 16.747 \\
+ & (33.672) & (0.956) & (25.196) & (10.339) \\
+D (IV) & -812.221*** & 0.796 & -22.033 & -10.725 \\
+ & (148.076) & (5.562) & (115.648) & (60.485) \\
+Num.Obs. & 7141 & 7141 & 7141 & 7141 \\
+\bottomrule
+\end{talltblr}
+\end{table}

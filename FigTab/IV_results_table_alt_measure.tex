@@ -1,10 +1,11 @@
 \begin{table}
 \centering
 \begin{talltblr}[         %% tabularray outer open
-caption={Estimates of the Effect of Segregation on Longevity (Alternative Measures)},
+caption={Estimates of the Effect of Segregation on Longevity (Alternative Measures, RDI Instrument)},
 note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
-note{ }={This table describes IV estimates of the effect of segregation on longevity for alternative measures of D. 
-         First-stage regressions are supppressed for concision.Heteroskedasiticty Robust Standard Errors in parentheses. 
+note{ }={This table describes estimates of the effect of segregation on longevity for alternative measures of D.
+         IV models use the Railroad Division Index and named rivers as instruments; sibling FE models compare siblings within a family, with each measure entering directly.
+         First-stage regressions are supppressed for concision. Cluster-robust standard errors (by county of death) in parentheses.
          Models adjust for all covariates and FEs used in main analyses but are not shown in the model.},
 ]                     %% tabularray outer close
 {                     %% tabularray inner open
@@ -15,16 +16,16 @@ hline{10}={1,2,3,4,5,6,7,8,9}{solid, black, 0.05em},
 }                     %% tabularray inner close
 \toprule
 & Black (D) & Black (H) & Black (I) & Black (D*) & White (D) & White (H) & White (I) & White (D*) \\ \midrule %% TinyTableHeader
-D                & -0.044*** &           &           &           & -0.029*** &           &           &           \\
-& (0.004)   &           &           &           & (0.001)   &           &           &           \\
-H                &           & -0.036*** &           &           &           & -0.025*** &           &           \\
-&           & (0.003)   &           &           &           & (0.001)   &           &           \\
-I                &           &           & -0.043*** &           &           &           & -0.022*** &           \\
-&           &           & (0.004)   &           &           &           & (0.001)   &           \\
-D-Adjusted       &           &           &           & -0.044*** &           &           &           & -0.028*** \\
-&           &           &           & (0.004)   &           &           &           & (0.001)   \\
-Num.Obs.         & 106945    & 106945    & 106945    & 106945    & 1987072   & 1987072   & 1987072   & 1987072   \\
-R2               & 0.384     & 0.386     & 0.370     & 0.384     & 0.347     & 0.344     & 0.334     & 0.346     \\
+D                & -0.062*** &           &           &           & -0.053*** &           &           &           \\
+& (0.007)   &           &           &           & (0.006)   &           &           &           \\
+H                &           & -0.047*** &           &           &           & -0.040*** &           &           \\
+&           & (0.006)   &           &           &           & (0.005)   &           &           \\
+I                &           &           & -0.032*** &           &           &           & -0.026*** &           \\
+&           &           & (0.004)   &           &           &           & (0.003)   &           \\
+D-Adjusted       &           &           &           & -0.062*** &           &           &           & -0.052*** \\
+&           &           &           & (0.007)   &           &           &           & (0.006)   \\
+Num.Obs.         & 125059    & 125059    & 125059    & 125059    & 2287138   & 2287138   & 2287138   & 2287138   \\
+R2               & 0.365     & 0.365     & 0.366     & 0.365     & 0.332     & 0.332     & 0.332     & 0.332     \\
 Birth Year       & X         & X         & X         & X         & X         & X         & X         & X         \\
 Birth State      & X         & X         & X         & X         & X         & X         & X         & X         \\
 Urban-Rural Code & X         & X         & X         & X         & X         & X         & X         & X         \\

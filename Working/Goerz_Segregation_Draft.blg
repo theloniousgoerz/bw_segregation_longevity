@@ -15,45 +15,45 @@ Warning--can't use both author and editor fields in weber_economy_1922
 Warning--empty journal in wilson_truly_1987
 Warning--empty journal in wrigley-field_three_2025
 Warning--empty journal in zimran_internal_2022
-You've used 116 entries,
+You've used 113 entries,
             1935 wiz_defined-function locations,
-            1108 strings with 25109 characters,
-and the built_in function-call counts, 45200 in all, are:
-= -- 4512
-> -- 1671
+            1094 strings with 24528 characters,
+and the built_in function-call counts, 43944 in all, are:
+= -- 4390
+> -- 1612
 < -- 78
-+ -- 598
-- -- 544
-* -- 3943
-:= -- 7819
-add.period$ -- 343
-call.type$ -- 116
-change.case$ -- 844
-chr.to.int$ -- 116
-cite$ -- 125
-duplicate$ -- 1665
-empty$ -- 3206
-format.name$ -- 736
-if$ -- 8740
++ -- 576
+- -- 524
+* -- 3824
+:= -- 7598
+add.period$ -- 334
+call.type$ -- 113
+change.case$ -- 819
+chr.to.int$ -- 113
+cite$ -- 122
+duplicate$ -- 1624
+empty$ -- 3123
+format.name$ -- 713
+if$ -- 8503
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 125
-newline$ -- 578
-num.names$ -- 348
-pop$ -- 630
+missing$ -- 122
+newline$ -- 563
+num.names$ -- 339
+pop$ -- 611
 preamble$ -- 1
-purify$ -- 852
+purify$ -- 827
 quote$ -- 0
-skip$ -- 1319
+skip$ -- 1288
 stack$ -- 0
-substring$ -- 3548
-swap$ -- 179
+substring$ -- 3454
+swap$ -- 176
 text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 670
+type$ -- 652
 warning$ -- 9
-while$ -- 392
+while$ -- 382
 width$ -- 0
-write$ -- 1489
+write$ -- 1450
 (There were 12 warnings)

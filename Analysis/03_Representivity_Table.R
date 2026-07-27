@@ -215,7 +215,9 @@ data.frame(
   check.names = F
 ) %>%
   datasummary_df(
-    align = "lcccc",
+    # Three columns: Sample, N (Counties), N (Persons). The two race-restricted
+    # count columns above are commented out, so align must not still claim five.
+    align = "lcc",
     notes = "Individual-level characteristics include demographics, education, and fixed effects. Individuals are also filtered by not missing post-stratification weights. The instrument filter is non-missing RDI and railroad density and non-missing named rivers and stream density.",
   output = "tinytable",
   title = "Sample Filtering Criteria",
@@ -712,4 +714,7 @@ datasummary_df(
   output = "tinytable"
 ) %>%
   group_tt(j = list("Full Data" = 2:3, "IV Sample" = 4:5, "Sibling Sample" = 6:7)) %>%
+  # Slightly smaller type and tighter columns so the table fits the portrait
+  # text block (470pt); at natural width it overruns by ~65pt.
+  style_tt(j = 1, tabularray_inner = "colsep=4pt, row{1-Z}={font=\\small}") %>%
   save_tt(output = here("FigTab", "representivity_table_by_race.tex"), overwrite = TRUE)

@@ -33,6 +33,19 @@
 #
 # Population denominators: NHGIS decennial census tract data (nhgis0017)
 # aggregated to county via 03_county_data.R.
+#
+# Dollar units: every monetary variable produced by this script is in constant
+# 2000 dollars, deflated by the annual PCE price index (see section 1b). The two
+# input sources arrive on different bases and are handled differently:
+#   GFD  - nominal dollars of the year reported. Deflated at the county-YEAR
+#          level, before averaging within decade, so a decade mean is the mean of
+#          real values rather than a real-looking mean of nominal ones.
+#   SPPD - already real, but expressed in 2023 dollars (see the variable labels,
+#          e.g. "Temporary assistance for needy families in 2023 USD").
+#          Rebased to 2000 by a single constant, P_2000 / P_2023.
+# Rebasing SPPD matters beyond comparability: comp_tanf falls back from the GFD
+# county series to the SPPD state series, so before this the same column mixed
+# nominal 1980s dollars with 2023 dollars.
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 rm(list = ls())
 library(tidyverse)
@@ -46,6 +59,23 @@ minmax <- function(x) {
   if (rng[2] == rng[1]) return(rep(0, length(x)))
   (x - rng[1]) / (rng[2] - rng[1])
 }
+
+# ============================================================
+# 1b. PCE price index deflator (base: 2000 = 1)
+# ============================================================
+# Annual averages of the monthly PCE price index (BEA, chain-type, 2017 = 100),
+# the measure the Federal Reserve targets:
+#   https://www.federalreserve.gov/economy-at-a-glance-inflation-pce.htm
+# That page carries no data, so the series itself is the underlying BEA index as
+# distributed by FRED (series PCEPI). Stored in the repo rather than fetched at
+# runtime so the pipeline is reproducible offline; regenerate with:
+#   curl -s "https://fred.stlouisfed.org/graph/fredgraph.csv?id=PCEPI"
+# and take the mean of the twelve monthly values within each complete year.
+pce <- read_csv(here("Data", "derived", "pce_price_index_annual.csv"),
+                show_col_types = FALSE)
+
+# deflator_to_2000 = P_2000 / P_t, so nominal_t * deflator_to_2000 = 2000 dollars.
+pce_2000_over_2023 <- pce$deflator_to_2000[pce$year == 2023]
 
 # ============================================================
 # 1. Load GFD
@@ -100,12 +130,24 @@ gfd_county %<>%
                 ~ ifelse(. < 0, NA_real_, .)))
 
 # ============================================================
-# 4. Aggregate GFD: sum sub-units per county-year, average within decade
+# 4. Aggregate GFD: sum sub-units per county-year, deflate to 2000 dollars,
+#    then average within decade
 # ============================================================
+# The deflation happens on the county-year rows because the decade windows span
+# ten years of double-digit-cumulative inflation: a 1980 dollar is worth 1.90
+# times a 2000 dollar, a 1989 dollar 1.29 times. Averaging first and deflating
+# the average would implicitly weight every year in the window at the same price
+# level and would leave counties observed in different years within the same
+# decade on different scales.
 county_decade <- gfd_county %>%
   group_by(fips5, Year4, decade) %>%
   summarise(across(all_of(all_spend_vars), ~ sum(., na.rm = TRUE)),
             .groups = "drop") %>%
+  left_join(pce %>% select(year, deflator_to_2000), by = c("Year4" = "year")) %>%
+  # A GFD year with no matching index year would silently become NA below; there
+  # should be none, since the index covers 1959 onward and the windows stop at 2005.
+  { stopifnot(!any(is.na(.$deflator_to_2000))); . } %>%
+  mutate(across(all_of(all_spend_vars), ~ . * deflator_to_2000)) %>%
   group_by(fips5, decade) %>%
   summarise(across(all_of(all_spend_vars), ~ mean(., na.rm = TRUE)),
             n_years_observed = n(),
@@ -126,7 +168,7 @@ pop_data <- read_csv(
   select(fips5, decade, pop)
 
 # ============================================================
-# 6. GFD per-capita measures ($ per 1,000 residents)
+# 6. GFD per-capita measures (constant 2000 $ per 1,000 residents)
 # ============================================================
 county_pc <- county_decade %>%
   left_join(pop_data, by = c("fips5", "decade")) %>%
@@ -196,6 +238,14 @@ sppd_decade <- sppd_raw %>%
     sppd_firearms     = mean(firearms_restrictive, na.rm = TRUE), # item 11
     .groups = "drop"
   ) %>%
+  # SPPD ships these five in 2023 dollars; rebase to 2000 so they are on the same
+  # footing as the GFD measures. A constant multiple, so it does not change the
+  # min-max normalization in section 9 or any within-variable comparison, but it
+  # does make comp_tanf coherent across its two sources and makes the descriptive
+  # appendix table readable in one currency. sppd_eitc (share of the federal
+  # credit), psl, rtw, preemption, and firearms are not monetary and are untouched.
+  mutate(across(c(sppd_tanf, sppd_snap, sppd_minwage, sppd_ui, sppd_tobacco),
+                ~ . * pce_2000_over_2023)) %>%
   mutate(statefips = str_pad(as.integer(state_fips), 2, pad = "0"))
 
 # ============================================================

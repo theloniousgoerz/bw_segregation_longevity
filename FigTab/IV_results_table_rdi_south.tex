@@ -1,0 +1,38 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Estimates of the Effect of Segregation on Longevity (RDI Instrument, Interacted with South)},
+note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
+note{ }={This table describes IV estimates of the effect of segregation on longevity, with D interacted with dying in the South rather than the sample split by region. First-stage regressions are suppressed for concision. Cluster-robust standard errors (by county of death) in parentheses.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]},
+column{2,3}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{16}={1,2,3}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Black & White \\ \midrule %% TinyTableHeader
+D                & -0.040*** & -0.051*** \\
+& (0.007)   & (0.007)   \\
+Died in South    & 1.936**   & 2.401*    \\
+& (0.594)   & (1.012)   \\
+D x South        & -0.032*** & -0.041*   \\
+& (0.009)   & (0.018)   \\
+Male             & -1.005*** & -0.921*** \\
+& (0.041)   & (0.016)   \\
+Education        & 0.038***  & 0.057***  \\
+& (0.005)   & (0.002)   \\
+Migrated         & -0.376*** & -0.065*   \\
+& (0.053)   & (0.032)   \\
+Married in 1940  & 0.112***  & -0.021*   \\
+& (0.032)   & (0.009)   \\
+Num.Obs.         & 125059    & 2287138   \\
+R2               & 0.365     & 0.332     \\
+Birth Year       & X         & X         \\
+Birth State      & X         & X         \\
+Urban-Rural Code & X         & X         \\
+Occupation       & X         & X         \\
+\bottomrule
+\end{talltblr}
+\end{table}

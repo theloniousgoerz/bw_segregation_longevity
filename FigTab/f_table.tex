@@ -3,28 +3,26 @@
 \begin{talltblr}[         %% tabularray outer open
 caption={First Stage Regression of D on Instruments},
 note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
-note{ }={First stage relationship includes death decade fixed effects and heteroskedacticity SEs.},
+note{ }={First stage relationship includes death decade fixed effects and clustered SEs.},
 ]                     %% tabularray outer close
 {                     %% tabularray inner open
-colspec={Q[]Q[]Q[]Q[]},
-column{2,3,4}={}{halign=c,},
+colspec={Q[]Q[]Q[]},
+column{2,3}={}{halign=c,},
 column{1}={}{halign=l,},
-hline{12}={1,2,3,4}{solid, black, 0.05em},
+hline{10}={1,2,3}{solid, black, 0.05em},
 }                     %% tabularray inner close
 \toprule
-& (1) & (2) & (3) \\ \midrule %% TinyTableHeader
-ln_gov              & 6.62*** &         &          \\
-& (0.42)  &         &          \\
-gov_rev_share_state & 45.82** &         &          \\
-& (16.41) &         &          \\
-n_named_rivers      &         & 0.02**  &          \\
-&         & (0.01)  &          \\
-n_named_rivers_sq   &         & 0.00*** &          \\
-&         & (0.00)  &          \\
-rdi                 &         &         & 12.86*** \\
-&         &         & (1.19)   \\
-Num.Obs.            & 4677    & 4647    & 4647     \\
-First-Stage F       & 89.76   & 33.96   & 78.01    \\
+& (1) & (2) \\ \midrule %% TinyTableHeader
+Number of Named Rivers& 0.02*** &          \\
+& (0.00)  &          \\
+Stream km per km$^2$& -0.86   &          \\
+& (0.58)  &          \\
+RDI&         & 7.65***  \\
+&         & (1.18)   \\
+Rail km per km$^2$&         & 61.08*** \\
+&         & (6.26)   \\
+Num.Obs.          & 7357    & 7357     \\
+First-Stage F     & 38.21   & 131.19   \\
 \bottomrule
 \end{talltblr}
 \end{table}

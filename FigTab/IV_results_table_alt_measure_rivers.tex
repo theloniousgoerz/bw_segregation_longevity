@@ -1,0 +1,35 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Estimates of the Effect of Segregation on Longevity (Alternative Measures, Rivers Instrument)},
+note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
+note{ }={This table describes estimates of the effect of segregation on longevity for alternative measures of D.
+         IV models use the Railroad Division Index and named rivers as instruments; sibling FE models compare siblings within a family, with each measure entering directly.
+         First-stage regressions are supppressed for concision. Cluster-robust standard errors (by county of death) in parentheses.
+         Models adjust for all covariates and FEs used in main analyses but are not shown in the model.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
+column{2,3,4,5,6,7,8,9}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{10}={1,2,3,4,5,6,7,8,9}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Black (D) & Black (H) & Black (I) & Black (D*) & White (D) & White (H) & White (I) & White (D*) \\ \midrule %% TinyTableHeader
+D                & -0.058* &         &         &         & -0.086* &          &         &         \\
+& (0.025) &         &         &         & (0.041) &          &         &         \\
+H                &         & -0.049* &         &         &         & -0.055** &         &         \\
+&         & (0.020) &         &         &         & (0.021)  &         &         \\
+I                &         &         & -0.055* &         &         &          & -0.043* &         \\
+&         &         & (0.027) &         &         &          & (0.017) &         \\
+D-Adjusted       &         &         &         & -0.058* &         &          &         & -0.089* \\
+&         &         &         & (0.025) &         &          &         & (0.044) \\
+Num.Obs.         & 125059  & 125059  & 125059  & 125059  & 2287138 & 2287138  & 2287138 & 2287138 \\
+R2               & 0.362   & 0.362   & 0.362   & 0.362   & 0.330   & 0.330    & 0.330   & 0.330   \\
+Birth Year       & X       & X       & X       & X       & X       & X        & X       & X       \\
+Birth State      & X       & X       & X       & X       & X       & X        & X       & X       \\
+Urban-Rural Code & X       & X       & X       & X       & X       & X        & X       & X       \\
+Occupation       & X       & X       & X       & X       & X       & X        & X       & X       \\
+\bottomrule
+\end{talltblr}
+\end{table}

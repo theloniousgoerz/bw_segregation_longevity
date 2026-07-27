@@ -3,20 +3,21 @@
 \begin{talltblr}[         %% tabularray outer open
 caption={Mechanism Estimates: Effect of Segregation on Longevity Controlling for Policy Channels},
 note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
-note{ }={IV estimates (RDI instrument). Each column adds one mechanism as a control. Heteroskedasticity-robust SEs in parentheses.},
+note{ }={IV estimates (RDI instrument). Each column adds one mechanism as a control, and the All columns add every mechanism jointly. Cluster-robust SEs (by county of death) in parentheses.},
 ]                     %% tabularray outer close
 {                     %% tabularray inner open
-colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
-column{2,3,4,5,6,7,8,9,10,11,12,13,14,15}={}{halign=c,},
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
+colsep=2pt, row{1-Z}={font=\footnotesize}, colspec={Q[l,wd=1.5cm]Q[c,wd=1.55cm]Q[c,wd=1.55cm]Q[c,wd=1.72cm]Q[c,wd=1.55cm]Q[c,wd=1.55cm]Q[c,wd=1.55cm]Q[c,wd=1.55cm]Q[c,wd=1.55cm]Q[c,wd=1.72cm]Q[c,wd=1.55cm]Q[c,wd=1.55cm]Q[c,wd=1.55cm]},
+column{2,3,4,5,6,7,8,9,10,11,12,13}={}{halign=c,},
 column{1}={}{halign=l,},
-hline{4}={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}{solid, black, 0.05em},
+hline{4}={1,2,3,4,5,6,7,8,9,10,11,12,13}{solid, black, 0.05em},
 }                     %% tabularray inner close
 \toprule
-& Black & Black + Taxes & Black + Prop Tax & Black + Medicaid & Black + Health & Black + Welfare & Black + Snap & White & White + Taxes & White + Prop Tax & White + Medicaid & White + Health & White + Welfare & White + Snap \\ \midrule %% TinyTableHeader
-D        & -0.058*** & -0.025* & -0.019  & -0.052*** & -0.057*** & -0.028  & -0.031*** & -0.048*** & -0.029*** & -0.028*** & -0.044*** & -0.052*** & -0.049*** & -0.023*** \\
-& (0.008)   & (0.010) & (0.012) & (0.010)   & (0.009)   & (0.018) & (0.004)   & (0.007)   & (0.007)   & (0.008)   & (0.009)   & (0.008)   & (0.012)   & (0.004)   \\
-Num.Obs. & 102605    & 102605  & 102605  & 102605    & 102605    & 102605  & 102605    & 2098307   & 2098307   & 2098307   & 2098307   & 2098307   & 2098307   & 2098307   \\
-R2       & 0.368     & 0.401   & 0.402   & 0.373     & 0.376     & 0.382   & 0.657     & 0.336     & 0.364     & 0.362     & 0.339     & 0.346     & 0.350     & 0.628     \\
+& Black & Black\newline + Taxes & Black\newline + Medicaid & Black\newline + Health & Black\newline + Welfare & Black\newline + All & White & White\newline + Taxes & White\newline + Medicaid & White\newline + Health & White\newline + Welfare & White\newline + All \\ \midrule %% TinyTableHeader
+D        & -0.058*** & -0.046*** & -0.054*** & -0.058*** & -0.048*** & -0.039** & -0.048*** & -0.041*** & -0.046*** & -0.051*** & -0.049*** & -0.042*** \\
+& (0.008)   & (0.009)   & (0.009)   & (0.008)   & (0.010)   & (0.012)  & (0.007)   & (0.007)   & (0.008)   & (0.007)   & (0.009)   & (0.008)   \\
+Num.Obs. & 102605    & 102605    & 102605    & 102605    & 102605    & 102605   & 2098307   & 2098307   & 2098307   & 2098307   & 2098307   & 2098307   \\
+R2       & 0.368     & 0.374     & 0.370     & 0.370     & 0.369     & 0.377    & 0.336     & 0.341     & 0.336     & 0.339     & 0.337     & 0.343     \\
 \bottomrule
 \end{talltblr}
 \end{table}

@@ -101,21 +101,25 @@ policy_panel <- policy_data %>%
 # z_welf
 # z_health
 
+# The six channels below are exactly the ones carried into the longevity models in
+# 04_Regression_Models.R (taxes_pc, prop_tax_pc, comp_medicaid, health_pc,
+# welf_direct_pc, comp_snap). Keep the two scripts' mechanism sets in sync: the
+# mediation reading in the draft needs this first leg for every channel it reports.
 m_welf    = feols(welf_direct_pc    ~ county_dism   | death_decade + urb_code + south , data = policy_panel, vcov = ~death_fips)
 m_cash    = feols(cash_asst_pc      ~ county_dism   | death_decade + urb_code + south , data = policy_panel, vcov = ~death_fips)
 m_medicaid = feols(comp_medicaid    ~ county_dism  |  death_decade + urb_code + south, data = policy_panel, vcov = ~death_fips)
 m_taxes   = feols(taxes_pc          ~ county_dism   | death_decade + urb_code + south , data = policy_panel, vcov = ~death_fips)
+m_prop    = feols(prop_tax_pc       ~ county_dism   | death_decade + urb_code + south , data = policy_panel, vcov = ~death_fips)
 m_snap    = feols(comp_snap         ~ county_dism   | death_decade + urb_code + south , data = policy_panel, vcov = ~death_fips)
-# Lib index
-m_health  = feols(health_pc      ~ county_dism   |death_decade, data = policy_panel, vcov = ~death_fips)
+m_health  = feols(health_pc         ~ county_dism   | death_decade + urb_code + south , data = policy_panel, vcov = ~death_fips)
 
 msummary(
   list(
     "Welfare"       = m_welf,
     "Cash Asst."    = m_cash,
-    "Medicaid"      = m_medical,
+    "Medicaid"      = m_medicaid,
     "Taxes"         = m_taxes,
-    "Snap" = m_snap,
+    "Prop Tax"      = m_prop,
     "Health"           = m_health
   ),
   coef_map  = c("county_dism" = "D (0,1)"),
@@ -133,23 +137,25 @@ msummary(
 ) %>%
   save_tt(here("FigTab","gov_policy_table.tex"), overwrite = TRUE)
 
-m_lib_iv        = feols(county_lib_index ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
+# Same six outcomes as the OLS block, same conditioning set, so that the OLS and IV
+# rows of a given table column differ only in the estimator.
 m_welf_iv       = feols(welf_direct_pc   ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
 m_cash_iv       = feols(cash_asst_pc     ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
-m_medical_iv    = feols(medicaid_pc      ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
+m_medicaid_iv   = feols(comp_medicaid    ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
 m_taxes_iv      = feols(taxes_pc         ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
+m_prop_iv       = feols(prop_tax_pc      ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
 m_snap_iv       = feols(comp_snap        ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
-m_health_iv       = feols(health_pc      ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
+m_health_iv     = feols(health_pc        ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
 
 msummary(
   list(
     "Welfare"       = m_welf_iv,
     "Cash Asst."    = m_cash_iv,
-    "Medicaid"      = m_medical_iv,
+    "Medicaid"      = m_medicaid_iv,
     "Taxes"         = m_taxes_iv,
-    "Snap" = m_snap_iv,
+    "Prop Tax"      = m_prop_iv,
    "Health" =  m_health_iv
-   
+
   ),
   coef_map  = c("fit_county_dism" = "D"),
   gof_map   = c("nobs", "r.squared"),
@@ -188,15 +194,18 @@ fmt_D <- function(model, term) {
        se   = sprintf("(%.3f)", se))
 }
 
-# Column order: label, OLS model, IV model
+# Column order: label, OLS model, IV model.
+# Restricted to the channels that 04_Regression_Models.R actually controls for, in the
+# same order as the mechanism table there, so the two tables can be read side by side.
+# SNAP is estimated above but excluded here and in 04: the coefficient on D rounds to
+# zero at three decimals in both OLS and IV, which is what disqualifies it as a
+# mediator downstream. comp_snap varies at the state-decade level, so there is almost
+# no within-state variation for a county-level D to explain.
 mech_cols <- list(
-  list(label = "Lib. Index", ols = m_lib,     iv = m_lib_iv),
-  list(label = "Welfare",    ols = m_welf,    iv = m_welf_iv),
-  list(label = "Cash Asst.", ols = m_cash,    iv = m_cash_iv),
-  list(label = "Medicaid",   ols = m_medical, iv = m_medical_iv),
-  list(label = "Taxes",      ols = m_taxes,   iv = m_taxes_iv),
-  list(label = "Snap",       ols = m_snap,    iv = m_snap_iv),
-  list(label = "Gov",        ols = m_party,   iv = m_gov_iv)
+  list(label = "Taxes",      ols = m_taxes,    iv = m_taxes_iv),
+  list(label = "Medicaid",   ols = m_medicaid, iv = m_medicaid_iv),
+  list(label = "Health",     ols = m_health,   iv = m_health_iv),
+  list(label = "Welfare",    ols = m_welf,     iv = m_welf_iv)
 )
 
 ols_D  <- lapply(mech_cols, \(x) fmt_D(x$ols, "county_dism"))
@@ -214,7 +223,7 @@ combined_tex <- c(
   "\\begin{talltblr}[         %% tabularray outer open",
   "caption={Effect of Segregation on County Fiscal Policy Mechanisms: OLS and IV},",
   "note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},",
-  "note{ }={OLS and IV (RDI instrument) estimates of the effect of segregation (D) on each county fiscal policy mechanism. Each column is a separate outcome. All models include decade fixed effects (1980, 1990, 2000). Standard errors clustered at the county level in parentheses.},",
+  "note{ }={OLS and IV (RDI instrument) estimates of the effect of segregation (D) on each county fiscal policy mechanism. Each column is a separate outcome, and the columns are the same policy channels controlled for in the longevity models. All models include decade (1980, 1990, 2000), urban-rural, and region fixed effects. Standard errors clustered at the county level in parentheses.},",
   "]                     %% tabularray outer close",
   "{                     %% tabularray inner open",
   paste0("colspec={", paste(rep("Q[]", ncol_data + 1), collapse = ""), "},"),
@@ -239,29 +248,23 @@ writeLines(combined_tex, here("FigTab", "mechanism_ols_iv_table.tex"))
 # -----------------------
 # Combined OLS + IV coefficient plot across mechanism outcomes
 
+# Built from mech_cols so the figure and the table above cannot list different
+# mechanisms: both are the set of channels controlled for in 04_Regression_Models.R.
 coef_ols <- map_dfr(
-  list("Lib. Index" = m_lib_c, "Welfare" = m_welf, "Health" = m_health,
-       "Cash Asst." = m_cash, "Medicaid" = m_medical, "Taxes" = m_taxes,
-       "Income Seg" = m_inc_seg, "TANF" = m_tanf, "SNAP" = m_snap,
-       "EITC" = m_eitc, "Education" = m_educ),
+  set_names(map(mech_cols, "ols"), map_chr(mech_cols, "label")),
   \(m) broom::tidy(m, conf.int = TRUE) |> filter(term == "county_dism"),
   .id = "outcome"
 ) |> mutate(estimator = "OLS")
 
 coef_iv <- map_dfr(
-  list("Lib. Index" = m_lib_c_iv, "Welfare" = m_welf_iv, "Health" = m_health_iv,
-       "Cash Asst." = m_cash_iv, "Medicaid" = m_medical_iv, "Taxes" = m_taxes_iv,
-       "Income Seg" = m_income_seg_iv, "TANF" = m_tanf_iv, "SNAP" = m_snap_iv,
-       "EITC" = m_eitc_iv, "Education" = m_educ_iv),
+  set_names(map(mech_cols, "iv"), map_chr(mech_cols, "label")),
   \(m) broom::tidy(m, conf.int = TRUE) |> filter(term == "fit_county_dism"),
   .id = "outcome"
 ) |> mutate(estimator = "IV")
 
 coef_mech <- bind_rows(coef_ols, coef_iv) |>
   mutate(
-    outcome   = factor(outcome, levels = c("Taxes", "Income Seg", "Cash Asst.",
-                "Lib. Index", "Welfare", "Health", "Medicaid",
-                "TANF", "SNAP", "EITC", "Education")),
+    outcome   = factor(outcome, levels = map_chr(mech_cols, "label")),
     estimator = factor(estimator, levels = c("OLS", "IV"))
   )
 
@@ -275,7 +278,7 @@ mech_figure = ggplot(coef_mech, aes(x = estimator, y = estimate, color = estimat
     color = NULL, shape = NULL,
     title = "Effect of Segregation on County Fiscal Policy Mechanisms"
   ) +
-  facet_wrap(~outcome, scales = "free_y", nrow = 4) + 
+  facet_wrap(~outcome, scales = "free_y", nrow = 2) +
   theme_cowplot() +
   theme(
     legend.position = "bottom"
@@ -286,8 +289,41 @@ ggsave(mech_figure, filename = here("FigTab","mechanism.jpeg"),
        height = 10,
        dpi = 1000)
 
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Descriptive Statistics: Mechanism Outcomes by Decade
+# Outcome names are read off mech_cols, so this table covers exactly the channels
+# reported in the OLS/IV table and coefficient plot above.
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+mech_vars <- vapply(mech_cols, \(x) all.vars(formula(x$ols)[[2]]), character(1))
+names(mech_vars) <- labels
+
+mech_desc_data <- policy_panel %>%
+  filter(!is.na(death_decade)) %>%
+  select(death_decade, all_of(mech_vars)) %>%
+  mutate(Decade = factor(death_decade)) %>%
+  select(-death_decade)
+
+# One N row per decade: counties contributing to the moments (non-missing on every
+# mechanism). Blank under the SD columns so the count is not printed twice.
+mech_desc_n <- mech_desc_data %>%
+  filter(if_all(all_of(names(mech_vars)), \(x) !is.na(x))) %>%
+  count(Decade) %>%
+  mutate(n = format(n, big.mark = ",", trim = TRUE))
+
+datasummary(
+  All(mech_desc_data) ~ Decade * (Mean + SD),
+  data           = mech_desc_data,
+  title          = "Descriptive Statistics for County Fiscal Policy Mechanisms by Decade",
+  fmt            = 2,
+  add_rows       = data.frame(t(c("Counties", as.vector(rbind(mech_desc_n$n, ""))))),
+  notes          = "Mean and standard deviation of each county fiscal policy mechanism, by decade. Taxes, health, and welfare spending are measured per capita; Medicaid is the Medicaid generosity index. Counts are county-decade observations with non-missing values on all four mechanisms.",
+  threeparttable = TRUE,
+  output         = "tinytable"
+) %>%
+  save_tt(here("FigTab", "mechanism_descriptives_table.tex"), overwrite = TRUE)
+
 # -----------------------
-# Save mechanism data 
+# Save mechanism data
 # -----------------------
 write_csv(policy_panel, here("Data","_Cleaned","mechanism.csv"))
 

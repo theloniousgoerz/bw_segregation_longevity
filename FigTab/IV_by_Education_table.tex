@@ -3,45 +3,41 @@
 \begin{talltblr}[         %% tabularray outer open
 caption={Estimates of the Effect of Segregation on Longevity by Education-Level},
 note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
-note{ }={This table describes IV estimates of the effect of segregation on longevity interacted by education. 
-         First-stage regressions are supppressed for concision. Heteroskedasiticty Robust Standard Errors in parentheses.},
+note{ }={This table describes IV estimates of the effect of segregation on longevity interacted by education.
+         First-stage regressions are supppressed for concision. Cluster-robust standard errors (by county of death) in parentheses.},
 ]                     %% tabularray outer close
 {                     %% tabularray inner open
 colspec={Q[]Q[]Q[]},
 column{2,3}={}{halign=c,},
 column{1}={}{halign=l,},
-hline{24}={1,2,3}{solid, black, 0.05em},
+hline{20}={1,2,3}{solid, black, 0.05em},
 }                     %% tabularray inner close
 \toprule
 & Black & White \\ \midrule %% TinyTableHeader
-D                                & -0.044*** & -0.030*** \\
-& (0.004)   & (0.001)   \\
-Male                             & -1.061*** & -0.946*** \\
-& (0.030)   & (0.007)   \\
-Migrated                         & -0.293*** & -0.129*** \\
-& (0.039)   & (0.008)   \\
-Married in 1940                  & 0.112***  & -0.014+   \\
-& (0.032)   & (0.008)   \\
-Died in South                    & 0.009     & 0.193***  \\
-& (0.054)   & (0.010)   \\
-High School (Ref = Less than HS) & 0.231     & 0.300***  \\
-& (0.337)   & (0.053)   \\
-Some College                     & 0.810+    & 0.212*    \\
-& (0.480)   & (0.083)   \\
-College or Higher                & 0.296     & -0.021    \\
-& (0.761)   & (0.121)   \\
-D x High School                  & 0.001     & 0.000     \\
-& (0.005)   & (0.001)   \\
-D x Some College                 & -0.009    & 0.004*    \\
-& (0.008)   & (0.002)   \\
-D x College or Higher            & 0.008     & 0.011***  \\
-& (0.012)   & (0.002)   \\
-Num.Obs.                         & 106945    & 1987072   \\
-R2                               & 0.383     & 0.346     \\
+D                                & -0.047*** & -0.048*** \\
+& (0.011)   & (0.007)   \\
+Male                             & -1.048*** & -0.936*** \\
+& (0.029)   & (0.011)   \\
+Migrated                         & -0.326*** & -0.022    \\
+& (0.048)   & (0.029)   \\
+Married in 1940                  & 0.101**   & -0.016+   \\
+& (0.031)   & (0.009)   \\
+Died in South                    & -0.143    & 0.187*    \\
+& (0.137)   & (0.090)   \\
+High School (Ref = Less than HS) & 0.504     & -0.187    \\
+& (0.616)   & (0.156)   \\
+Some College                     & -0.062    & -0.083    \\
+& (0.544)   & (0.121)   \\
+D x High School                  & -0.014    & -0.002    \\
+& (0.010)   & (0.003)   \\
+D x Some College                 & -0.006    & -0.002    \\
+& (0.009)   & (0.002)   \\
+Num.Obs.                         & 125074    & 2287138   \\
+R2                               & 0.364     & 0.332     \\
 Birth Year                       & X         & X         \\
 Birth State                      & X         & X         \\
 Urban-Rural Code                 & X         & X         \\
-Occupation                       & X         & X         \\
+Occupation                       & -         & -         \\
 \bottomrule
 \end{talltblr}
 \end{table}

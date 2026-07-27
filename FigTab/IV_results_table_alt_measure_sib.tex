@@ -1,0 +1,37 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Estimates of the Effect of Segregation on Longevity (Alternative Measures, Sibling FE)},
+note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
+note{ }={This table describes sibling fixed-effects estimates of the effect of segregation on longevity for alternative measures of D.
+         Columns 1-8 use exact sibling matches and columns 9-16 use flexible sibling matches.
+         Cluster-robust standard errors (by county of death) in parentheses.
+         Models adjust for all covariates and FEs used in main analyses but are not shown in the model.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
+colsep=1pt, row{1-Z}={font=\scriptsize}, colspec={Q[l,wd=1.70cm]*{16}{Q[c,wd=1.24cm]}},
+column{2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17}={}{halign=c,},
+column{1}={}{halign=l,},
+hline{10}={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Black\newline (D) & Black\newline (H) & Black\newline (I) & Black\newline (D*) & White\newline (D) & White\newline (H) & White\newline (I) & White\newline (D*) & Black\newline (D)  & Black\newline (H)  & Black\newline (I)  & Black\newline (D*)  & White\newline (D)  & White\newline (H)  & White\newline (I)  & White\newline (D*)  \\ \midrule %% TinyTableHeader
+D                & -0.094*** &           &           &           & -0.079*** &           &           &           & -0.097*** &           &           &           & -0.080*** &           &           &           \\
+& (0.015)   &           &           &           & (0.003)   &           &           &           & (0.013)   &           &           &           & (0.004)   &           &           &           \\
+H                &           & -0.100*** &           &           &           & -0.069*** &           &           &           & -0.100*** &           &           &           & -0.070*** &           &           \\
+&           & (0.014)   &           &           &           & (0.004)   &           &           &           & (0.012)   &           &           &           & (0.004)   &           &           \\
+I                &           &           & -0.040*** &           &           &           & -0.025*** &           &           &           & -0.037*** &           &           &           & -0.026*** &           \\
+&           &           & (0.009)   &           &           &           & (0.002)   &           &           &           & (0.008)   &           &           &           & (0.002)   &           \\
+D-Adjusted       &           &           &           & -0.094*** &           &           &           & -0.073*** &           &           &           & -0.097*** &           &           &           & -0.075*** \\
+&           &           &           & (0.015)   &           &           &           & (0.003)   &           &           &           & (0.013)   &           &           &           & (0.003)   \\
+Num.Obs.         & 3344      & 3344      & 3344      & 3344      & 184760    & 184760    & 184760    & 184760    & 4652      & 4652      & 4652      & 4652      & 242822    & 242822    & 242822    & 242822    \\
+R2               & 0.718     & 0.724     & 0.708     & 0.718     & 0.668     & 0.665     & 0.655     & 0.667     & 0.712     & 0.716     & 0.700     & 0.712     & 0.666     & 0.663     & 0.653     & 0.665     \\
+Birth Year       & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         \\
+Birth State      & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         \\
+Urban-Rural Code & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         \\
+Occupation       & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         \\
+Sibling Group    & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         & X         \\
+\bottomrule
+\end{talltblr}
+\end{table}

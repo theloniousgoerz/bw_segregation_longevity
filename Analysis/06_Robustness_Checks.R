@@ -78,22 +78,23 @@ instrument = data_a %>%
   distinct(county_dism ,death_decade,
            ln_gov,gov_rev_share_state,
            rdi,rail_km_per_km2,
-           n_named_rivers,n_named_rivers_sq,
+           n_named_rivers,
            stream_km_per_km2,death_fips,
            south) 
 
 # ------------------------------- Make Table -------------------------------
-f_gov  =    feols(county_dism~ln_gov + gov_rev_share_state | death_decade, data = instrument, vcov = ~death_fips) 
 f_rivers  = feols(county_dism~n_named_rivers + stream_per_km_sq | death_decade, data = instrument, vcov = ~death_fips) 
 f_rdi  =    feols(county_dism~rdi | death_decade, data = instrument, vcov = ~death_fips) 
 
-f_table = msummary(list(f_gov,f_rivers,f_rdi),stars = T,
+f_table = msummary(list(f_rivers,f_rdi),stars = T,
                    gof_map = c("nobs","f"),
-                   # coef_map = c("ln_gov" = "Ln(Number Governments)",
-                   #              "gov_rev_share_state" = "County Share Revenue from Federal Gov."),
+                   coef_map = c("n_named_rivers" = "Number of Named Rivers",
+                                "stream_per_km_sq" = "Stream km per km$^2$",
+                                "stream_km_per_km2" = "Stream km per km$^2$",
+                                "rdi" = "RDI",
+                                "rail_km_per_km2" = "Rail km per km$^2$"),
                    add_rows = data.frame(
                      term = "First-Stage F",
-                     `(1)` = unlist(fitstat(f_gov, type = "f"))[1],
                      `(2)` = unlist(fitstat(f_rivers, type = "f"))[1],
                      `(3)` = unlist(fitstat(f_rdi, type = "f"))[1],
                      check.names = FALSE),
@@ -131,10 +132,11 @@ msummary(
   notes = "This table displays coefficients and R-squared statistics for bivariate models of the relationships between instruments.
   Because the instruments are constant, these regressions are run on a each of their distinct values rather than the full sample of county-year observations. 
   All models include robust standard errors.",
+  title = "Correlation Between Instruments",
   stars = T,
-  threeparttable = T, 
+  threeparttable = T,
   output = "tinytable"
-) %>% 
+) %>%
   save_tt(here("FigTab","instrument_correlation_table.tex"),overwrite = T)
 
 corr_mat = instrument_distinct %>% select(-death_fips) %>%
@@ -146,7 +148,7 @@ corr_mat = instrument_distinct %>% select(-death_fips) %>%
 
 corr_mat[upper.tri(corr_mat, diag = TRUE)] = NA
 
-#corr_plot = 
+corr_plot = 
 corr_mat %>%
   data.frame() %>%
   mutate(Var1 = factor(rownames(.), levels = rownames(corr_mat))) %>%
@@ -260,9 +262,9 @@ mon_rdi_2 = lm(county_dism~rdi + rail_km_per_km2, subset(data_m, death_decade ==
 mon_rdi_3 = lm(county_dism~rdi + rail_km_per_km2, subset(data_m, death_decade == 2000))
 
 # ------------------------------- Rivers IV -------------------------------
-mon_riv_1 = lm(county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, subset(data_m, death_decade == 1980))
-mon_riv_2 = lm(county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, subset(data_m, death_decade == 1990))
-mon_riv_3 = lm(county_dism~n_named_rivers + n_named_rivers_sq + stream_km_per_km2, subset(data_m, death_decade == 2000))
+mon_riv_1 = lm(county_dism~n_named_rivers + stream_km_per_km2, subset(data_m, death_decade == 1980))
+mon_riv_2 = lm(county_dism~n_named_rivers + stream_km_per_km2, subset(data_m, death_decade == 1990))
+mon_riv_3 = lm(county_dism~n_named_rivers + stream_km_per_km2, subset(data_m, death_decade == 2000))
 
 data.frame(
   Decade    = c(1980, 1990, 2000),
@@ -327,27 +329,42 @@ res$hi  <- res$estimate + 1.96 * res$se
 res$bin <- factor(res$bin, levels = names(bins))
 res$sex <- factor(res$sex, levels = c("Men", "Women"))
 
-## 5. Figure: faceted by sex, colored by race.
-res %>%
+## 5. Figure: colored by race, shaped by sex. Estimates are rescaled to a 10-point
+##    rise in D (see the mutate below), so the axis is labelled accordingly.
+bcohort_plot <-
+  res %>%
   mutate(estimate = estimate * 10,
          lo       = lo * 10,
          hi       = hi * 10) %>%
-  ggplot(aes(bin, estimate, 
-             color = sample,  
+  ggplot(aes(bin, estimate,
+             color = sample,
              shape = sex)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey60") +
   geom_pointrange(aes(ymin = lo, ymax = hi),
                   position = position_dodge(width = 0.35),
-                  linewidth = 0.7, fatten = 2.5, 
+                  linewidth = 0.7, fatten = 2.5,
                   size = 1) +
   labs(
     x = "Birth-year bin",
-    y = "Years of Life",
-    color = "Group"
+    y = "Years of Life (per 10-point rise in D)",
+    color = "Group",
+    subtitle = "RDI IV estimates, stratified by five-year birth cohort",
+    caption = paste(
+      "Note: Estimates are two-stage least squares coefficients using the Railroad Division Index (RDI)",
+      "instrument set (RDI and railroad track density); the Rivers instruments are not used here. Each point",
+      "is a separate model fit within a race, sex, and five-year birth-year bin, expressed as years of life",
+      "per 10-point rise in dissimilarity (D). All models include controls for migration, education, marital",
+      "status, and death in the South, and fixed effects for birth year, birth state, urbanicity, and",
+      "occupation. Bars are 95% confidence intervals from standard errors clustered on county of death.",
+      sep = "\n")
   ) +
   theme_cowplot() +
-  theme(legend.position = "top") +
+  theme(legend.position = "top",
+        plot.caption = element_text(hjust = 0, size = 10, face = "italic")) +
   scale_color_manual(values = c("Black" = "#1b7837", "White" = "#2166ac"))
+
+ggsave(bcohort_plot, filename = here("FigTab", "bcohort_stratified_estimates.jpeg"),
+       width = 9, height = 7, dpi = 300)
 
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -401,7 +418,6 @@ add_served <- function(d) {
       rdi_served  = rdi * served,                   # RDI instruments x service
       rail_served = rail_km_per_km2 * served,
       nr_served   = n_named_rivers * served,         # Rivers instruments x service
-      nrsq_served = n_named_rivers_sq * served,
       strm_served = stream_km_per_km2 * served
     )
 }
@@ -429,8 +445,8 @@ fit_rdi_int <- function(d) {
 fit_rivers_int <- function(d) {
   feols(death_age ~ served + migrated + education + married + south |
           byear + STATEFIP_b + urb_code + OCC |
-          county_dism + cd_served ~ n_named_rivers + n_named_rivers_sq + stream_km_per_km2 +
-            nr_served + nrsq_served + strm_served,
+          county_dism + cd_served ~ n_named_rivers  + stream_km_per_km2 +
+            nr_served +  strm_served,
         data = d, vcov = ~death_fips)
 }
 
