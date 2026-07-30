@@ -3,11 +3,12 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: Goerz_Segregation_Draft.aux
 The style file: apalike.bst
 Database file #1: ref.bib
+Warning--I didn't find a database entry for "enos_what_2016"
+Warning--I didn't find a database entry for "massey_residential_2018"
 Warning--I didn't find a database entry for "quillian_does_2011"
 Warning--I didn't find a database entry for "moulton_illustration_1990"
 Warning--I didn't find a database entry for "breen_black_2026"
 Warning--empty journal in arias_united_2020
-Warning--empty publisher in dubois_black_1935
 Warning--empty journal in logan_political_nodate
 Warning--empty journal in osborne_censoc-numident_nodate
 Warning--empty publisher in perman_struggle_2001
@@ -15,45 +16,45 @@ Warning--can't use both author and editor fields in weber_economy_1922
 Warning--empty journal in wilson_truly_1987
 Warning--empty journal in wrigley-field_three_2025
 Warning--empty journal in zimran_internal_2022
-You've used 113 entries,
+You've used 117 entries,
             1935 wiz_defined-function locations,
-            1094 strings with 24528 characters,
-and the built_in function-call counts, 43944 in all, are:
-= -- 4390
-> -- 1612
-< -- 78
-+ -- 576
-- -- 524
-* -- 3824
-:= -- 7598
-add.period$ -- 334
-call.type$ -- 113
-change.case$ -- 819
-chr.to.int$ -- 113
-cite$ -- 122
-duplicate$ -- 1624
-empty$ -- 3123
-format.name$ -- 713
-if$ -- 8503
+            1120 strings with 25278 characters,
+and the built_in function-call counts, 45280 in all, are:
+= -- 4529
+> -- 1646
+< -- 82
++ -- 584
+- -- 534
+* -- 3928
+:= -- 7837
+add.period$ -- 347
+call.type$ -- 117
+change.case$ -- 843
+chr.to.int$ -- 117
+cite$ -- 125
+duplicate$ -- 1680
+empty$ -- 3227
+format.name$ -- 729
+if$ -- 8765
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 122
-newline$ -- 563
-num.names$ -- 339
-pop$ -- 611
+missing$ -- 127
+newline$ -- 584
+num.names$ -- 351
+pop$ -- 626
 preamble$ -- 1
-purify$ -- 827
+purify$ -- 852
 quote$ -- 0
-skip$ -- 1288
+skip$ -- 1331
 stack$ -- 0
-substring$ -- 3454
-swap$ -- 176
+substring$ -- 3551
+swap$ -- 180
 text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 652
-warning$ -- 9
-while$ -- 382
+type$ -- 674
+warning$ -- 8
+while$ -- 396
 width$ -- 0
-write$ -- 1450
-(There were 12 warnings)
+write$ -- 1505
+(There were 13 warnings)

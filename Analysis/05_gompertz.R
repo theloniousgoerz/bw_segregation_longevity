@@ -30,16 +30,12 @@ rdi =   read_csv(here("Data","derived","atack_rail_county_instruments_1911.csv")
 # Data Cleaning for Analysis
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ## Rescale D for analysis -------------------------------
-db %<>% mutate(county_dism = county_dism*100,
-               county_isolb = county_isolb*100,
-               H_bw = H_bw*100,
-               D_star = D_star*100)
-
-dw %<>% mutate(county_dism = county_dism*100,
-               county_isolb = county_isolb*100,
-               H_bw = H_bw*100,
-               D_star = D_star*100
-)
+# NOTE: 01_Data_Cleaning.R now writes the segregation indices to db.csv/dw.csv
+# already expressed on the 0-100 scale (see any row of county_dism, e.g. 85.53).
+# The *100 rescale that used to live here therefore double-scaled D to 0-10000,
+# which shrank the coefficients by two orders of magnitude relative to
+# 04_Regression_Models.R and left the Gompertz Hessian badly conditioned enough
+# to return NaN standard errors. The indices are used as read.
 #  -------------------------------
 # Merge on rdi and river instruments
 #  -------------------------------
@@ -168,6 +164,25 @@ plot_df <- bind_rows(gompertz_ests, iv_ests) |>
 
 plot_df
 
+# Compute the Gompertz/regression bias ratios that the figure subtitle reports.
+# These are derived from plot_df rather than typed in by hand so that the
+# annotation cannot drift away from the estimates it describes.
+bias_ratios <- plot_df %>%
+  select(race, source, estimate) %>%
+  pivot_wider(names_from = source, values_from = estimate) %>%
+  mutate(ratio = `(D) Gompertz` / `(D) (Regression)`)
+
+ratio_black <- bias_ratios %>% filter(race == "Black") %>% pull(ratio)
+ratio_white <- bias_ratios %>% filter(race == "White") %>% pull(ratio)
+
+gompertz_subtitle <- sprintf(
+  "Gompertz/Regression (Black) = %.2f; Gompertz/Regression (White) = %.2f.",
+  ratio_black, ratio_white
+)
+
+# Write the ratios out so the manuscript text can be checked against them.
+readr::write_csv(bias_ratios, here("FigTab", "gompertz_bias_ratios.csv"))
+print(bias_ratios)
 
 gompertz_figure = ggplot(plot_df, aes(x = source, y = estimate, ymin = lower, ymax = upper,  color = race)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
@@ -183,7 +198,7 @@ gompertz_figure = ggplot(plot_df, aes(x = source, y = estimate, ymin = lower, ym
                         Gompertz estimates model death age as a function of segregation regressed and fixed effects. 
                         To overcome computational limitations with high-dimensional fixed effects, the birth state, birth year, and urban-rural fixed 
                         effects are residualized out of death age and segregation using the Frisch-Waugh Lovell theorem.",100),
-    subtitle = "Gompertz/Regression (Black) = 1.12; Gompertz/Regression (White) = 1.06."
+    subtitle = gompertz_subtitle
   ) +
   theme_cowplot()  + 
   scale_color_manual(values = c("darkgreen","darkblue")) + 
