@@ -6,55 +6,55 @@ Database file #1: ref.bib
 Warning--I didn't find a database entry for "enos_what_2016"
 Warning--I didn't find a database entry for "massey_residential_2018"
 Warning--I didn't find a database entry for "quillian_does_2011"
+Warning--I didn't find a database entry for "sangkham_update_2024"
 Warning--I didn't find a database entry for "moulton_illustration_1990"
 Warning--I didn't find a database entry for "breen_black_2026"
 Warning--empty journal in arias_united_2020
-Warning--empty journal in logan_political_nodate
 Warning--empty journal in osborne_censoc-numident_nodate
 Warning--empty publisher in perman_struggle_2001
 Warning--can't use both author and editor fields in weber_economy_1922
 Warning--empty journal in wilson_truly_1987
 Warning--empty journal in wrigley-field_three_2025
 Warning--empty journal in zimran_internal_2022
-You've used 117 entries,
+You've used 114 entries,
             1935 wiz_defined-function locations,
-            1120 strings with 25278 characters,
-and the built_in function-call counts, 45280 in all, are:
-= -- 4529
-> -- 1646
-< -- 82
-+ -- 584
-- -- 534
-* -- 3928
-:= -- 7837
-add.period$ -- 347
-call.type$ -- 117
-change.case$ -- 843
-chr.to.int$ -- 117
-cite$ -- 125
-duplicate$ -- 1680
-empty$ -- 3227
-format.name$ -- 729
-if$ -- 8765
+            1109 strings with 24834 characters,
+and the built_in function-call counts, 44155 in all, are:
+= -- 4420
+> -- 1602
+< -- 80
++ -- 570
+- -- 520
+* -- 3827
+:= -- 7640
+add.period$ -- 339
+call.type$ -- 114
+change.case$ -- 821
+chr.to.int$ -- 114
+cite$ -- 121
+duplicate$ -- 1639
+empty$ -- 3147
+format.name$ -- 708
+if$ -- 8549
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 127
-newline$ -- 584
-num.names$ -- 351
-pop$ -- 626
+missing$ -- 124
+newline$ -- 570
+num.names$ -- 342
+pop$ -- 608
 preamble$ -- 1
-purify$ -- 852
+purify$ -- 830
 quote$ -- 0
-skip$ -- 1331
+skip$ -- 1299
 stack$ -- 0
-substring$ -- 3551
-swap$ -- 180
+substring$ -- 3469
+swap$ -- 178
 text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 674
-warning$ -- 8
-while$ -- 396
+type$ -- 656
+warning$ -- 7
+while$ -- 387
 width$ -- 0
-write$ -- 1505
+write$ -- 1469
 (There were 13 warnings)
