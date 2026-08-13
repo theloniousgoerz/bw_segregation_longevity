@@ -1,0 +1,87 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Estimates of the Effect of Segregation on Longevity (Movers vs. Stayers, RDI Instrument)},
+note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
+note{ }={This table describes IV estimates (Railroad Division Index instrument) of the effect of segregation on longevity for movers and stayers.
+         A stayer died in the county they were born in; a mover died in a different county. The Movers and Stayers columns split the sample, so every coefficient is free to differ.
+         The Interacted columns pool the two groups and interact D with mover status, so 'D' is the effect among stayers and 'D x Mover' is the mover-stayer difference.
+         `migrated` is dropped from the covariates because it is collinear with the split. First-stage regressions are suppressed for concision.
+         Cluster-robust standard errors (by county of death) in parentheses.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
+column{3,4,6,7}={}{halign=c,},
+column{1}={}{halign=l,},
+cell{2}{2}={}{halign=c,},
+cell{2}{5}={}{halign=c,},
+cell{3}{2}={}{halign=c,},
+cell{3}{5}={}{halign=c,},
+cell{4}{2}={}{halign=c,},
+cell{4}{5}={}{halign=c,},
+cell{5}{2}={}{halign=c,},
+cell{5}{5}={}{halign=c,},
+cell{6}{2}={}{halign=c,},
+cell{6}{5}={}{halign=c,},
+cell{7}{2}={}{halign=c,},
+cell{7}{5}={}{halign=c,},
+cell{8}{2}={}{halign=c,},
+cell{8}{5}={}{halign=c,},
+cell{9}{2}={}{halign=c,},
+cell{9}{5}={}{halign=c,},
+cell{10}{2}={}{halign=c,},
+cell{10}{5}={}{halign=c,},
+cell{11}{2}={}{halign=c,},
+cell{11}{5}={}{halign=c,},
+cell{12}{2}={}{halign=c,},
+cell{12}{5}={}{halign=c,},
+cell{13}{2}={}{halign=c,},
+cell{13}{5}={}{halign=c,},
+cell{14}{2}={}{halign=c,},
+cell{14}{5}={}{halign=c,},
+cell{15}{2}={}{halign=c,},
+cell{15}{5}={}{halign=c,},
+cell{16}{2}={}{halign=c,},
+cell{16}{5}={}{halign=c,},
+cell{17}{2}={}{halign=c,},
+cell{17}{5}={}{halign=c,},
+cell{18}{2}={}{halign=c,},
+cell{18}{5}={}{halign=c,},
+cell{19}{2}={}{halign=c,},
+cell{19}{5}={}{halign=c,},
+cell{20}{2}={}{halign=c,},
+cell{20}{5}={}{halign=c,},
+cell{21}{2}={}{halign=c,},
+cell{21}{5}={}{halign=c,},
+cell{22}{2}={}{halign=c,},
+cell{22}{5}={}{halign=c,},
+cell{1}{2}={c=3,}{halign=c, halign=c,},
+cell{1}{5}={c=3,}{halign=c, halign=c,},
+hline{17}={1,2,3,4,5,6,7}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Black &  &  & White &  &  \\ \cmidrule[lr]{2-4}\cmidrule[lr]{5-7}
+& Black\newline (Movers) & Black\newline (Stayers) & Black\newline (Interacted) & White\newline (Movers) & White\newline (Stayers) & White\newline (Interacted) \\ \midrule %% TinyTableHeader
+D                & -0.052*** & -0.080*** & -0.062*** & -0.042*** & -0.058*** & -0.045*** \\
+& (0.008)   & (0.009)   & (0.007)   & (0.007)   & (0.007)   & (0.006)   \\
+Mover            &           &           & -0.156    &           &           & -0.095    \\
+&           &           & (0.186)   &           &           & (0.173)   \\
+D x Mover        &           &           & 0.008*    &           &           & 0.002     \\
+&           &           & (0.003)   &           &           & (0.003)   \\
+Male             & -0.994*** & -0.975*** & -1.000*** & -0.934*** & -0.933*** & -0.935*** \\
+& (0.051)   & (0.084)   & (0.041)   & (0.015)   & (0.020)   & (0.013)   \\
+Education        & 0.036***  & 0.049***  & 0.038***  & 0.056***  & 0.054***  & 0.056***  \\
+& (0.005)   & (0.010)   & (0.005)   & (0.002)   & (0.003)   & (0.002)   \\
+Married in 1940  & 0.068+    & 0.198**   & 0.101**   & -0.033**  & 0.003     & -0.022*   \\
+& (0.037)   & (0.061)   & (0.031)   & (0.010)   & (0.015)   & (0.009)   \\
+Died in South    & 0.036     &           & 0.038     & 0.225*    &           & 0.204*    \\
+& (0.124)   &           & (0.127)   & (0.089)   &           & (0.087)   \\
+Num.Obs.         & 89458     & 33532     & 123038    & 1578529   & 675761    & 2254290   \\
+R2               & 0.363     & 0.376     & 0.365     & 0.333     & 0.324     & 0.330     \\
+Birth Year       & X         & X         & X         & X         & X         & X         \\
+Birth State      & X         & X         & X         & X         & X         & X         \\
+Urban-Rural Code & X         & X         & X         & X         & X         & X         \\
+Occupation       & X         & X         & X         & X         & X         & X         \\
+\bottomrule
+\end{talltblr}
+\end{table}

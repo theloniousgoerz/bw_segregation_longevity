@@ -1,37 +1,34 @@
 \begin{table}
 \centering
 \begin{talltblr}[         %% tabularray outer open
-caption={Estimates of the Effect of Segregation on Longevity (By Gender)},
+caption={Estimates of the Effect of Segregation on Longevity by Gender (RDI Instrument)},
 note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
-note{ }={This table describes estimates of the effect of segregation on longevity by gender across identification strategies.
-         Columns 1-4 use the Railroad Division Index instrument, columns 5-8 the named rivers instrument, and columns 9-16 sibling fixed effects (exact and flexible matches).
-         First-stage regressions are supppressed for concision. Cluster-robust standard errors (by county of death) in parentheses.},
+note{ }={This table describes IV estimates (Railroad Division Index instrument) of the effect of segregation on longevity by gender. First-stage regressions are suppressed for concision. Cluster-robust standard errors (by county of death) in parentheses.},
 ]                     %% tabularray outer close
 {                     %% tabularray inner open
-colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
-column{2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17}={}{halign=c,},
+colspec={Q[]Q[]Q[]Q[]Q[]},
+column{2,3,4,5}={}{halign=c,},
 column{1}={}{halign=l,},
-hline{12}={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17}{solid, black, 0.05em},
+hline{12}={1,2,3,4,5}{solid, black, 0.05em},
 }                     %% tabularray inner close
 \toprule
-& Black (Men) & Black (Women) & White (Men) & White (Women) & Black (Men)  & Black (Women)  & White (Men)  & White (Women)  & Black (Men)   & Black (Women)   & White (Men)   & White (Women)   & Black (Men)    & Black (Women)    & White (Men)    & White (Women)    \\ \midrule %% TinyTableHeader
-D                & -0.064*** & -0.060*** & -0.055*** & -0.051*** & -0.038   & -0.071*   & -0.080+   & -0.089*  & -0.096*** & -0.096*** & -0.078*** & -0.082*** & -0.111*** & -0.088*** & -0.081*** & -0.082*** \\
-& (0.008)   & (0.007)   & (0.007)   & (0.006)   & (0.023)  & (0.029)   & (0.043)   & (0.040)  & (0.027)   & (0.027)   & (0.004)   & (0.004)   & (0.023)   & (0.021)   & (0.004)   & (0.004)   \\
-Education        & 0.049***  & 0.028***  & 0.077***  & 0.039***  & 0.048*** & 0.030***  & 0.074***  & 0.035*** & 0.204     & 0.077     & 0.077***  & 0.029+    & 0.015     & 0.026     & 0.080***  & 0.039**   \\
-& (0.008)   & (0.006)   & (0.002)   & (0.002)   & (0.008)  & (0.007)   & (0.005)   & (0.005)  & (0.181)   & (0.124)   & (0.018)   & (0.015)   & (0.119)   & (0.102)   & (0.016)   & (0.013)   \\
-Migrated         & -0.359*** & -0.301*** & 0.007     & -0.058+   & -0.274** & -0.329*** & 0.100     & 0.084    & -0.235    & 0.495     & -0.056    & -0.101    & -0.942    & -0.069    & -0.111    & -0.129+   \\
-& (0.068)   & (0.058)   & (0.030)   & (0.031)   & (0.095)  & (0.092)   & (0.170)   & (0.160)  & (0.887)   & (0.813)   & (0.097)   & (0.082)   & (0.663)   & (0.713)   & (0.089)   & (0.074)   \\
-Married in 1940  & 0.125*    & 0.109**   & -0.085*** & 0.051***  & 0.127*   & 0.103*    & -0.101*** & 0.030    & 0.062     & -0.309    & -0.055    & 0.017     & -0.458    & -0.271    & -0.017    & 0.058     \\
-& (0.051)   & (0.041)   & (0.014)   & (0.011)   & (0.051)  & (0.043)   & (0.028)   & (0.024)  & (0.890)   & (0.708)   & (0.092)   & (0.089)   & (0.673)   & (0.567)   & (0.079)   & (0.081)   \\
-Died in South    & -0.242    & -0.046    & 0.198*    & 0.186*    & 0.019    & -0.162    & 0.201+    & 0.164    &           &           &           &           &           &           &           &           \\
-& (0.154)   & (0.138)   & (0.097)   & (0.088)   & (0.261)  & (0.323)   & (0.122)   & (0.129)  &           &           &           &           &           &           &           &           \\
-Num.Obs.         & 52544     & 72475     & 998363    & 1288773   & 52544    & 72475     & 998363    & 1288773  & 818       & 1009      & 44620     & 58848     & 1170      & 1343      & 59999     & 76158     \\
-R2               & 0.322     & 0.372     & 0.253     & 0.351     & 0.319    & 0.369     & 0.250     & 0.349    & 0.745     & 0.741     & 0.643     & 0.687     & 0.751     & 0.730     & 0.641     & 0.687     \\
-Birth Year       & Yes       & Yes       & Yes       & Yes       & Yes      & Yes       & Yes       & Yes      & Yes       & Yes       & Yes       & Yes       & Yes       & Yes       & Yes       & Yes       \\
-Birth State      & Yes       & Yes       & Yes       & Yes       & Yes      & Yes       & Yes       & Yes      & Yes       & Yes       & Yes       & Yes       & Yes       & Yes       & Yes       & Yes       \\
-Urban Rural Code & Yes       & Yes       & Yes       & Yes       & Yes      & Yes       & Yes       & Yes      & Yes       & Yes       & Yes       & Yes       & Yes       & Yes       & Yes       & Yes       \\
-OCC              & Yes       & Yes       & Yes       & Yes       & Yes      & Yes       & Yes       & Yes      & Yes       & Yes       & Yes       & Yes       & Yes       & Yes       & Yes       & Yes       \\
-Sibling Group    & No        & No        & No        & No        & No       & No        & No        & No       & Yes       & Yes       & Yes       & Yes       & Yes       & Yes       & Yes       & Yes       \\
+& Black (Men) & Black (Women) & White (Men) & White (Women) \\ \midrule %% TinyTableHeader
+D                & -0.058*** & -0.056*** & -0.046*** & -0.044*** \\
+& (0.008)   & (0.007)   & (0.006)   & (0.006)   \\
+Education        & 0.050***  & 0.029***  & 0.077***  & 0.040***  \\
+& (0.008)   & (0.006)   & (0.002)   & (0.002)   \\
+Migrated         & 0.288***  & 0.238***  & -0.026    & 0.039     \\
+& (0.066)   & (0.056)   & (0.029)   & (0.030)   \\
+Married in 1940  & 0.106*    & 0.098*    & -0.083*** & 0.053***  \\
+& (0.051)   & (0.041)   & (0.013)   & (0.011)   \\
+Died in South    & -0.068    & 0.053     & 0.217*    & 0.196*    \\
+& (0.139)   & (0.127)   & (0.091)   & (0.085)   \\
+Num.Obs.         & 51644     & 71356     & 984010    & 1270278   \\
+R2               & 0.321     & 0.371     & 0.250     & 0.349     \\
+Birth Year       & Yes       & Yes       & Yes       & Yes       \\
+Birth State      & Yes       & Yes       & Yes       & Yes       \\
+Urban Rural Code & Yes       & Yes       & Yes       & Yes       \\
+OCC              & Yes       & Yes       & Yes       & Yes       \\
 \bottomrule
 \end{talltblr}
 \end{table}

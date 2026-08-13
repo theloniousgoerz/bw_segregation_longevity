@@ -14,9 +14,20 @@ library(fixest)
 library(tinytable)
 library(here)
 
+source(here("Analysis","00_Helpers.R"))
+
 # Data
 data_a =    read_csv(here("Data", "_Cleaned","analytic_sample.csv"))
 data =      read_csv(here("Data", "_Cleaned","fulldata.csv"))
+
+# Repair birth_fips and recompute migration status from the FIPS codes. The stored
+# `migrated` has its two labels swapped, so the descriptive share reported below was
+# the share who never left their birth county; STATEFIP_b was wrong for the rows whose
+# birth_fips lost or gained a leading zero. See prepare_analysis_data() in 00_Helpers.R,
+# which also drops anyone whose birth county is unrecorded -- so the counts this script
+# reports are for the sample the models are actually fit on.
+data_a %<>% prepare_analysis_data("data_a")
+data   %<>% prepare_analysis_data("data")
 county_d =  read_csv(here("Data", "_Cleaned","county_data.csv"))
 rivers =      read_csv(here("Data","derived","tiger_hydrography_county_instruments_2023.csv"))
 rdi =   read_csv(here("Data","derived","atack_rail_county_instruments_1911.csv"))
@@ -408,221 +419,9 @@ age_dist %>%
 
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-##### Balance Table ######
+# IV-sample flag, used by the Representativeness Table By Race and Sample below.
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fulldata %<>% mutate(iv_sample = ifelse(HISTID %in% data_a$HISTID,"IV Sample","Non-IV Sample"))
-
-## IV-non-IV Table ## 
-var_order_rt = c(
-  "Age at Death ",
-  "Male",
-  "Black",
-  "Education (Years)" , 
-  "Married (In 1940)" ,
-  "Migrated (Birth County - Death County)" ,
-  "Reside in South at Death" ,
-  "County D at Death"  ,
-  "County Population",
-  "County Pr. Black" ,
-  "N"
-)
-
-
-# Full data summary
-fd_summary = fulldata %>%
-  filter(!is.na(weight) & !is.na(migrated)) %>%
-  mutate(migrated = ifelse(migrated == "Migrated",1,0),
-         black = ifelse(Race == "Black",1,0)) 
-
-s_summary = fulldata %>%
-  filter(!is.na(weight) & !is.na(migrated)) %>%
-  mutate(migrated = ifelse(migrated == "Migrated",1,0),
-         black = ifelse(Race == "Black",1,0)) %>% 
-         filter(iv_sample == "IV Sample")
-
-### T Values
-var_map = c("death_age", "male","educ_years", "married","migrated","south","county_dism","pop","pblack","black")
-
-results <- data.frame(
-  variable = var_map,
-  diff = rep(NA_real_,length(var_map)),
-  p.value = rep(NA_real_,length(var_map)),
-  stringsAsFactors = FALSE
-)
-
-# loop through each variable
-for (i in seq_along(var_map)) {
-  var_name <- var_map[i]
-  
-  # run t-test
-  t_out <- t.test(fd_summary[[var_name]], s_summary[[var_name]], var.equal = FALSE)
-  
-  # store mean diff and p-value
-  results$diff[i] <- mean(fd_summary[[var_name]], na.rm = TRUE) - mean(s_summary[[var_name]], na.rm = TRUE)
-  results$p.value[i] <- t_out$p.value
-}
-
-fd_summary %<>%
-  select(
-    "Age at Death " =   death_age,
-    "Male" =   male,
-    "Education (Years)" =   educ_years, 
-    "Married (In 1940)" =   married,
-    "Migrated (Birth County - Death County)" = migrated,
-    "Reside in South at Death" =   south,
-    "County D at Death" =   county_dism,
-    "County Population" = pop,
-    "County Pr. Black" = pblack,
-    "Black" = black
-  ) %>%
-  mutate(N = max(row_number())) %>% 
-  ungroup() %>%
-  gather(variable,value) %>%
-  mutate(variable = factor(variable, levels = var_order_rt)) %>%
-  group_by(variable) %>% summarise(
-   `Mean (All)` = mean(value,na.rm = T))
-
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Sample Summary
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-s_summary %<>%
-  select(
-    "Age at Death " =   death_age,
-    "Male" =   male,
-    "Education (Years)" =   educ_years, 
-    "Married (In 1940)" =   married,
-    "Migrated (Birth County - Death County)" = migrated,
-    "Reside in South at Death" =   south,
-    "County D at Death" =   county_dism,
-    "County Population" = pop,
-    "County Pr. Black" = pblack,
-    "Black" = black
-  ) %>%
-  mutate(N = max(row_number())) %>% 
-  ungroup() %>%
-  gather(variable,value) %>%
-  mutate(variable = factor(variable, levels = var_order_rt)) %>%
-  group_by(variable) %>% summarise(
-   `Mean (Sample)` = mean(value,na.rm = T))
-
-## Combine 
-rep_table = left_join(fd_summary,s_summary) %>% 
-  rename(Variable = variable)
-
-results = rbind(results,data.frame(variable = "N",diff = 0,p.value = 0,check.names =F))
-
-results %<>% 
-  mutate(
-   Variable = case_when(variable == "death_age" ~"Age at Death ",
-   variable == "male" ~"Male",
-   variable == "educ_years" ~"Education (Years)",
-   variable == "married" ~"Married (In 1940)",
-   variable == "migrated" ~"Migrated (Birth County - Death County)",
-   variable == "south" ~"Reside in South at Death",
-   variable == "county_dism" ~"County D at Death",
-   variable == "pop" ~"County Population",
-   variable == "pblack" ~"County Pr. Black",
-   variable == "black"~"Black",
-   variable == "N" ~ "N"
-  )) %>% select(Variable,diff,p.value)
-
-t = rep_table %>% left_join(.,results)
-
-lrow = t[t$Variable == "N",] %>%
-  mutate(diff = "-", 
-         p.value = "-")
-
-## Save
-datasummary_df(t[t$Variable != "N",], 
-               align = "lcccc", 
-               fmt = 2, 
-               add_rows = lrow,
-               title = "Representativeness of Numident Analytic Sample V Full Sample",
-               notes = "This table compares the descriptive statistics of the full Numident sample to the analytic sample subset of the sample used in analysis.",
-               output = "tinytable"
-               ) %>% 
-  save_tt(output = here("FigTab","representivity_table.tex"), overwrite = T)
-  
-
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#### Descriptive Statistics Table ####
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-data_table = fulldata %>% 
-  filter(!is.na(weight) & !is.na(migrated) & iv_sample == "IV Sample") %>%
-  mutate(migrated = ifelse(migrated == "Migrated",1,0)) %>% 
-  select(
-     "Age at Death " =   death_age,
-     "Male" =   male,
-     "Education (Years)" =   educ_years, 
-     "Married (In 1940)" =   married,
-     "Migrated (Birth County - Death County)" = migrated,
-     "Reside in South at Death" =   south,
-     "County D at Death" =   county_dism,
-     "County Population" = pop,
-     "County Pr. Black" = pblack,
-     "Race" = Race,
-  ) 
-
- datasummary(All(data_table)~(Mean)*Race,
-             data =data_table,
-             title = "Descriptive Statistics of Analytic Sample By Race",
-             align = "lcc",
-             add_rows = data.frame(r1 = c("N"),
-                                   r2 = nrow(db),
-                                   r3 = nrow(dw)),
-             notes = "This table presents descriptive statistics for the analytic sample by racial group.",
-             threeparttable = T,
-             fmt = 2,
-             output = "tinytable"
- ) %>%
-   save_tt(output = here("FigTab","descriptive_table.tex"), overwrite = T)
-
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#### Sibling Sample Representativeness Table ####
-# Compares full IV analytic sample to exact sibling matches (sib_group_id_exact)
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-sib_base <- fulldata %>%
-  filter(!is.na(weight) & !is.na(migrated)) %>%
-  mutate(
-    migrated = ifelse(migrated == "Migrated", 1, 0),
-    Sample   = factor(
-      ifelse(!is.na(sib_group_id_exact), "Sibling Sample", "Full Sample"),
-      levels = c("Full Sample", "Sibling Sample")
-    )
-  )
-
-n_full <- nrow(sib_base)
-n_sib  <- sum(!is.na(sib_base$sib_group_id_exact))
-
-sib_table <- sib_base %>%
-  select(
-    "Age at Death"                           = death_age,
-    "Male"                                   = male,
-    "Education (Years)"                      = educ_years,
-    "Married (In 1940)"                      = married,
-    "Migrated (Birth County - Death County)" = migrated,
-    "Reside in South at Death"               = south,
-    "County D at Death"                      = county_dism,
-    "County Population"                      = pop,
-    "County Pr. Black"                       = pblack,
-    "Sample"                                 = Sample
-  )
-
-datasummary(
-  All(sib_table) ~ Mean * Sample,
-  data         = sib_table,
-  title        = "Representativeness of Exact Sibling Matches Relative to Full IV Sample",
-  align        = "lcc",
-  add_rows     = data.frame(r1 = "N", r2 = n_full, r3 = n_sib),
-  notes        = "This table compares descriptive statistics for the full IV analytic sample to the subset matched into exact sibling groups. Means are unweighted.",
-  threeparttable = TRUE,
-  fmt          = 2,
-  output       = "tinytable"
-) %>%
-  save_tt(output = here("FigTab", "sibling_representivity_table.tex"), overwrite = TRUE)
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #### Representativeness Table By Race and Sample ####

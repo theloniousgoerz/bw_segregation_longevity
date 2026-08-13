@@ -3,7 +3,7 @@
 \begin{talltblr}[         %% tabularray outer open
 caption={First Stage Regression of D on Instruments},
 note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
-note{ }={First stage relationship includes death decade fixed effects and clustered SEs.},
+note{ }={First stage relationship includes death decade fixed effects and cluster-robust standard errors (by county at death).},
 ]                     %% tabularray outer close
 {                     %% tabularray inner open
 colspec={Q[]Q[]Q[]},
@@ -13,16 +13,16 @@ hline{10}={1,2,3}{solid, black, 0.05em},
 }                     %% tabularray inner close
 \toprule
 & (1) & (2) \\ \midrule %% TinyTableHeader
-Number of Named Rivers& 0.02*** &          \\
+Number of Named Rivers & 0.02*** &          \\
 & (0.00)  &          \\
-Stream km per km$^2$& -0.86   &          \\
+Stream km per km$^2$   & -0.86   &          \\
 & (0.58)  &          \\
-RDI&         & 7.65***  \\
+RDI                    &         & 7.65***  \\
 &         & (1.18)   \\
-Rail km per km$^2$&         & 61.08*** \\
+Rail km per km$^2$     &         & 61.08*** \\
 &         & (6.26)   \\
-Num.Obs.          & 7357    & 7357     \\
-First-Stage F     & 38.21   & 131.19   \\
+Num.Obs.               & 7357    & 7357     \\
+First-Stage F          & 38.21   & 131.19   \\
 \bottomrule
 \end{talltblr}
 \end{table}

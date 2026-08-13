@@ -22,10 +22,18 @@ library(lfe)
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Data
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-db =       read_csv(here("Data","_Cleaned","db.csv"))                                                                              
-dw =       read_csv(here("Data","_Cleaned","dw.csv"))   
+source(here("Analysis","00_Helpers.R"))
+
+db =       read_csv(here("Data","_Cleaned","db.csv"))
+dw =       read_csv(here("Data","_Cleaned","dw.csv"))
 rivers =      read_csv(here("Data","derived","tiger_hydrography_county_instruments_2023.csv"))
 rdi =   read_csv(here("Data","derived","atack_rail_county_instruments_1911.csv"))
+
+# Repairs birth_fips (and STATEFIP_b, used as a fixed effect below) and drops anyone
+# whose birth county is unrecorded, so the truncation-corrected estimates are for the
+# same sample as the main models. See prepare_analysis_data() in 00_Helpers.R.
+db %<>% prepare_analysis_data("db")
+dw %<>% prepare_analysis_data("dw")
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Data Cleaning for Analysis
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

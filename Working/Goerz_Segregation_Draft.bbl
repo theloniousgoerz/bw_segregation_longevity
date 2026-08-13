@@ -36,9 +36,10 @@ Angrist, J. and Kolesár, M. (2021).
 \newblock {\em arXiv:2110.10556 [econ, stat]}.
 \newblock arXiv: 2110.10556.
 
-\bibitem[Arias, 2020]{arias_united_2020}
-Arias, E. (2020).
-\newblock United {States} life tables, 2023.
+\bibitem[Arias and Xu, 2022]{arias_united_2022}
+Arias, E. and Xu, J. (2022).
+\newblock United {States} life tables, 2020.
+\newblock {\em National Vital Statistics Reports}, 71(1):1--64.
 
 \bibitem[Atack, 2016]{atack_historical_2016}
 Atack, J. (2016).
@@ -90,8 +91,13 @@ Bobo, L. and Zubrinsky, C.~L. (1996).
 \newblock Attitudes on {Residential} {Integration}: {Perceived} {Status} {Differences}, {Mere} {In}-{Group} {Preference}, or {Racial} {Prejudice}?
 \newblock {\em Social Forces}, 74(3):883--909.
 
-\bibitem[Breen, 2024]{breen_longevity_2024}
-Breen, C.~F. (2024).
+\bibitem[Breen, 2024a]{breen_black_2026}
+Breen, C. (2024a).
+\newblock Black-{White} mortality crossover: new evidence from {Social} {Security} mortality records.
+\newblock Working paper/preprint as of 2024; cited in-text as forthcoming ("2026"). Verify final venue and year before submission -- this entry is a best-effort match, not independently confirmed against the author's own citation manager.
+
+\bibitem[Breen, 2024b]{breen_longevity_2024}
+Breen, C.~F. (2024b).
 \newblock The {Longevity} {Benefits} of {Homeownership}: {Evidence} {From} {Early} {Twentieth}-{Century} {U}.{S}. {Male} {Birth} {Cohorts}.
 \newblock {\em Demography}, 61(6):1731--1757.
 
@@ -303,6 +309,12 @@ Klinenberg, E. (2002).
 \newblock {\em Heat {Wave}: {A} {Social} {Autopsy} of {Disaster} in {Chicago}}.
 \newblock University of Chicago Press, Chicago.
 
+\bibitem[Krysan and Crowder, 2017]{krysan_cycle_2017}
+Krysan, M. and Crowder, K. (2017).
+\newblock {\em Cycle of {Segregation}: {Social} {Processes} and {Residential} {Stratification}}.
+\newblock Russell Sage Foundation.
+\newblock Google-Books-ID: eqA\_DwAAQBAJ.
+
 \bibitem[Leibbrand et~al., 2020]{leibbrand_great_2020}
 Leibbrand, C., Massey, C., Alexander, J.~T., Genadek, K.~R., and Tolnay, S. (2020).
 \newblock The {Great} {Migration} and {Residential} {Segregation} in {American} {Cities} during the {Twentieth} {Century}.
@@ -333,6 +345,11 @@ Logan, T.~D. and Parman, J.~M. (2018).
 \newblock Segregation and mortality over time and space.
 \newblock {\em Social Science \& Medicine}, 199:77--86.
 
+\bibitem[Louie and DeAngelis, 2024]{louie_fear_2024}
+Louie, P. and DeAngelis, R.~T. (2024).
+\newblock Fear of a {Black} {Neighborhood}: {Anti}-{Black} {Racism} and the {Health} of {White} {Americans}.
+\newblock {\em Social Forces}, 102(3):817--838.
+
 \bibitem[Manduca et~al., 2025]{manduca_tax_2025}
 Manduca, R., Highsmith, B., and Waggoner, J. (2025).
 \newblock Tax {Base} {Fragmentation} as a {Dimension} of {Metropolitan} {Inequality}.
@@ -352,6 +369,12 @@ Massey, D.~S. (1990).
 Massey, D.~S. (1995).
 \newblock Getting {Away} with {Murder}: {Segregation} and {Violent} {Crime} in {Urban} {America}.
 \newblock {\em University of Pennsylvania Law Review}, 143(5):1203--1232.
+
+\bibitem[Massey, 2016]{massey_residential_2018}
+Massey, D.~S. (2016).
+\newblock Residential {Segregation} is the {Linchpin} of {Racial} {Stratification}.
+\newblock {\em City \& Community}, 15(1):4--7.
+\newblock Citation key retains the "2018" used in-text; actual publication year is 2016 per the journal record.
 
 \bibitem[Massey et~al., 1987]{massey_effect_1987}
 Massey, D.~S., Condran, G.~A., and Denton, N.~A. (1987).
@@ -419,10 +442,20 @@ Montez, J.~K., Gutin, I., and Monnat, S.~M. (2026).
 \newblock {US} {State} {Policy} {Index} for {Population} {Health} {Analyses}.
 \newblock {\em The Milbank Quarterly}.
 
+\bibitem[Moulton, 1990]{moulton_illustration_1990}
+Moulton, B.~R. (1990).
+\newblock An {Illustration} of a {Pitfall} in {Estimating} the {Effects} of {Aggregate} {Variables} on {Micro} {Units}.
+\newblock {\em The Review of Economics and Statistics}, 72(2):334--338.
+
 \bibitem[O'Brien et~al., 2025]{obrien_fiscal_2025}
 O'Brien, R., Schechtl, M., and Parolin, Z. (2025).
 \newblock Fiscal {Centralization} and {Inequality} in {Children}'s {Economic} {Mobility}.
 \newblock {\em American Sociological Review}, 90(1):114--141.
+
+\bibitem[O'Brien, 2017]{obrien_redistribution_2017}
+O'Brien, R.~L. (2017).
+\newblock Redistribution and the {New} {Fiscal} {Sociology}: {Race} and the {Progressivity} of {State} and {Local} {Taxes}.
+\newblock {\em American Journal of Sociology}, 122(4):1015--1049.
 
 \bibitem[Osborne, 2022]{osborne_censoc-numident_nodate}
 Osborne, M. (2022).
@@ -437,6 +470,11 @@ Perman, M. (2001).
 Pierson, K., Hand, M.~L., and Thompson, F. (2015).
 \newblock The {Government} {Finance} {Database}: {A} {Common} {Resource} for {Quantitative} {Research} in {Public} {Financial} {Analysis}.
 \newblock {\em PLOS ONE}, 10(6):e0130119.
+
+\bibitem[Pope et~al., 2002]{pope_lung_2002}
+Pope, C.~A., Burnett, R.~T., Thun, M.~J., Calle, E.~E., Krewski, D., Ito, K., and Thurston, G.~D. (2002).
+\newblock Lung {Cancer}, {Cardiopulmonary} {Mortality}, and {Long}-term {Exposure} to {Fine} {Particulate} {Air} {Pollution}.
+\newblock {\em JAMA}, 287(9):1132--1141.
 
 \bibitem[Quillian, 2012]{quillian_segregation_2012}
 Quillian, L. (2012).
@@ -470,6 +508,11 @@ Ruggles, S., Flood, S., Sobek, M., Backman, D., Chen, A., Cooper, G., Richards, 
 Sampson, R.~j. and Sharkey, P. (2008).
 \newblock Neighborhood {Selection} and the {Social} {Reproduction} of {Concentrated} {Racial} {Inequality}.
 \newblock {\em Demography}, 45(1):1--29.
+
+\bibitem[Sangkham et~al., 2024]{sangkham_update_2024}
+Sangkham, S., Phairuang, W., Sherchan, S.~P., Pansakun, N., Munkong, N., Sarndhong, K., Islam, M.~A., and Sakunkoo, P. (2024).
+\newblock An update on adverse health effects from exposure to {PM2.5}.
+\newblock {\em Environmental Advances}, 18:100603.
 
 \bibitem[Sharkey and Faber, 2014]{sharkey_where_2014}
 Sharkey, P. and Faber, J.~W. (2014).

@@ -41,12 +41,17 @@ my_ftest <- function(modc, modnc) {
 # Mechanisms Data
 policy_data = read_csv(here("Data","_Cleaned","county_policy_data.csv"))
 income_seg = read_csv(here("Data","_Cleaned","income_segregation_Hr.csv"))
-vote_share_gov = read_csv(here("Data","_Cleaned","gubernatorial_returns_decades.csv"))
-vote_share_pres = read_csv(here("Data","_Cleaned","presidential_returns_decades.csv"))
-# Analytic Data 
-data_a =   read_csv(here("Data","_Cleaned","data_a.csv"))                                                                        
+# Analytic Data
+source(here("Analysis","00_Helpers.R"))
+
+data_a =   read_csv(here("Data","_Cleaned","data_a.csv"))
 rivers =      read_csv(here("Data","derived","tiger_hydrography_county_instruments_2023.csv"))
 rdi =   read_csv(here("Data","derived","atack_rail_county_instruments_1911.csv"))
+
+# Repairs birth_fips (and STATEFIP_b, which is derived from it) and drops anyone whose
+# birth county is unrecorded, so this script describes the same analytic sample as the
+# regression scripts. See prepare_analysis_data() in 00_Helpers.R.
+data_a %<>% prepare_analysis_data("data_a")
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Data Cleaning for Analysis
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -62,20 +67,11 @@ data_a %<>% left_join(rdi) %>% left_join(rivers)
 income_seg %<>% mutate(death_fips = county_fips, death_decade = year)
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Mechanisms 
+# Mechanisms
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-segregation_data =data_a %>% distinct(death_fips,county_dism,death_decade,ln_gov,gov_rev_share,pop,rdi,n_named_rivers,n_named_rivers_sq,south,urb_code,rail_km_per_km2,pblack) %>% 
-  left_join(income_seg, by = c("death_decade","death_fips")) %>% 
+segregation_data =data_a %>% distinct(death_fips,county_dism,death_decade,ln_gov,gov_rev_share,pop,rdi,n_named_rivers,n_named_rivers_sq,south,urb_code,rail_km_per_km2,pblack) %>%
+  left_join(income_seg, by = c("death_decade","death_fips")) %>%
   mutate(Hr_all = Hr_all*100)
-
-
-vote = 
-  vote_share_gov %>% 
-  mutate(death_decade = decade,
-         death_fips = fips) %>% 
-    distinct(death_decade,death_fips,gov_party,gov_party_consistent) 
-
-segregation_data %<>% left_join(vote)
 
 policy_data %>% summary()
 
@@ -90,9 +86,8 @@ policy_panel <- policy_data %>%
                 .names = "log_{.col}"),
          death_decade = decade,
          death_fips = fips5) %>% 
-  left_join(., segregation_data, by = c("death_fips","death_decade")) %>% 
-  mutate(gov_party_b = ifelse(gov_party == "Dem",1,0),
-         county_dism = county_dism/100)
+  left_join(., segregation_data, by = c("death_fips","death_decade")) %>%
+  mutate(county_dism = county_dism/100)
 
 # cash assistance,
 #    Medicaid vendor payments, direct welfare, health/hospital spending
@@ -113,30 +108,6 @@ m_prop    = feols(prop_tax_pc       ~ county_dism   | death_decade + urb_code + 
 m_snap    = feols(comp_snap         ~ county_dism   | death_decade + urb_code + south , data = policy_panel, vcov = ~death_fips)
 m_health  = feols(health_pc         ~ county_dism   | death_decade + urb_code + south , data = policy_panel, vcov = ~death_fips)
 
-msummary(
-  list(
-    "Welfare"       = m_welf,
-    "Cash Asst."    = m_cash,
-    "Medicaid"      = m_medicaid,
-    "Taxes"         = m_taxes,
-    "Prop Tax"      = m_prop,
-    "Health"           = m_health
-  ),
-  coef_map  = c("county_dism" = "D (0,1)"),
-  gof_map   = c("nobs", "r.squared"),
-  stars     = TRUE,
-  fmt       = 3,
-  title     = "OLS Association Between Segregation and Mechanisms",
-  notes     = "Standard errors clustered at the county level. All models include decade fixed effects (1980, 1990, 2000).",
- # add_rows  = data.frame(FE = "Decade FE",
- #                        m1 = "X", m2 = "X", m3 = "X",
- #                        m4 = "X", m5 = "X", m6 = "X"),
-  #align     = "lcccccc",
-  threeparttable = TRUE,
-  output    = "tinytable"
-) %>%
-  save_tt(here("FigTab","gov_policy_table.tex"), overwrite = TRUE)
-
 # Same six outcomes as the OLS block, same conditioning set, so that the OLS and IV
 # rows of a given table column differ only in the estimator.
 m_welf_iv       = feols(welf_direct_pc   ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
@@ -146,31 +117,6 @@ m_taxes_iv      = feols(taxes_pc         ~ 1  | death_decade + urb_code + south|
 m_prop_iv       = feols(prop_tax_pc      ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
 m_snap_iv       = feols(comp_snap        ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
 m_health_iv     = feols(health_pc        ~ 1  | death_decade + urb_code + south| county_dism~rdi + rail_km_per_km2, data = policy_panel, vcov = ~death_fips)
-
-msummary(
-  list(
-    "Welfare"       = m_welf_iv,
-    "Cash Asst."    = m_cash_iv,
-    "Medicaid"      = m_medicaid_iv,
-    "Taxes"         = m_taxes_iv,
-    "Prop Tax"      = m_prop_iv,
-   "Health" =  m_health_iv
-
-  ),
-  coef_map  = c("fit_county_dism" = "D"),
-  gof_map   = c("nobs", "r.squared"),
-  stars     = TRUE,
-  fmt       = 3,
-  title     = "IV Estimates of D on County Fiscal Policy",
-  notes     = "Standard errors clustered at the county level. All models include decade fixed effects (1980, 1990, 2000).",
-  #add_rows  = data.frame(FE = "Decade FE",
-  #                       m1 = "X", m2 = "X", m3 = "X",
-  #                       m4 = "X", m5 = "X", m6 = "X"),
-  #align     = "lcccccc",
-  threeparttable = TRUE,
-  output    = "tinytable"
-) %>%
-  save_tt(here("FigTab","gov_policy_table.tex"), overwrite = TRUE)
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Combined OLS + IV Table: Effect of D on County Fiscal Policy Mechanisms
@@ -244,50 +190,6 @@ combined_tex <- c(
 )
 
 writeLines(combined_tex, here("FigTab", "mechanism_ols_iv_table.tex"))
-
-# -----------------------
-# Combined OLS + IV coefficient plot across mechanism outcomes
-
-# Built from mech_cols so the figure and the table above cannot list different
-# mechanisms: both are the set of channels controlled for in 04_Regression_Models.R.
-coef_ols <- map_dfr(
-  set_names(map(mech_cols, "ols"), map_chr(mech_cols, "label")),
-  \(m) broom::tidy(m, conf.int = TRUE) |> filter(term == "county_dism"),
-  .id = "outcome"
-) |> mutate(estimator = "OLS")
-
-coef_iv <- map_dfr(
-  set_names(map(mech_cols, "iv"), map_chr(mech_cols, "label")),
-  \(m) broom::tidy(m, conf.int = TRUE) |> filter(term == "fit_county_dism"),
-  .id = "outcome"
-) |> mutate(estimator = "IV")
-
-coef_mech <- bind_rows(coef_ols, coef_iv) |>
-  mutate(
-    outcome   = factor(outcome, levels = map_chr(mech_cols, "label")),
-    estimator = factor(estimator, levels = c("OLS", "IV"))
-  )
-
-mech_figure = ggplot(coef_mech, aes(x = estimator, y = estimate, color = estimator, shape = estimator)) + 
-  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
-  geom_errorbar(aes(ymin = conf.low, ymax = conf.high),
-                width = 0.15, position = position_dodge(width = 0.2)) +
-  geom_point(size = 3, position = position_dodge(width = 0.2)) +
-  labs(
-    x = NULL, y = "Coefficient on D (Segregation)",
-    color = NULL, shape = NULL,
-    title = "Effect of Segregation on County Fiscal Policy Mechanisms"
-  ) +
-  facet_wrap(~outcome, scales = "free_y", nrow = 2) +
-  theme_cowplot() +
-  theme(
-    legend.position = "bottom"
-  )
-
-ggsave(mech_figure, filename = here("FigTab","mechanism.jpeg"),
-       width = 10,
-       height = 10,
-       dpi = 1000)
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Descriptive Statistics: Mechanism Outcomes by Decade

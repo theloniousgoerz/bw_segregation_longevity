@@ -28,13 +28,27 @@ library(here)
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Data
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-data_a =   read_csv(here("Data","_Cleaned","data_a.csv"))                                                                        
-db =       read_csv(here("Data","_Cleaned","db.csv"))                                                                              
-dw =       read_csv(here("Data","_Cleaned","dw.csv"))   
-db_f=      read_csv(here("Data","_Cleaned","db_f.csv"))                                                                              
-dw_f=      read_csv(here("Data","_Cleaned","dw_f.csv"))   
+source(here("Analysis","00_Helpers.R"))
+
+data_a =   read_csv(here("Data","_Cleaned","data_a.csv"))
+db =       read_csv(here("Data","_Cleaned","db.csv"))
+dw =       read_csv(here("Data","_Cleaned","dw.csv"))
+db_f=      read_csv(here("Data","_Cleaned","db_f.csv"))
+dw_f=      read_csv(here("Data","_Cleaned","dw_f.csv"))
 mechanism = read_csv(here("Data","_Cleaned","mechanism.csv"))
 income_seg = read_csv(here("Data","_Cleaned","income_segregation_Hr.csv"))
+
+# Repair birth_fips and derive migration status from the FIPS codes. The stored
+# `migrated` has its two labels swapped, and STATEFIP_b -- the birth-state fixed effect
+# in every model below -- was wrong for the rows whose birth_fips lost or gained a
+# leading zero. See prepare_analysis_data() in 00_Helpers.R. This also adds the `mover`
+# factor used by the movers-vs-stayers models below and drops anyone whose birth county
+# is unrecorded, so every model here is fit on people with an observed migration status.
+data_a %<>% prepare_analysis_data("data_a")
+db     %<>% prepare_analysis_data("db")
+dw     %<>% prepare_analysis_data("dw")
+db_f   %<>% prepare_analysis_data("db_f")
+dw_f   %<>% prepare_analysis_data("dw_f")
 
 # Merge
 mechanisms = mechanism  %>% select(
@@ -49,10 +63,8 @@ mechanisms = mechanism  %>% select(
   medicaid_pc,
   taxes_pc,
   prop_tax_pc,
-  Hr_all,
-  gov_party_consistent,
-  gov_party
-) %>% distinct() 
+  Hr_all
+) %>% distinct()
 
 
 data_a %<>% left_join(.,mechanisms, by = c("death_decade","death_fips"))
@@ -194,7 +206,8 @@ ols_m2_w = feols(death_age~county_dism + .[cov_nosouth] |.[fe_main], data = dw, 
              "migratedMigrated" = "Migrated",
              "married" = "Married in 1940",
              "south" = "Died in South",
-             "rdi" = "Railroad Division Index"),
+             "rdi" = "Railroad Division Index",
+             "rail_km_per_km2" = "Rail km per km$^2$"),
            gof_map = c("nobs",
                        "r.squared",
                        "f"),
@@ -1199,8 +1212,121 @@ ggsave(Iv_estimate_plot_g,filename = here("FigTab","iv_plot_gender.jpeg"),
        height = 5,
        dpi = 1000)
 
+# ------------------------------- Movers V Stayers -------------------------------
+# Whether the effect of county segregation is driven by people who spent their whole
+# life in one county. A stayer died in the county they were born in, so their exposure
+# to that county's segregation is lifelong; a mover was exposed only after arriving.
+#
+# The `mover` factor is built by prepare_analysis_data() at the top of this script,
+# where it is derived from birth_fips and death_fips. Anyone without a recorded birth
+# county has already been dropped there, so the two groups partition the sample.
 
-#------------------------------- Weights -------------------------------  
+# `migrated` drops out of the covariates: it is a deterministic function of the split
+# and so is collinear within each subsample.
+cov_mig <- "male + education + married + south"
+
+# `south` additionally drops out of the stayer models. A stayer died in their birth
+# county, so they died in their birth state, and "died in the South" is then a
+# deterministic function of the birth-state fixed effect. Left in, fixest drops it by
+# collinearity for Black stayers and returns a numerically degenerate standard error
+# (order 1e5) for White stayers, so it is removed from the specification rather than
+# left for the solver to discover.
+cov_mig_stay <- "male + education + married"
+
+# ------------------------------- Sample splits (RDI IV) -------------------------------
+d2_b_move = feols(death_age~.[cov_mig]      |.[fe_main] |.[iv_rdi], data = subset(db, mover == "Mover"),  vcov = CL)
+d2_b_stay = feols(death_age~.[cov_mig_stay] |.[fe_main] |.[iv_rdi], data = subset(db, mover == "Stayer"), vcov = CL)
+d2_w_move = feols(death_age~.[cov_mig]      |.[fe_main] |.[iv_rdi], data = subset(dw, mover == "Mover"),  vcov = CL)
+d2_w_stay = feols(death_age~.[cov_mig_stay] |.[fe_main] |.[iv_rdi], data = subset(dw, mover == "Stayer"), vcov = CL)
+
+# ------------------------------- Pooled interaction (RDI IV) -------------------------------
+# Splitting the sample lets every coefficient differ across movers and stayers but gives
+# no test of whether the D coefficients themselves differ. This model interacts D with
+# mover status -- treating `mover` and D x mover as endogenous and instrumenting with the
+# same instrument set interacted with mover, exactly as the south-interacted models do --
+# so "D x Mover" is the mover-stayer difference with a standard error on it.
+#
+# Sweeping `mover` into the endogenous block is the house pattern rather than a claim
+# that mover status is endogenous; it makes no difference here. Refitting with mover
+# exogenous and only D and D:mover instrumented reproduces every coefficient and
+# standard error in this table to the printed precision.
+#
+# `south` stays in the pooled models but is identified off movers only, since it is
+# absorbed by the birth-state FE for the stayers.
+iv_rdi_mover <- paste("county_dism*mover ~", interact_with(instr_rdi, "mover"))
+
+d2_b_mover_int = feols(death_age~.[cov_mig] |.[fe_main] |.[iv_rdi_mover], data = db, vcov = CL)
+d2_w_mover_int = feols(death_age~.[cov_mig] |.[fe_main] |.[iv_rdi_mover], data = dw, vcov = CL)
+
+msummary(list("Black\\newline (Movers)"      = d2_b_move,
+              "Black\\newline (Stayers)"     = d2_b_stay,
+              "Black\\newline (Interacted)"  = d2_b_mover_int,
+              "White\\newline (Movers)"      = d2_w_move,
+              "White\\newline (Stayers)"     = d2_w_stay,
+              "White\\newline (Interacted)"  = d2_w_mover_int),
+         fmt = 3, stars = T,
+         coef_map = c("fit_county_dism" = "D",
+                      "fit_moverMover" = "Mover",
+                      "fit_county_dism:moverMover" = "D x Mover",
+                      "male" = "Male",
+                      "education" = "Education",
+                      "married" = "Married in 1940",
+                      "south" = "Died in South"),
+         gof_map = c("nobs",
+                     "r.squared",
+                     "f"),
+         notes = "This table describes IV estimates (Railroad Division Index instrument) of the effect of segregation on longevity for movers and stayers.
+         A stayer died in the county they were born in; a mover died in a different county. The Movers and Stayers columns split the sample, so every coefficient is free to differ.
+         The Interacted columns pool the two groups and interact D with mover status, so 'D' is the effect among stayers and 'D x Mover' is the mover-stayer difference.
+         `migrated` is dropped from the covariates because it is collinear with the split. First-stage regressions are suppressed for concision.
+         Cluster-robust standard errors (by county of death) in parentheses.",
+         title = "Estimates of the Effect of Segregation on Longevity (Movers vs. Stayers, RDI Instrument)",
+         add_rows = data.frame(
+           FE = c("Birth Year","Birth State","Urban-Rural Code","Occupation"),
+           m1 = c("X","X","X","X"),
+           m2 = c("X","X","X","X"),
+           m3 = c("X","X","X","X"),
+           m4 = c("X","X","X","X"),
+           m5 = c("X","X","X","X"),
+           m6 = c("X","X","X","X")
+         ),
+         threeparttable = TRUE
+         ) %>%
+  group_tt(j = list("Black" = 2:4, "White" = 5:7)) %>%
+  save_tt(., output = here("FigTab","IV_results_table_movers.tex"), overwrite = T)
+
+# ------------------------------- Movers vs. stayers figure -------------------------------
+movers_plot_data = bind_rows(
+  tidy(d2_b_move, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "Black", Group = "Movers"),
+  tidy(d2_b_stay, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "Black", Group = "Stayers"),
+  tidy(d2_w_move, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "White", Group = "Movers"),
+  tidy(d2_w_stay, conf.int = T) |> filter(term == "fit_county_dism") |> mutate(Race = "White", Group = "Stayers")
+) |>
+  mutate(estimate  = estimate  * contrast,
+         conf.high = conf.high * contrast,
+         conf.low  = conf.low  * contrast,
+         Group     = factor(Group, levels = c("Stayers", "Movers")))
+
+movers_plot =
+  ggplot(movers_plot_data,
+         aes(Group, estimate, ymin = conf.low, ymax = conf.high, color = Race)) +
+  geom_pointrange(position = position_dodge2(width = .5), size = .75, lwd = .75, shape = 22) +
+  geom_hline(yintercept = 0, linetype = "dashed", lwd = 1) +
+  scale_color_manual(values = c("Black" = "darkgreen", "White" = "darkblue")) +
+  labs(y = "Change in Life Expectancy", x = NULL,
+       caption = str_wrap("IV estimates (Railroad Division Index instrument) of the effect of segregation on longevity,
+       split by whether a person died in the county they were born in (Stayers) or in a different county (Movers).
+       Models adjust for demographic controls and birth year, birth state, urban-rural, and occupation fixed effects.
+       Estimates refer to a 10-point increase in Dissimilarity.", 100)) +
+  theme_cowplot() +
+  theme(plot.caption    = element_text(hjust = 0),
+        legend.position = "bottom")
+
+ggsave(movers_plot, filename = here("FigTab","movers_stayers_estimates.jpeg"),
+       width = 8, height = 6, dpi = 1000)
+
+
+#------------------------------- Weights -------------------------------
 
 # RDI IV
 d2_b_wt = feols(death_age~.[cov_main] |.[fe_main] |.[iv_rdi], data = db, vcov = CL, weights = db$weight)

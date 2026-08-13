@@ -18,8 +18,13 @@ library(here)
 `%notin%` = Negate(`%in%`)
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Read Data 
+source(here("Analysis","00_Helpers.R"))
+
 controls = read_csv(here("Data","_Cleaned","controls.csv"))
-numident = read_csv(here("Data","_Cleaned","NUMIDENT.csv"))
+# FIPS columns are read as character so readr does not strip their leading zeros.
+numident = read_csv(here("Data","_Cleaned","NUMIDENT.csv"),
+                    col_types = cols(birth_fips = col_character(),
+                                     death_fips = col_character()))
 county_d = read_csv(here("Data","_Cleaned","county_data.csv"))
 gov =      read_csv(here("Data","_Cleaned","CensusGov.csv"))
 ## Rural Urban Codes 
@@ -69,45 +74,19 @@ data = numident %<>%
    left_join(urb_codes,by = c("death_fips","death_decade")) 
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Clearn Fips 
-data %<>% mutate(
-  death_fips = as.character(death_fips),
-  state = ifelse(death_state %in%  c(
-    "al",
-    "ak",
-    "az",
-    "ar",
-    "ca",
-    "co",
-    "ct"
-  ),str_sub(death_fips,1,1),str_sub(death_fips,1,2)),
-  birth_fips = case_when(
-    
-    state %in% c(     "1",
-                      "2",
-                      "4",
-                      "5",
-                      "6",
-                      "8",
-                      "9") ~paste0("0",birth_fips),
-    state %notin% c(     "1",
-                         "2",
-                         "4",
-                         "5",
-                         "6",
-                         "8",
-                         "9")  ~ as.character(birth_fips)
-  ),
-  death_fips = case_when(
-    state %in% c(      "1",
-                       "2",
-                       "4",
-                       "5",
-                       "6",
-                       "8",
-                       "9") ~paste0("0",as.character(death_fips)),
-    state %notin% c("1","2", "4","5", "6", "8", "9") ~ as.character(death_fips)
-  )) 
+# Clean FIPS
+# repair_birth_fips() pads death_fips to five characters and undoes the birth_fips
+# corruption described in 00_Helpers.R, then derives STATEFIP_b, south_sample_b and
+# born_in_south from the repaired code. It is idempotent -- a correct code passes
+# through untouched -- so this is right whether NUMIDENT.csv was written before or
+# after the ingest fix in Code/01_Numident.R, and it replaces the death-state-based
+# padding block that used to sit here.
+data %<>%
+  mutate(birth_fips = as.character(birth_fips),
+         death_fips = as.character(death_fips)) %>%
+  repair_birth_fips() %>%
+  check_birth_fips(label = "01_Data_Cleaning") %>%
+  mutate(state = str_sub(death_fips, 1, 2))
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # County
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -122,10 +101,8 @@ south_fips = data.frame(
   STATEFIP =as.character( c("01","05","10",11,12,13,21,22,24,28,37,40,45,47,48,51,54)),
   south_sample = 1
 )
-south_fips_b = data.frame(
-  STATEFIP_b =as.character( c("01","05","10",11,12,13,21,22,24,28,37,40,45,47,48,51,54)),
-  south_sample_b = 1
-)
+# The birth-side equivalent lives in 00_Helpers.R as SOUTH_STATEFIP, applied by
+# repair_birth_fips() so that south_sample_b is keyed off a repaired birth_fips.
 ## Merge south on to County ## 
 county %<>% mutate(STATEFIP = as.character(str_sub(death_fips,1,2)), death_fips = as.character(death_fips)) %>% 
   left_join(.,south_fips)
@@ -138,15 +115,17 @@ data %<>% left_join(.,sbs,by = c("HISTID")) %>% left_join(.,sbs_f,by = c("HISTID
 
 
 
-data %<>% 
-  mutate(migrated = ifelse(as.character(birth_fips) == death_fips,"Migrated","Did Not Migrate"),
-         STATEFIP_b = as.character(str_sub(birth_fips,1,2))) %>% 
-  left_join(south_fips_b, by = "STATEFIP_b")  %>% 
-  # Place of Birth South Indicator # 
-  mutate(born_in_south = factor(case_when(south_sample_b == 1~"Born South",
-                                                    is.na(south_sample_b) ~ "Not Born South")),
-                   born_in_south = fct_relevel(born_in_south,"Not Born South")
-)
+# Birth county == death county means the person never left, so that case is "Did Not
+# Migrate". The two labels used to be the other way round here, which inverted the
+# meaning of `migrated` everywhere downstream.
+#
+# STATEFIP_b, south_sample_b and born_in_south are no longer built here: they come from
+# repair_birth_fips() above, so they are derived from a repaired birth_fips rather than
+# from a code that may have lost or gained a leading zero. The analysis scripts recompute
+# all of these via prepare_analysis_data() in Analysis/00_Helpers.R and so are correct
+# whether or not they run against cleaned files predating these fixes.
+data %<>%
+  mutate(migrated = ifelse(birth_fips == death_fips, "Did Not Migrate", "Migrated"))
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # create 

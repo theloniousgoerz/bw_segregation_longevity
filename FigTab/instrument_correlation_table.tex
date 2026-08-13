@@ -1,26 +1,24 @@
 \begin{table}
 \centering
 \begin{talltblr}[         %% tabularray outer open
-caption={Correlation Between Instruments},
+caption={Correlation Between the RDI and Rivers Instruments},
 note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
-note{ }={This table displays coefficients and R-squared statistics for bivariate models of the relationships between instruments.
-  Because the instruments are constant, these regressions are run on a each of their distinct values rather than the full sample of county-year observations. 
-  All models include robust standard errors.},
+note{ }={This table displays the coefficient and R-squared statistic from a bivariate model of the relationship between the two instruments.
+  Because the instruments are time-constant, this regression is run on their distinct county values rather than the full sample of county-year observations.
+  The model includes robust standard errors.},
 ]                     %% tabularray outer close
 {                     %% tabularray inner open
 colspec={Q[]Q[]},
 column{2}={}{halign=c,},
 column{1}={}{halign=l,},
-hline{6}={1,2}{solid, black, 0.05em},
+hline{4}={1,2}{solid, black, 0.05em},
 }                     %% tabularray inner close
 \toprule
 & RDI-Rivers \\ \midrule %% TinyTableHeader
-(Intercept)    & 0.301*** \\
-& (0.006)  \\
-N Rivers       & 0.000**  \\
-& (0.000)  \\
-Num.Obs.       & 2955     \\
-R2             & 0.002    \\
+N Rivers & -0.00018** \\
+& (0.00006)  \\
+Num.Obs. & 2955       \\
+R2       & 0.002      \\
 \bottomrule
 \end{talltblr}
 \end{table}

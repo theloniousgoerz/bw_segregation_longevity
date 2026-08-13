@@ -44,11 +44,24 @@ my_ftest <- function(modc, modnc) {
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Data
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-data_a =   read_csv(here("Data","_Cleaned","data_a.csv"))                                                                        
-db =       read_csv(here("Data","_Cleaned","db.csv"))                                                                              
-dw =       read_csv(here("Data","_Cleaned","dw.csv"))   
-db_f=      read_csv(here("Data","_Cleaned","db_f.csv"))                                                                              
-dw_f=      read_csv(here("Data","_Cleaned","dw_f.csv"))  
+source(here("Analysis","00_Helpers.R"))
+
+data_a =   read_csv(here("Data","_Cleaned","data_a.csv"))
+db =       read_csv(here("Data","_Cleaned","db.csv"))
+dw =       read_csv(here("Data","_Cleaned","dw.csv"))
+db_f=      read_csv(here("Data","_Cleaned","db_f.csv"))
+dw_f=      read_csv(here("Data","_Cleaned","dw_f.csv"))
+
+# Repair birth_fips and recompute migration status from the FIPS codes. The stored
+# `migrated` has its two labels swapped, so the non-migrant subsamples built below were
+# previously the migrants; STATEFIP_b was wrong for the rows whose birth_fips lost or
+# gained a leading zero. See prepare_analysis_data() in 00_Helpers.R, which also drops
+# anyone whose birth county is unrecorded.
+data_a %<>% prepare_analysis_data("data_a")
+db     %<>% prepare_analysis_data("db")
+dw     %<>% prepare_analysis_data("dw")
+db_f   %<>% prepare_analysis_data("db_f")
+dw_f   %<>% prepare_analysis_data("dw_f")
 
 # Source: EPA county-level annual PM2.5, 1990-2010, 2132 counties (FIPS-coded)
 # https://catalog.data.gov/dataset/annual-pm2-5-and-cardiovascular-mortality-rate-data-trends-modified-by-county-socioeconomi
@@ -83,8 +96,10 @@ instrument = data_a %>%
            south) 
 
 # ------------------------------- Make Table -------------------------------
-f_rivers  = feols(county_dism~n_named_rivers + stream_per_km_sq | death_decade, data = instrument, vcov = ~death_fips) 
-f_rdi  =    feols(county_dism~rdi | death_decade, data = instrument, vcov = ~death_fips) 
+# `stream_per_km_sq` does not exist in the data; the stream density variable is
+# `stream_km_per_km2`, which is what the rivers instrument set uses everywhere else.
+f_rivers  = feols(county_dism~n_named_rivers + stream_km_per_km2 | death_decade, data = instrument, vcov = ~death_fips)
+f_rdi  =    feols(county_dism~rdi + rail_km_per_km2 | death_decade, data = instrument, vcov = ~death_fips)
 
 f_table = msummary(list(f_rivers,f_rdi),stars = T,
                    gof_map = c("nobs","f"),
@@ -98,7 +113,7 @@ f_table = msummary(list(f_rivers,f_rdi),stars = T,
                      `(2)` = unlist(fitstat(f_rivers, type = "f"))[1],
                      `(3)` = unlist(fitstat(f_rdi, type = "f"))[1],
                      check.names = FALSE),
-                   notes = "First stage relationship includes death decade fixed effects and heteroskedacticity SEs.",
+                   notes = "First stage relationship includes death decade fixed effects and cluster-robust standard errors (by county at death).",
                    title = "First Stage Regression of D on Instruments",
                    #align = "lc",
                    threeparttable = T, 
@@ -111,35 +126,40 @@ save_tt(f_table,output = here("FigTab","f_table.tex"), overwrite = T)
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # How correlated are these instruments? 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-instrument_distinct = instrument %>% distinct(death_fips,ln_gov,n_named_rivers,rdi)
+# The two instrument sets used in the paper are the RDI and the rivers measures, so this
+# table reports that one pairwise association only. `ln_gov` is not an instrument in any
+# model, and including it also dropped the sample to the 1,760 counties with government
+# finance data; leaving it out keeps all 2,955 counties with both instruments.
+instrument_distinct = instrument %>% distinct(death_fips,n_named_rivers,rdi)
 
-rdi_gov_corr = feols(rdi~ln_gov,data = instrument_distinct, vcov = "white")
 rdi_rivers_corr = feols(rdi~n_named_rivers,data = instrument_distinct, vcov = "white")
-gpv_rivers_corr = feols(ln_gov~n_named_rivers,data = instrument_distinct, vcov = "white")
 
 msummary(
   list(
-    "RDI-Gov" = rdi_gov_corr,
-    "RDI-Rivers" = rdi_rivers_corr,
-    "Gov-Rivers" = gpv_rivers_corr
+    "RDI-Rivers" = rdi_rivers_corr
   ),
   coef_map = c(
-    "ln_gov" = "Ln(Gov)",
     "n_named_rivers" = "N Rivers"
   ),
-  align = "lccc",
+  align = "lc",
+  # The coefficient is on the order of 1e-4, so the default 3 digits prints it as 0.000.
+  fmt = 5,
   gof_map = c("nobs","r.squared"),
-  notes = "This table displays coefficients and R-squared statistics for bivariate models of the relationships between instruments.
-  Because the instruments are constant, these regressions are run on a each of their distinct values rather than the full sample of county-year observations. 
-  All models include robust standard errors.",
-  title = "Correlation Between Instruments",
+  notes = "This table displays the coefficient and R-squared statistic from a bivariate model of the relationship between the two instruments.
+  Because the instruments are time-constant, this regression is run on their distinct county values rather than the full sample of county-year observations.
+  The model includes robust standard errors.",
+  title = "Correlation Between the RDI and Rivers Instruments",
   stars = T,
   threeparttable = T,
   output = "tinytable"
 ) %>%
   save_tt(here("FigTab","instrument_correlation_table.tex"),overwrite = T)
 
-corr_mat = instrument_distinct %>% select(-death_fips) %>%
+# Built from `instrument` rather than `instrument_distinct`, which no longer carries
+# `ln_gov`. This figure is not referenced in the draft; it is kept as a diagnostic.
+corr_mat = instrument %>%
+  distinct(death_fips, ln_gov, n_named_rivers, rdi) %>%
+  select(-death_fips) %>%
   filter(
     !is.na(ln_gov) &
     !is.na(n_named_rivers) &
@@ -184,69 +204,10 @@ msummary(list("pm2.5/m3" = rdi_pollute),
          coef_map = c("rdi" = "RDI"),
          stars = T,
          gof_map = c("nobs","r.squared"),
-         notes = "Models include decade fixed effects and adjust for track length. Modles use cluster-robust standard errors. ",
+         notes = "Models include decade fixed effects and adjust for track length. Models use cluster-robust standard errors. ",
          title = "Association between county-level PM2.5 concentration (1990,2000)",
          output = "tinytable") %>% 
-  save_tt(here("FigTab","pm25_rdi_table.tex"))
-
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# RDI ~ Education / Log(INCWAGE): reduced-form associations, sans segregation
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Same controls/FE as the d2_b/d2_w main specifications, but with county_dism
-# (segregation) dropped and rdi entered directly as a regressor rather than as
-# an instrument. "migrated" is omitted from the non-migrant subsample models
-# since it is constant (and therefore collinear) once the sample is restricted.
-
-db %<>% mutate(log_incwage = ifelse(INCWAGE %in% c(999998, 999999) | INCWAGE <= 0, NA, log(INCWAGE)))
-dw %<>% mutate(log_incwage = ifelse(INCWAGE %in% c(999998, 999999) | INCWAGE <= 0, NA, log(INCWAGE)))
-
-db_stay = db %>% filter(migrated != "Migrated")
-dw_stay = dw %>% filter(migrated != "Migrated")
-
-# ------------------------------- Education -------------------------------
-educ_b       = feols(education~male + migrated + married + south + rdi + rail_km_per_km2 | byear + STATEFIP_b + urb_code + OCC, data = db,      vcov = ~death_fips)
-educ_w       = feols(education~male + migrated + married + south + rdi + rail_km_per_km2 | byear + STATEFIP_b + urb_code + OCC, data = dw,      vcov = ~death_fips)
-educ_b_stay  = feols(education~male +            married + south + rdi + rail_km_per_km2 | byear + STATEFIP_b + urb_code + OCC, data = db_stay, vcov = ~death_fips)
-educ_w_stay  = feols(education~male +            married + south + rdi + rail_km_per_km2 | byear + STATEFIP_b + urb_code + OCC, data = dw_stay, vcov = ~death_fips)
-
-educ_table = msummary(
-  list("Black (Full)" = educ_b, "White (Full)" = educ_w,
-       "Black (Non-Migrant)" = educ_b_stay, "White (Non-Migrant)" = educ_w_stay),
-  coef_map = c("rdi" = "RDI"),
-  stars = T,
-  gof_map = c("nobs","r.squared"),
-  notes = "Outcome is years of education. Controls: male, migrated (full sample only), married, south. Fixed effects: birth year, birth state, urbanicity, occupation. Standard errors clustered on death county.",
-  title = "Association between RDI and Education, by Race and Migration Status",
-  threeparttable = T,
-  fmt = 2,
-  output = "tinytable")
-save_tt(educ_table, output = here("FigTab","rdi_education_exclusion_table.tex"), overwrite = T)
-
-# ------------------------------- Log(INCWAGE) -------------------------------
-inc_b       = feols(log_incwage~male + migrated + education + married + south + rdi + rail_km_per_km2 | byear + STATEFIP_b + urb_code + OCC, data = db,      vcov = ~death_fips)
-inc_w       = feols(log_incwage~male + migrated + education + married + south + rdi + rail_km_per_km2 | byear + STATEFIP_b + urb_code + OCC, data = dw,      vcov = ~death_fips)
-inc_b_stay  = feols(log_incwage~male +            education + married + south + rdi + rail_km_per_km2 | byear + STATEFIP_b + urb_code + OCC, data = db_stay, vcov = ~death_fips)
-inc_w_stay  = feols(log_incwage~male +            education + married + south + rdi + rail_km_per_km2 | byear + STATEFIP_b + urb_code + OCC, data = dw_stay, vcov = ~death_fips)
-
-incwage_table = msummary(
-  list("Black (Full)" = inc_b, "White (Full)" = inc_w,
-       "Black (Non-Migrant)" = inc_b_stay, "White (Non-Migrant)" = inc_w_stay),
-  coef_map = c("rdi" = "RDI"),
-  stars = T,
-  gof_map = c("nobs","r.squared"),
-  notes = "Outcome is log(INCWAGE), restricted to positive, non-missing wage income. Controls: male, migrated (full sample only), education, married, south. Fixed effects: birth year, birth state, urbanicity, occupation. Standard errors clustered on death county.",
-  title = "Association between RDI and Log(INCWAGE), by Race and Migration Status",
-  threeparttable = T,
-  fmt = 2,
-  output = "tinytable")
-save_tt(incwage_table, output = here("FigTab","rdi_incwage_table.tex"), overwrite = T)
-
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Test Lal and Collegues IV tests?
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
+  save_tt(here("FigTab","pm25_rdi_table.tex"), overwrite = T)
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Monotonicity Descriptive
@@ -266,7 +227,7 @@ mon_riv_1 = lm(county_dism~n_named_rivers + stream_km_per_km2, subset(data_m, de
 mon_riv_2 = lm(county_dism~n_named_rivers + stream_km_per_km2, subset(data_m, death_decade == 1990))
 mon_riv_3 = lm(county_dism~n_named_rivers + stream_km_per_km2, subset(data_m, death_decade == 2000))
 
-data.frame(
+mon_r2 <- data.frame(
   Decade    = c(1980, 1990, 2000),
   RDI_R2    = c(summary(mon_rdi_1)$r.squared[1],
                 summary(mon_rdi_2)$r.squared[1],
@@ -275,6 +236,18 @@ data.frame(
                 summary(mon_riv_2)$r.squared[1],
                 summary(mon_riv_3)$r.squared[1])
 )
+
+mono_plot <- mon_r2 %>%
+  pivot_longer(cols = c(RDI_R2, Rivers_R2), names_to = "Instrument", values_to = "R2") %>%
+  ggplot(aes(x = Decade, y = R2, color = Instrument, shape = Instrument)) +
+  geom_line() +
+  geom_point(size = 3) +
+  scale_color_manual(values = c("RDI_R2" = "black", "Rivers_R2" = "grey70")) +
+  theme_classic() +
+  theme(legend.position = "top")
+
+ggsave(mono_plot, filename = here("FigTab", "monotonicity_gifure.jpeg"),
+       width = 9, height = 7, dpi = 300)
 
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

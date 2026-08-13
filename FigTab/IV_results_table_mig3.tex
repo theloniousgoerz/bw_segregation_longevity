@@ -1,0 +1,71 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Estimates of the Effect of Segregation on Longevity by Three-Way Migration Status (RDI Instrument)},
+note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},
+note{ }={This table describes IV estimates (Railroad Division Index instrument) of the effect of county-at-death segregation on longevity across a three-way migration classification that uses county of residence in the 1940 Census as an intermediate observation. A Stayer was in the same county at birth, in 1940, and at death. A Return Migrant died in their birth county but was living elsewhere in 1940, and so is classified as a non-migrant by the birth-versus-death definition used elsewhere in the paper. A Migrant died in a county other than their birth county. The Stayer, Return and Migrant columns split the sample, so every coefficient is free to differ. Dissimilarity is expressed on a 0-100 scale. Cluster-robust standard errors (by county of death) in parentheses.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
+column{3,4,6,7}={}{halign=c,},
+column{1}={}{halign=l,},
+cell{2}{2}={}{halign=c,},
+cell{2}{5}={}{halign=c,},
+cell{3}{2}={}{halign=c,},
+cell{3}{5}={}{halign=c,},
+cell{4}{2}={}{halign=c,},
+cell{4}{5}={}{halign=c,},
+cell{5}{2}={}{halign=c,},
+cell{5}{5}={}{halign=c,},
+cell{6}{2}={}{halign=c,},
+cell{6}{5}={}{halign=c,},
+cell{7}{2}={}{halign=c,},
+cell{7}{5}={}{halign=c,},
+cell{8}{2}={}{halign=c,},
+cell{8}{5}={}{halign=c,},
+cell{9}{2}={}{halign=c,},
+cell{9}{5}={}{halign=c,},
+cell{10}{2}={}{halign=c,},
+cell{10}{5}={}{halign=c,},
+cell{11}{2}={}{halign=c,},
+cell{11}{5}={}{halign=c,},
+cell{12}{2}={}{halign=c,},
+cell{12}{5}={}{halign=c,},
+cell{13}{2}={}{halign=c,},
+cell{13}{5}={}{halign=c,},
+cell{14}{2}={}{halign=c,},
+cell{14}{5}={}{halign=c,},
+cell{15}{2}={}{halign=c,},
+cell{15}{5}={}{halign=c,},
+cell{16}{2}={}{halign=c,},
+cell{16}{5}={}{halign=c,},
+cell{17}{2}={}{halign=c,},
+cell{17}{5}={}{halign=c,},
+cell{18}{2}={}{halign=c,},
+cell{18}{5}={}{halign=c,},
+cell{1}{2}={c=3,}{halign=c, halign=c,},
+cell{1}{5}={c=3,}{halign=c, halign=c,},
+hline{13}={1,2,3,4,5,6,7}{solid, black, 0.05em},
+}                     %% tabularray inner close
+\toprule
+& Black &  &  & White &  &  \\ \cmidrule[lr]{2-4}\cmidrule[lr]{5-7}
+& Black\newline (Stayer) & Black\newline (Return) & Black\newline (Migrant) & White\newline (Stayer) & White\newline (Return) & White\newline (Migrant) \\ \midrule %% TinyTableHeader
+D                  & -0.077*** & -0.085*** & -0.052*** & -0.057*** & -0.067*** & -0.042*** \\
+& (0.010)   & (0.014)   & (0.008)   & (0.008)   & (0.006)   & (0.007)   \\
+Male               & -0.788*** & -1.279*** & -0.991*** & -0.935*** & -0.929*** & -0.933*** \\
+& (0.100)   & (0.140)   & (0.051)   & (0.020)   & (0.047)   & (0.015)   \\
+Education          & 0.069***  & 0.007     & 0.036***  & 0.058***  & 0.039***  & 0.056***  \\
+& (0.012)   & (0.015)   & (0.005)   & (0.003)   & (0.005)   & (0.002)   \\
+Married in 1940    & 0.219**   & 0.124     & 0.068+    & -0.007    & 0.079*    & -0.032**  \\
+& (0.078)   & (0.101)   & (0.037)   & (0.016)   & (0.033)   & (0.010)   \\
+Died in South      &           &           & 0.041     &           &           & 0.226*    \\
+&           &           & (0.124)   &           &           & (0.090)   \\
+Num.Obs.           & 22833     & 10531     & 89236     & 564866    & 110502    & 1576816   \\
+R2                 & 0.368     & 0.392     & 0.363     & 0.318     & 0.347     & 0.333     \\
+Birth Year         & X         & X         & X         & X         & X         & X         \\
+Birth State        & X         & X         & X         & X         & X         & X         \\
+Urban-Rural Code   & X         & X         & X         & X         & X         & X         \\
+Occupation         & X         & X         & X         & X         & X         & X         \\
+\bottomrule
+\end{talltblr}
+\end{table}

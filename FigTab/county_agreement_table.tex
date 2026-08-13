@@ -1,0 +1,20 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Share of Individuals Whose Birth, 1940, and Death County Are the Same},
+note{}={Cells report the percentage of individuals for whom the county in the row and the county in the column are the same, expressed separately for Black and White decedents. County of birth and county of death are taken from the CenSoc Numident geography supplement; county of residence in 1940 is the ICPSR county in the 1940 full count, crosswalked to county FIPS. The sample is restricted to individuals with all three counties observed. The diagonal is 100 by construction, and the matrix is symmetric.},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
+cell{1}{2}={c=3,}{halign=c,},
+cell{1}{5}={c=3,}{halign=c,},
+}                     %% tabularray inner close
+\toprule
+& Black &  &  & White &  &  \\ \cmidrule[lr]{2-4}\cmidrule[lr]{5-7}
+& Birth & 1940 & Death & Birth  & 1940  & Death  \\ \midrule %% TinyTableHeader
+Birth & 100.0 &  38.4 &  27.3 & 100.0 &  49.4 &  30.0 \\
+1940  &  38.4 & 100.0 &  34.4 &  49.4 & 100.0 &  39.1 \\
+Death &  27.3 &  34.4 & 100.0 &  30.0 &  39.1 & 100.0 \\
+\bottomrule
+\end{talltblr}
+\end{table}

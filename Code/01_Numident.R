@@ -16,7 +16,12 @@ library(ipumsr)
 options(scipen = 999)
 
 censoc =  fread(here("Data","Censoc","dataverse_files (2)", "censoc_numident_v3.csv"))
-geog =    fread(here("Data","Censoc","dataverse_files (2)","censoc_numident_geography_supplement_v1.csv"))
+# The FIPS columns are correctly zero-padded 5-character strings in the source file
+# ("01105"), but fread type-guesses them to integer and the leading zeros are lost.
+# Reading them as character is what keeps them intact; without this, every downstream
+# script has to guess which codes lost a zero.
+geog =    fread(here("Data","Censoc","dataverse_files (2)","censoc_numident_geography_supplement_v1.csv"),
+                colClasses = list(character = c("birth_fips","death_fips")))
 census =  fread(here("Data","Census","usa_00006.csv"),header = T)
 ddi = read_ipums_ddi(here("Data","Census","usa_00007.xml"))
 controls = read_ipums_micro(ddi)
@@ -25,50 +30,17 @@ controls = read_ipums_micro(ddi)
 # Geog Processing 
 `%notin%` = Negate(`%in%`)
 
+# Both FIPS codes now arrive as the 5-character strings the source file stores, so no
+# zero-padding step is needed. The block that used to sit here re-added a leading zero
+# to BOTH codes whenever the death state was one of the single-digit-FIPS states, which
+# was right for death_fips and wrong for birth_fips: whether a birth code needs a zero
+# is a fact about the birth state, not the death state. That mismatch put roughly an
+# eighth of all birth counties in the wrong state.
 geog %<>% mutate(
+  birth_fips = as.character(birth_fips),
   death_fips = as.character(death_fips),
-  state = ifelse(death_state %in%  c(
-   "al",
-   "ak",
-   "az",
-   "ar",
-   "ca",
-   "co",
-   "ct"
-  ),str_sub(death_fips,1,1),str_sub(death_fips,1,2)),
-  birth_fips = case_when(
-
-  state %in% c(     "1",
-                    "2",
-                    "4",
-                    "5",
-                    "6",
-                    "8",
-                    "9") ~paste0("0",birth_fips),
-  state %notin% c(     "1",
-                    "2",
-                    "4",
-                    "5",
-                    "6",
-                    "8",
-                    "9")  ~ as.character(birth_fips)
-),
-                 death_fips = case_when(
-                   state %in% c(      "1",
-                                      "2",
-                                      "4",
-                                      "5",
-                                      "6",
-                                      "8",
-                                      "9") ~paste0("0",as.character(death_fips)),
-                   state %notin% c("1",
-                                   "2",
-                                   "4",
-                                   "5",
-                                   "6",
-                                   "8",
-                                   "9") ~ as.character(death_fips)
-                 )) 
+  state      = str_sub(death_fips, 1, 2)
+)
 
 
 # 1940 data
