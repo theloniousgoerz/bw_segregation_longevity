@@ -3,54 +3,51 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: Goerz_Segregation_Draft.aux
 The style file: apalike.bst
 Database file #1: ref.bib
-Warning--I didn't find a database entry for "card_2001"
-Warning--I didn't find a database entry for "lawlor2016"
-Warning--I didn't find a database entry for "holmlund_2011"
 Warning--empty journal in osborne_censoc-numident_nodate
 Warning--empty publisher in perman_struggle_2001
 Warning--can't use both author and editor fields in weber_economy_1922
 Warning--empty journal in wilson_truly_1987
 Warning--empty journal in wrigley-field_three_2025
 Warning--empty journal in zimran_internal_2022
-You've used 122 entries,
+You've used 123 entries,
             1935 wiz_defined-function locations,
-            1148 strings with 26646 characters,
-and the built_in function-call counts, 47458 in all, are:
-= -- 4749
-> -- 1743
-< -- 86
-+ -- 623
-- -- 568
-* -- 4124
-:= -- 8219
-add.period$ -- 366
-call.type$ -- 122
-change.case$ -- 884
-chr.to.int$ -- 121
-cite$ -- 128
-duplicate$ -- 1748
-empty$ -- 3370
-format.name$ -- 770
-if$ -- 9180
-int.to.chr$ -- 2
+            1152 strings with 26531 characters,
+and the built_in function-call counts, 47942 in all, are:
+= -- 4798
+> -- 1754
+< -- 89
++ -- 625
+- -- 571
+* -- 4158
+:= -- 8294
+add.period$ -- 369
+call.type$ -- 123
+change.case$ -- 890
+chr.to.int$ -- 123
+cite$ -- 129
+duplicate$ -- 1773
+empty$ -- 3412
+format.name$ -- 774
+if$ -- 9287
+int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 132
-newline$ -- 613
-num.names$ -- 366
-pop$ -- 649
+missing$ -- 133
+newline$ -- 617
+num.names$ -- 371
+pop$ -- 657
 preamble$ -- 1
-purify$ -- 894
+purify$ -- 900
 quote$ -- 0
-skip$ -- 1381
+skip$ -- 1402
 stack$ -- 0
-substring$ -- 3728
-swap$ -- 186
-text.length$ -- 3
+substring$ -- 3764
+swap$ -- 195
+text.length$ -- 5
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 702
+type$ -- 708
 warning$ -- 6
-while$ -- 416
+while$ -- 422
 width$ -- 0
-write$ -- 1578
-(There were 9 warnings)
+write$ -- 1591
+(There were 6 warnings)

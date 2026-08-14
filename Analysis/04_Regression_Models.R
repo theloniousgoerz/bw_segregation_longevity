@@ -133,17 +133,22 @@ sib_m2_w = feols(death_age~county_dism + .[cov_nosouth] |.[fe_sib_e], data = dw_
 sib_2_m2_b = feols(death_age~county_dism + .[cov_nosouth] |.[fe_sib_f], data = db_f, vcov = CL)
 sib_2_m2_w = feols(death_age~county_dism + .[cov_nosouth] |.[fe_sib_f], data = dw_f, vcov = CL)
 
-# OLS on the sibling samples, without the sibling group FE
-ols_sib_e_b = feols(death_age~county_dism + .[cov_nosouth] |.[fe_main], data = db_f[obs(sib_m2_b), ], vcov = CL)
-ols_sib_e_w = feols(death_age~county_dism + .[cov_nosouth] |.[fe_main], data = dw_f[obs(sib_m2_w), ], vcov = CL)
-ols_sib_f_b = feols(death_age~county_dism + .[cov_nosouth] |.[fe_main], data = db_f[obs(sib_2_m2_b), ], vcov = CL)
-ols_sib_f_w = feols(death_age~county_dism + .[cov_nosouth] |.[fe_main], data = dw_f[obs(sib_2_m2_w), ], vcov = CL)
+# OLS on the sibling samples, without the sibling group FE. These use cov_main
+# (i.e. including `south`) so that every covariate-adjusted OLS fit carries the same
+# control set as the IV models it is compared against.
+ols_sib_e_b = feols(death_age~county_dism + .[cov_main] |.[fe_main], data = db_f[obs(sib_m2_b), ], vcov = CL)
+ols_sib_e_w = feols(death_age~county_dism + .[cov_main] |.[fe_main], data = dw_f[obs(sib_m2_w), ], vcov = CL)
+ols_sib_f_b = feols(death_age~county_dism + .[cov_main] |.[fe_main], data = db_f[obs(sib_2_m2_b), ], vcov = CL)
+ols_sib_f_w = feols(death_age~county_dism + .[cov_main] |.[fe_main], data = dw_f[obs(sib_2_m2_w), ], vcov = CL)
 
 # ------------------------------- OLS -------------------------------
+# The Base columns take no covariates, matching the Base IV models (d1_*); the
+# Controls columns take cov_main, matching the adjusted IV models (d2_*), so the
+# OLS-IV contrast reported in the results section differs only in the estimator.
 ols_m1_b = feols(death_age~county_dism |.[fe_base], data = db, vcov = CL)
 ols_m1_w = feols(death_age~county_dism |.[fe_base], data = dw, vcov = CL)
-ols_m2_b = feols(death_age~county_dism + .[cov_nosouth] |.[fe_main], data = db, vcov = CL)
-ols_m2_w = feols(death_age~county_dism + .[cov_nosouth] |.[fe_main], data = dw, vcov = CL)
+ols_m2_b = feols(death_age~county_dism + .[cov_main] |.[fe_main], data = db, vcov = CL)
+ols_m2_w = feols(death_age~county_dism + .[cov_main] |.[fe_main], data = dw, vcov = CL)
 
   msummary(list("Base"     = ols_m1_b,
                 "Controls" = ols_m2_b,
@@ -157,11 +162,12 @@ ols_m2_w = feols(death_age~county_dism + .[cov_nosouth] |.[fe_main], data = dw, 
                         "male" = "Male",
                         "education" = "Education",
                         "migratedMigrated" = "Migrated",
-                        "married" = "Married in 1940"),
+                        "married" = "Married in 1940",
+                        "south" = "Died in South"),
            gof_map = c("nobs",
                        "r.squared"
            ),
-           notes = "Cluster-robust standard errors (by county of death) in parentheses. The Exact and Flexible columns are OLS estimated on the exact- and flexible-match sibling samples, without the sibling group fixed effect.",
+           notes = "Cluster-robust standard errors (by county of death) in parentheses. The Exact and Flexible columns are OLS estimated on the exact- and flexible-match sibling samples, without the sibling group fixed effect. The Base columns take no covariates and the remaining columns take the same covariate set as the adjusted instrumental variable models.",
            title = "Estimates of the Association Betwen Segregation and Longevity",
            add_rows = data.frame(
              FE = c("Birth Year","Birth State","Urban-Rural Code","Occupation"),
@@ -232,43 +238,6 @@ ols_m2_w = feols(death_age~county_dism + .[cov_nosouth] |.[fe_main], data = dw, 
     save_tt(., output = here("FigTab","IV_results_table_rdi.tex"), overwrite = T)
   
   
-  # ------------------------------- Estimate IV Models (RDI x South) -------------------------------
-  # D is interacted with south rather than the sample being split by region, so a
-  # single model per race recovers the South and non-South effects (and their
-  # difference) jointly. `south` is treated as endogenous alongside D and D:south,
-  # instrumented by the same instrument set interacted with south, mirroring the
-  # education-interacted models above.
-
-  d2_b_south = feols(death_age~.[cov_nosouth] |.[fe_main] |.[iv_rdi_south], data = db, vcov = CL)
-  d2_w_south = feols(death_age~.[cov_nosouth] |.[fe_main] |.[iv_rdi_south], data = dw, vcov = CL)
-
-  msummary(list("Black" = d2_b_south,
-                "White" = d2_w_south),
-           fmt = 3,
-           stars = T,
-           coef_map = c(
-             "fit_county_dism" = "D",
-             "fit_south" = "Died in South",
-             "fit_county_dism:south" = "D x South",
-             "male" = "Male",
-             "education" = "Education",
-             "migratedMigrated" = "Migrated",
-             "married" = "Married in 1940"),
-           gof_map = c("nobs",
-                       "r.squared"),
-           notes = "This table describes IV estimates of the effect of segregation on longevity, with D interacted with dying in the South rather than the sample split by region. First-stage regressions are suppressed for concision. Cluster-robust standard errors (by county of death) in parentheses.",
-           title = "Estimates of the Effect of Segregation on Longevity (RDI Instrument, Interacted with South)",
-           add_rows = data.frame(
-             FE = c("Birth Year","Birth State","Urban-Rural Code","Occupation"),
-             m1 = c("X","X","X","X"),
-             m2 = c("X","X","X","X")
-           ),
-           threeparttable = TRUE
-  ) %>%
-    save_tt(., output = here("FigTab","IV_results_table_rdi_south.tex"), overwrite = T)
-
-
-
 # ------------------------------- Estimate IV Models (Rivers) -------------------------------
 
 r1_b = feols(death_age~1|.[fe_base] |.[iv_riv], data = db, vcov = CL)
@@ -327,8 +296,11 @@ msummary(list("1st" = summary(r1_b, stage = 1),
 
 # ------------------------------- Sibling FE table (unpaired vs. paired) -------------------------------
 # Within each sample x race pair, "Unpaired" is OLS without the family FE and
-# "Paired" adds the sibling group FE, so the sample is held fixed and the only
-# difference is the family fixed effect.
+# "Paired" adds the sibling group FE, so the sample is held fixed.
+# NOTE: the Unpaired columns now carry cov_main (including `south`) so they match the
+# OLS table and the IV models, while the Paired columns still carry cov_nosouth. If the
+# sibling FE models are moved to cov_main as well, this table returns to differing only
+# in the family fixed effect.
 msummary(list("Unpaired" = ols_sib_e_b,
               "Paired"    = sib_m2_b,
               "Unpaired" = ols_sib_e_w,
@@ -342,10 +314,11 @@ msummary(list("Unpaired" = ols_sib_e_b,
                       "male" = "Male",
                       "education" = "Education",
                       "migratedMigrated" = "Migrated",
-                      "married" = "Married in 1940"),
+                      "married" = "Married in 1940",
+                      "south" = "Died in South"),
          gof_map = c("nobs",
                      "r.squared"),
-         notes = "Cluster-robust standard errors (by county of death) in parentheses. Within each sample, Unpaired is OLS without the sibling group fixed effect and Paired adds it, holding the estimation sample fixed.",
+         notes = "Cluster-robust standard errors (by county of death) in parentheses. Within each sample, Unpaired is OLS without the sibling group fixed effect and Paired adds it, holding the estimation sample fixed. The Unpaired columns additionally control for dying in the South, matching the covariate set of the instrumental variable models; this control is absorbed by the family fixed effect for sibling pairs who died in the same region.",
          title = "Sibling Fixed Effects Estimates of the Effect of Segregation on Longevity",
          add_rows = data.frame(
            FE = c("Birth Year","Birth State","Urban-Rural Code","Occupation","Sibling FE"),
@@ -1098,24 +1071,14 @@ sib_f_w_male   = feols(death_age~county_dism + .[cov_gen_sib] |.[fe_sib_f], data
 sib_f_b_female = feols(death_age~county_dism + .[cov_gen_sib] |.[fe_sib_f], data = subset(db_f, male == 0), vcov = CL)
 sib_f_w_female = feols(death_age~county_dism + .[cov_gen_sib] |.[fe_sib_f], data = subset(dw_f, male == 0), vcov = CL)
 
+# The appendix table reports the RDI specification only, matching the accompanying
+# text and figure caption. The rivers and sibling FE gender models are still fit above
+# because the gender plot below faceted them; they are not tabulated.
 msummary(list("Black (Men) " = d2_b_male,
               "Black (Women)" = d2_b_female,
               "White (Men) " = d2_w_male,
-              "White (Women)" = d2_w_female,
-              "Black (Men) " = r2_b_male,
-              "Black (Women)" = r2_b_female,
-              "White (Men) " = r2_w_male,
-              "White (Women)" = r2_w_female,
-              "Black (Men) " = sib_e_b_male,
-              "Black (Women)" = sib_e_b_female,
-              "White (Men) " = sib_e_w_male,
-              "White (Women)" = sib_e_w_female,
-              "Black (Men) " = sib_f_b_male,
-              "Black (Women)" = sib_f_b_female,
-              "White (Men) " = sib_f_w_male,
-              "White (Women)" = sib_f_w_female),fmt =3, stars = T,
+              "White (Women)" = d2_w_female),fmt =3, stars = T,
          coef_map = c("fit_county_dism" = "D",
-                      "county_dism" = "D",
                       "education" = "Education",
                       "migratedMigrated" = "Migrated",
                       "married" = "Married in 1940",
@@ -1124,27 +1087,13 @@ msummary(list("Black (Men) " = d2_b_male,
                      "r.squared"
 
          ),
-         notes = "This table describes estimates of the effect of segregation on longevity by gender across identification strategies.
-         Columns 1-4 use the Railroad Division Index instrument, columns 5-8 the named rivers instrument, and columns 9-16 sibling fixed effects (exact and flexible matches).
-         First-stage regressions are supppressed for concision. Cluster-robust standard errors (by county of death) in parentheses.",
-         title = "Estimates of the Effect of Segregation on Longevity (By Gender)",
-         add_rows = data.frame(`FE` = c("Birth Year","Birth State","Urban Rural Code","OCC","Sibling Group"),
-                               m1 = c("Yes","Yes","Yes","Yes","No"),
-                               m2 = c("Yes","Yes","Yes","Yes","No"),
-                               m3 = c("Yes","Yes","Yes","Yes","No"),
-                               m4 = c("Yes","Yes","Yes","Yes","No"),
-                               m5 = c("Yes","Yes","Yes","Yes","No"),
-                               m6 = c("Yes","Yes","Yes","Yes","No"),
-                               m7 = c("Yes","Yes","Yes","Yes","No"),
-                               m8 = c("Yes","Yes","Yes","Yes","No"),
-                               m9 = c("Yes","Yes","Yes","Yes","Yes"),
-                               m10 = c("Yes","Yes","Yes","Yes","Yes"),
-                               m11 = c("Yes","Yes","Yes","Yes","Yes"),
-                               m12 = c("Yes","Yes","Yes","Yes","Yes"),
-                               m13 = c("Yes","Yes","Yes","Yes","Yes"),
-                               m14 = c("Yes","Yes","Yes","Yes","Yes"),
-                               m15 = c("Yes","Yes","Yes","Yes","Yes"),
-                               m16 = c("Yes","Yes","Yes","Yes","Yes")),
+         notes = "This table describes IV estimates (Railroad Division Index instrument) of the effect of segregation on longevity by gender. Models are estimated separately by race and gender, so `male` drops out of the covariate set. First-stage regressions are suppressed for concision. Cluster-robust standard errors (by county of death) in parentheses.",
+         title = "Estimates of the Effect of Segregation on Longevity by Gender (RDI Instrument)",
+         add_rows = data.frame(`FE` = c("Birth Year","Birth State","Urban Rural Code","OCC"),
+                               m1 = c("Yes","Yes","Yes","Yes"),
+                               m2 = c("Yes","Yes","Yes","Yes"),
+                               m3 = c("Yes","Yes","Yes","Yes"),
+                               m4 = c("Yes","Yes","Yes","Yes")),
          output = "tinytable") %>%
   save_tt(.,output = "./FigTab/IV_results_table_gender.tex", overwrite = T)
 

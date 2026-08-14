@@ -526,4 +526,3 @@ service_plot <-
 
 ggsave(service_plot, filename = here("FigTab", "military_service_estimates.jpeg"),
        width = 9, height = 7, dpi = 300)
-
