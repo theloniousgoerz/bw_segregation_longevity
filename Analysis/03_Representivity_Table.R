@@ -20,12 +20,6 @@ source(here("Analysis","00_Helpers.R"))
 data_a =    read_csv(here("Data", "_Cleaned","analytic_sample.csv"))
 data =      read_csv(here("Data", "_Cleaned","fulldata.csv"))
 
-# Repair birth_fips and recompute migration status from the FIPS codes. The stored
-# `migrated` has its two labels swapped, so the descriptive share reported below was
-# the share who never left their birth county; STATEFIP_b was wrong for the rows whose
-# birth_fips lost or gained a leading zero. See prepare_analysis_data() in 00_Helpers.R,
-# which also drops anyone whose birth county is unrecorded -- so the counts this script
-# reports are for the sample the models are actually fit on.
 data_a %<>% prepare_analysis_data("data_a")
 data   %<>% prepare_analysis_data("data")
 county_d =  read_csv(here("Data", "_Cleaned","county_data.csv"))
@@ -221,13 +215,9 @@ data.frame(
                "Filter non-Missing Individual-and County-Level Variables"),
   `N (Counties)` = c(c_1,c_2,c_3,c_4),
   `N (Persons)` = c(ind_1,ind_2,ind_3,ind_4),
-  #`N (Counties) ` = c(rc_1,rc_2,rc_3,rc_4),
-  #`N (Persons) ` = c(rind_1,rind_2,rind_3,rind_4),
   check.names = F
 ) %>%
   datasummary_df(
-    # Three columns: Sample, N (Counties), N (Persons). The two race-restricted
-    # count columns above are commented out, so align must not still claim five.
     align = "lcc",
     notes = "Individual-level characteristics include demographics, education, and fixed effects. Individuals are also filtered by not missing post-stratification weights. The instrument filter is non-missing RDI and railroad density and non-missing named rivers and stream density.",
   output = "tinytable",

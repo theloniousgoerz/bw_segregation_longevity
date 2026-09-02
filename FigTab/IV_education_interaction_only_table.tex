@@ -1,0 +1,23 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Average Marginal Effect of Segregation on Longevity by Education Level, by Identification Strategy},
+note{}={Cells report the average marginal effect of D (years of life per 10-point rise in Dissimilarity) at each education level, estimated from the fully-adjusted models above (Sib. FE (Flexible) additionally includes a flexible-match sibling group fixed effect); this is the effect of segregation within that education group, not a contrast against a reference group. Cluster-robust standard errors (by county of death) in parentheses. Every cell is significant at p < .05 except White decedents under Rivers IV at Some College (p = .106) and College+ (p = .134). The final row is the second difference -- the D x College+ interaction coefficient, i.e. how much the segregation slope for the College+ group differs from the Less-than-HS group shown in the first row -- and is individually significant only for White decedents under RDI IV. A joint F-test that the D x education-category interaction terms are jointly zero, from a cluster-robust Wald test on each model, is significant (p < .05) only for White RDI IV (F = 10.43, p < .001); it is not significant for Black RDI IV (F = 1.24, p = 0.292); Black Rivers IV (F = 0.90, p = 0.439); White Rivers IV (F = 0.54, p = 0.656); Black Sib. FE (Flexible) (F = 1.28, p = 0.281); White Sib. FE (Flexible) (F = 1.28, p = 0.278). (+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001)},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
+colsep=3pt, row{1-Z}={font=\footnotesize}, colspec={Q[l,wd=2.6cm]*{6}{Q[c,wd=2.3cm]}},
+cell{1}{2}={c=3,}{halign=c,},
+cell{1}{5}={c=3,}{halign=c,},
+}                     %% tabularray inner close
+\toprule
+& Black &  &  & White &  &  \\ \cmidrule[lr]{2-4}\cmidrule[lr]{5-7}
+Education Level & RDI IV & Rivers IV & Sib. FE (Flexible) & RDI IV  & Rivers IV  & Sib. FE (Flexible)  \\ \midrule %% TinyTableHeader
+Less than HS      & -0.579*** (0.076) & -0.780** (0.283) & -0.868*** (0.119) & -0.478*** (0.063) & -0.607** (0.226) & -0.785*** (0.036) \\
+High School       & -0.566*** (0.077) & -0.909** (0.339) & -1.168*** (0.202) & -0.413*** (0.064) & -0.530* (0.259)  & -0.783*** (0.038) \\
+Some College      & -0.482*** (0.076) & -0.862* (0.344)  & -1.163*** (0.260) & -0.402*** (0.062) & -0.498 (0.308)   & -0.747*** (0.047) \\
+College+          & -0.420*** (0.108) & -1.417* (0.605)  & -1.087* (0.440)   & -0.385*** (0.070) & -0.421 (0.281)   & -0.714*** (0.051) \\
+Second Difference & 0.159 (0.100)     & -0.637 (0.428)   & -0.219 (0.429)    & 0.094** (0.031)   & 0.186 (0.151)    & 0.070+ (0.040)    \\
+\bottomrule
+\end{talltblr}
+\end{table}

@@ -38,12 +38,14 @@ dw %<>% prepare_analysis_data("dw")
 # Data Cleaning for Analysis
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ## Rescale D for analysis -------------------------------
-# NOTE: 01_Data_Cleaning.R now writes the segregation indices to db.csv/dw.csv
-# already expressed on the 0-100 scale (see any row of county_dism, e.g. 85.53).
-# The *100 rescale that used to live here therefore double-scaled D to 0-10000,
-# which shrank the coefficients by two orders of magnitude relative to
-# 04_Regression_Models.R and left the Gompertz Hessian badly conditioned enough
-# to return NaN standard errors. The indices are used as read.
+# county_dism arrives here on the 0-100 point scale. Dividing by 10 makes one
+# unit of the regressor a 10-point increase in D, so the regression
+# coefficients and the Gompertz e65 conversions below are all per 10-point
+# rise in D -- the same units as the main-estimate figures and tables. (The
+# covariate itself is rescaled, rather than the estimates afterward, because
+# the hazard-to-e65 conversion is not linear in the coefficient.)
+db %<>% mutate(county_dism = county_dism / 10)
+dw %<>% mutate(county_dism = county_dism / 10)
 #  -------------------------------
 # Merge on rdi and river instruments
 #  -------------------------------
@@ -201,16 +203,20 @@ gompertz_figure = ggplot(plot_df, aes(x = source, y = estimate, ymin = lower, ym
   labs(
     x     = NULL,
     y     = "Years of Longevity (years)",
-    shape = "Race", 
-    caption =  str_wrap("Regression estimates include birth state, birth year, and urban-rural code fixed effects. 
-                        Gompertz estimates model death age as a function of segregation regressed and fixed effects. 
-                        To overcome computational limitations with high-dimensional fixed effects, the birth state, birth year, and urban-rural fixed 
-                        effects are residualized out of death age and segregation using the Frisch-Waugh Lovell theorem.",100),
+    shape = "Race",
+    caption =  str_wrap("Estimates represent the change in years of longevity associated with a 10-point increase in the dissimilarity index (D).
+                        Regression estimates include birth state, birth year, and urban-rural code fixed effects.
+                        Gompertz estimates model death age as a function of segregation regressed and fixed effects.
+                        To overcome computational limitations with high-dimensional fixed effects, the birth state, birth year, and urban-rural fixed
+                        effects are residualized out of death age and segregation using the Frisch-Waugh Lovell theorem.",75),
     subtitle = gompertz_subtitle
   ) +
-  theme_cowplot()  + 
-  scale_color_manual(values = c("darkgreen","darkblue")) + 
-  coord_flip() 
+  theme_cowplot()  +
+  scale_color_manual(values = c("darkgreen","darkblue")) +
+  coord_flip() +
+  # Sized so a 9.5pt note survives the ~0.41x shrink from this plot's 8in ggsave
+  # width down to its half-\textwidth (3.25in) display size on the printed page.
+  theme(plot.caption = element_text(hjust = 0, size = 23))
 
 # Bias 
 plot_df %>% 
@@ -223,7 +229,10 @@ plot_df %>%
 
 # ── Save ──────────────────────────────────────────
 ggsave(gompertz_figure,filename =here("FigTab","gompertz_figure.jpeg"),
-       width = 8, 
+       width = 12,
+       # Taller than the panel alone needs, so the larger caption text (set for print
+       # legibility at this figure's half-\textwidth display size) has room below the
+       # panel instead of compressing it.
        height = 8,
        dpi = 1000)
 

@@ -1,0 +1,16 @@
+\begin{table}
+\centering
+\begin{talltblr}[         %% tabularray outer open
+caption={Second Differences: College+ vs. Less-than-HS Segregation Slope, by Race},
+note{}={Cells report the D x College+ interaction coefficient from the fully-adjusted IV models above -- i.e. how much the segregation slope for the College+ group differs from the Less-than-HS reference group, in years of life per 10-point rise in D -- with cluster-robust standard errors (by county of death) in parentheses. The contrast is individually significant only for White decedents under RDI IV. (+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001)},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]},
+}                     %% tabularray inner close
+\toprule
+Strategy & Black & White \\ \midrule %% TinyTableHeader
+RDI IV    & 0.159 (0.100)  & 0.094** (0.031) \\
+Rivers IV & -0.637 (0.428) & 0.186 (0.151)   \\
+\bottomrule
+\end{talltblr}
+\end{table}

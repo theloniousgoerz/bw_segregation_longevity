@@ -169,7 +169,7 @@ combined_tex <- c(
   "\\begin{talltblr}[         %% tabularray outer open",
   "caption={Effect of Segregation on County Fiscal Policy Mechanisms: OLS and IV},",
   "note{}={+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001},",
-  "note{ }={OLS and IV (RDI instrument) estimates of the effect of segregation (D) on each county fiscal policy mechanism. Each column is a separate outcome, and the columns are the same policy channels controlled for in the longevity models. All models include decade (1980, 1990, 2000), urban-rural, and region fixed effects. Standard errors clustered at the county level in parentheses.},",
+  "note{ }={OLS and IV (RDI instrument) estimates of the effect of segregation (D) on each county fiscal policy mechanism. Each column is a separate outcome, and the columns are the same policy channels controlled for in the longevity models. All models include decade (1980, 1990, 2000), urban-rural, and region fixed effects. Standard errors clustered at the county level in parentheses. D is scaled 0--1 in these county-level models (not 0--100 as in the individual-level longevity models), so each coefficient is the contrast between a perfectly integrated and a perfectly segregated county; divide by ten to read it per 10-point rise in D.},",
   "]                     %% tabularray outer close",
   "{                     %% tabularray inner open",
   paste0("colspec={", paste(rep("Q[]", ncol_data + 1), collapse = ""), "},"),

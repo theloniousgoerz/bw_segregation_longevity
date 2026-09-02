@@ -50,6 +50,21 @@ dw     %<>% prepare_analysis_data("dw")
 db_f   %<>% prepare_analysis_data("db_f")
 dw_f   %<>% prepare_analysis_data("dw_f")
 
+# educ_cat comes back from read_csv() as plain character, so any model that uses it
+# (bare or interacted) would otherwise let feols/fixest coerce it to a factor on the
+# fly and default to alphabetical levels -- making "College+" the omitted reference
+# category instead of "Less than HS", since "College+" < "High School" < "Less than
+# HS" < "Some College" alphabetically. That silently mislabels every education
+# interaction coefficient below (e.g. "D x High School" would actually read as High
+# School vs. College+, not vs. Less than HS) and drops College+ from any coef_map
+# keyed on "...Less than HS" as the reference. Releveling explicitly here makes
+# "Less than HS" the reference everywhere educ_cat is used in this script.
+educ_levels <- c("Less than HS", "High School", "Some College", "College+")
+db     %<>% mutate(educ_cat = factor(educ_cat, levels = educ_levels))
+dw     %<>% mutate(educ_cat = factor(educ_cat, levels = educ_levels))
+db_f   %<>% mutate(educ_cat = factor(educ_cat, levels = educ_levels))
+dw_f   %<>% mutate(educ_cat = factor(educ_cat, levels = educ_levels))
+
 # Merge
 mechanisms = mechanism  %>% select(
   death_decade,
@@ -393,13 +408,15 @@ msummary(list(
   "White\\newline + Welfare"      = d2_w_m_welf,
   "White\\newline + All"          = d2_w_m_all
 ),
-fmt   = 3,
+# 4 decimals (not 3): at 3dp the rounded D coefficients no longer reproduce the
+# mediated shares reported in the text and in mechanism_coefplot.jpeg.
+fmt   = 4,
 stars = TRUE,
 coef_map = c(
   "fit_county_dism"  = "D"
 ),
 gof_map = c("nobs", "r.squared", "f"),
-notes   = "IV estimates (RDI instrument). Each column adds one mechanism as a control, and the All columns add every mechanism jointly. Cluster-robust SEs (by county of death) in parentheses.",
+notes   = "IV estimates (RDI instrument). Each column adds one mechanism as a control, and the All columns add every mechanism jointly. Cluster-robust SEs (by county of death) in parentheses. The mediated shares reported in the text and in the mechanism figure are computed from the unrounded coefficients and will not reproduce exactly from the rounded entries here.",
 title   = "Mechanism Estimates: Effect of Segregation on Longevity Controlling for Policy Channels",
 threeparttable = TRUE
 ) %>%
@@ -443,6 +460,12 @@ coef_white <- map_dfr(white_models,
 base_b <- coef_black |> filter(mechanism == "Baseline") |> pull(estimate)
 base_w <- coef_white |> filter(mechanism == "Baseline") |> pull(estimate)
 
+# Rescaled by 10 so the y-axis reads in the same "10-point rise in D" units as every
+# other main-estimate figure (OLS, IV-all, migration status, birth cohort, military
+# service), which is what makes this figure's shared axis (below) comparable to theirs.
+# Mechanism order is fixed (not per-race sorted) so Black and White dodge to the same
+# x position within each mechanism -- required now that estimate sits on the y-axis
+# alongside every other main-estimate figure, rather than on its own flipped x-axis.
 coef_all <- bind_rows(coef_black, coef_white) |>
   mutate(
     pct_baseline = case_when(
@@ -450,49 +473,61 @@ coef_all <- bind_rows(coef_black, coef_white) |>
       race == "White" ~ estimate / base_w * 100
     ),
     pct_label = paste0(round(pct_baseline, 1), "%"),
-    # Order mechanisms by coefficient (descending) independently within each race facet
-    mechanism = reorder_within(mechanism, estimate, race)
+    mechanism = factor(mechanism,
+                        levels = c("Baseline", "Taxes", "Medicaid", "Health",
+                                   "Welfare", "All Mechanisms")),
+    estimate  = estimate  * 10,
+    conf.low  = conf.low  * 10,
+    conf.high = conf.high * 10
   )
 
 baseline_lines <- data.frame(
-  race      = c("Black", "White"),
-  xintercept = c(base_b,  base_w)
+  race       = c("Black", "White"),
+  yintercept = c(base_b,  base_w) * 10
 )
 
+# The % labels sit past conf.high, so cache extra headroom on the upper end (the
+# widest label is ~4 characters; a fixed data-unit buffer scaled to this axis's own
+# spread stands in for their pixel width) or the shared axis clips the text.
+mech_label_buffer <- diff(range(coef_all$conf.low, coef_all$conf.high)) * 0.12
+cache_estimate_range("mechanism", coef_all$conf.low, coef_all$conf.high + mech_label_buffer)
 
 mech_plot <-
-  ggplot(coef_all, aes(y = mechanism, x = estimate, color = race)) +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "gray50", lwd = 1) +
-  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high),
-                 lwd = 1,
-                 height = 0.25, position = position_dodge(width = 0.4)) +
-  geom_point(size = 2.5, position = position_dodge(width = 0.6)) +
-  geom_text(aes(x = conf.high, label = pct_label),
-            position = position_dodge(width = 0.6),
-            hjust = -0.15, size = 2.8, show.legend = FALSE) +
-  scale_color_manual(values = c("Black" = "#1b7837", "White" = "#2166ac")) +
-  geom_vline(data = baseline_lines,
-              aes(xintercept = xintercept, color = race),
-              linetype = "dotted", linewidth = 1, show.legend = FALSE) +
-  #scale_x_continuous(expand = expansion(mult = c(0.05, 0.22))) +
+  ggplot(coef_all, aes(x = mechanism, y = estimate,
+                        ymin = conf.low, ymax = conf.high,
+                        color = race, shape = race)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", lwd = 1) +
+  geom_hline(data = baseline_lines,
+             aes(yintercept = yintercept, color = race),
+             linetype = "dotted", linewidth = 1, show.legend = FALSE) +
+  geom_pointrange(position = position_dodge(width = 0.5), size = .75, lwd = .75) +
+  geom_text(aes(y = conf.high, label = pct_label),
+            position = position_dodge(width = 0.5),
+            vjust = -0.7, size = 4, show.legend = FALSE) +
+  scale_color_manual(values = c("Black" = "darkgreen", "White" = "darkblue")) +
+  scale_shape_manual(values = c("Black" = 16, "White" = 17)) +
+  # This figure only: fixed 0 to -1 year axis (not the shared MAIN_ESTIMATE_FIGS
+  # range), per explicit request.
+  coord_cartesian(ylim = c(-1, 0)) +
   labs(
-    x     = "Coefficient on D (Segregation)",
-    y     = NULL,
-    color = NULL,
+    y     = "Change in Life Expectancy",
+    x     = NULL,
+    color = "Race",
+    shape = "Race",
     title = NULL,
     subtitle = "Label shows coefficient as % of baseline model (no mechanism control)"
   ) +
-facet_wrap(~race, nrow = 2, scales = "free") +
-  scale_y_reordered() +
-  theme_cowplot(font_size = 11) +
+  theme_cowplot() +
   theme(
-    legend.position = "none",
-    strip.background = element_rect(fill = "gray92"),
-    strip.text       = element_text(face = "bold")
+    legend.position = "bottom",
+    axis.text.x     = element_text(angle = 25, hjust = 1),
+    # Sized so a 9.5pt note survives the ~0.46x shrink from this plot's 14in ggsave
+    # width down to \textwidth (6.5in) on the printed page.
+    plot.subtitle   = element_text(size = 20)
   )
 
 ggsave(mech_plot, filename = here("FigTab", "mechanism_coefplot.jpeg"),
-       width = 12, height = 7, dpi = 1000)
+       width = 14, height = 6, dpi = 1000)
 
 
 
@@ -561,25 +596,31 @@ fs_panels = plot_grid(bs_rdi, bs_riv,
                       axis   = "tblr")
 
 fs_caption = ggdraw() +
+  # Sized so a 9.5pt note survives the ~0.54x shrink from this plot's 12in ggsave
+  # width down to \textwidth (6.5in) on the printed page.
   draw_label(
     str_wrap("This figure displays the association between each instrument and segregation.
              Segregation is measured by the index of dissimilarity that measures how evenly distributed Black and White residents are within a county.
              Panel A displays the Railroad Division Index first stage, adjusting for railroad density.
              Panel B displays the named rivers first stage, adjusting for stream density.
              Dots represent means of bins at each level of the instrument.
-             The blue line corresponds to the fitted OLS regression line of segregation on the instrument.", 140),
-    x = 0, hjust = 0, size = 10
+             The blue line corresponds to the fitted OLS regression line of segregation on the instrument.", 88),
+    x = 0, y = 1, hjust = 0, vjust = 1, size = 18
   ) +
   theme(plot.margin = margin(0, 0, 0, 7))
 
+# rel_heights and the overall height below are sized for the caption's ~7 wrapped
+# lines at size 18 (see draw_label above); anchoring the label to the top of its
+# slot (y = 1, vjust = 1) keeps it from drifting into the panels above if the two
+# ever fall slightly out of sync again.
 fs_plot_all = plot_grid(fs_panels, fs_caption,
                         ncol        = 1,
-                        rel_heights = c(1, 0.25))
+                        rel_heights = c(1, 0.45))
 
 # ------------------------------- Save -------------------------------
 ggsave(fs_plot_all, filename = here("FigTab","fs_plot.jpeg"),
        width = 12,
-       height = 6,
+       height = 8,
        dpi = 1000)
 
 # ------------------------------- Create Plots -------------------------------
@@ -614,26 +655,32 @@ all_estimates_plot_data = bind_rows(
     Estimator = factor(Estimator, levels = c("RDI IV","Rivers IV","Sib. FE (Flexible)","Sib. FE (Exact)"))
   )
 
+cache_estimate_range("iv_all", all_estimates_plot_data$conf.low, all_estimates_plot_data$conf.high)
+
 all_estimates_plot =
   ggplot(all_estimates_plot_data,
          aes(Estimator, estimate,
              ymin = conf.low,
              ymax = conf.high,
-             color = Race)) +
+             color = Race,
+             shape = Race)) +
   geom_pointrange(position = position_dodge2(width = .5),
                   size = .75,
-                  lwd = .75,
-                  shape = 22) +
+                  lwd = .75) +
   labs(y = "Change in Life Expectancy",
        x = NULL,
        caption = str_wrap("This figure displays estimates from all specifications of the effect of racial segregation on longevity.
        IV models use named rivers (Rivers IV) and the Railroad Division Index (RDI IV) as instruments.
        Sibling FE models include birth year, urban-rural, birth state, and occupation fixed effects plus a sibling group fixed effect.
-       All estimates refer to a 10-point increase in Dissimilarity.", 120)) +
-  scale_color_manual(values = c("darkgreen","darkblue")) +
+       All estimates refer to a 10-point increase in Dissimilarity.", 100)) +
+  scale_color_manual(values = c("Black" = "darkgreen", "White" = "darkblue")) +
+  scale_shape_manual(values = c("Black" = 16, "White" = 17)) +
+  coord_cartesian(ylim = shared_axis_range(MAIN_ESTIMATE_FIGS)) +
   theme_cowplot() +
   geom_hline(yintercept = 0, linetype = "dashed", lwd = 1) +
-  theme(plot.caption    = element_text(hjust = 0),
+  # Caption size is set so a 9.5pt note survives the ~0.46x shrink from this plot's
+  # 14in ggsave width down to \textwidth (6.5in) on the printed page.
+  theme(plot.caption    = element_text(hjust = 0, size = 20),
         legend.position = "bottom",
         axis.text.x     = element_text(angle = 25, hjust = 1))
 
@@ -690,59 +737,54 @@ ggsave(rdi_iv_plot, filename = here("FigTab","rdi_iv_estimates.jpeg"),
        width = 8, height = 6, dpi = 1000)
 
 # ------------------------------- RDI x South marginal effects figure -------------------------------
-# Marginal effect of D in the South vs. outside the South, from the south-interacted
-# models (d2_b_south, d2_w_south) fit above, rather than from separate stratified
-# models. Mirrors extract_ed_slopes()'s use of avg_slopes() for the education
-# interaction.
-extract_south_slopes <- function(model, data_ref, race_label) {
-  avg_slopes(model,
-             variables = "county_dism",
-             by        = "south",
-             newdata   = datagrid(
-               south       = unique(data_ref$south),
-               county_dism = unique(data_ref$county_dism)
-             )) |>
-    tidy(conf.int = TRUE) |>
-    mutate(Race = race_label)
-}
-
-avg_slopes(d2_w_south,
-           variables = "county_dism",
-           by        = "south",
-           hypothesis = 'pairwise',
-           newdata   = datagrid(
-             south       = unique(db$south),
-             county_dism = unique(db$county_dism)))
-
-south_slopes_plot_data = bind_rows(
-  extract_south_slopes(d2_b_south, db, "Black"),
-  extract_south_slopes(d2_w_south, dw, "White")
-) |>
-  mutate(
-    south     = factor(south, levels = c(0, 1), labels = c("Non-South", "South")),
-    estimate  = estimate  * contrast,
-    conf.high = conf.high * contrast,
-    conf.low  = conf.low  * contrast
-  )
-
-south_slopes_plot =
-  ggplot(south_slopes_plot_data,
-         aes(Race, estimate, ymin = conf.low, ymax = conf.high, color = Race, shape = south)) +
-  geom_pointrange(position = position_dodge2(width = .4), size = .75, lwd = .75) +
-  geom_hline(yintercept = 0, linetype = "dashed", lwd = 1, color = "gray50") +
-  scale_color_manual(values = c("Black" = "darkgreen", "White" = "darkblue")) +
-  labs(y = "Change in Life Expectancy",
-       x = NULL,
-       caption = str_wrap("Marginal effects of segregation on longevity for those who died in the South
-       versus outside the South, from a model with D interacted with dying in the South (RDI instrument),
-       adjusting for demographic controls and fixed effects. Estimates refer to a 10-point increase in
-       Dissimilarity.", 100)) +
-  theme_cowplot() +
-  theme(plot.caption    = element_text(hjust = 0),
-        legend.position = "bottom")
-
-ggsave(south_slopes_plot, filename = here("FigTab","south_marginal_effects.jpeg"),
-       width = 8, height = 6, dpi = 1000)
+# Disabled: this block calls avg_slopes() on d2_b_south/d2_w_south, the south-interacted
+# models it says are "fit above", but no such models are ever fit anywhere in this
+# script (only the interacted instrument formula iv_rdi_south exists) -- an orphaned,
+# broken block from before that fit step was removed. south_marginal_effects.jpeg is
+# not referenced anywhere in the manuscript, so this is left disabled rather than
+# guessing at the intended model spec.
+#
+# extract_south_slopes <- function(model, data_ref, race_label) {
+#   avg_slopes(model,
+#              variables = "county_dism",
+#              by        = "south",
+#              newdata   = datagrid(
+#                south       = unique(data_ref$south),
+#                county_dism = unique(data_ref$county_dism)
+#              )) |>
+#     tidy(conf.int = TRUE) |>
+#     mutate(Race = race_label)
+# }
+#
+# south_slopes_plot_data = bind_rows(
+#   extract_south_slopes(d2_b_south, db, "Black"),
+#   extract_south_slopes(d2_w_south, dw, "White")
+# ) |>
+#   mutate(
+#     south     = factor(south, levels = c(0, 1), labels = c("Non-South", "South")),
+#     estimate  = estimate  * contrast,
+#     conf.high = conf.high * contrast,
+#     conf.low  = conf.low  * contrast
+#   )
+#
+# south_slopes_plot =
+#   ggplot(south_slopes_plot_data,
+#          aes(Race, estimate, ymin = conf.low, ymax = conf.high, color = Race, shape = south)) +
+#   geom_pointrange(position = position_dodge2(width = .4), size = .75, lwd = .75) +
+#   geom_hline(yintercept = 0, linetype = "dashed", lwd = 1, color = "gray50") +
+#   scale_color_manual(values = c("Black" = "darkgreen", "White" = "darkblue")) +
+#   labs(y = "Change in Life Expectancy",
+#        x = NULL,
+#        caption = str_wrap("Marginal effects of segregation on longevity for those who died in the South
+#        versus outside the South, from a model with D interacted with dying in the South (RDI instrument),
+#        adjusting for demographic controls and fixed effects. Estimates refer to a 10-point increase in
+#        Dissimilarity.", 100)) +
+#   theme_cowplot() +
+#   theme(plot.caption    = element_text(hjust = 0),
+#         legend.position = "bottom")
+#
+# ggsave(south_slopes_plot, filename = here("FigTab","south_marginal_effects.jpeg"),
+#        width = 8, height = 6, dpi = 1000)
 
 # ------------------------------- Rivers IV figure -------------------------------
 rivers_iv_plot_data = bind_rows(
@@ -848,26 +890,32 @@ ols_estimates_plot_data = bind_rows(
     Estimator = factor(Estimator, levels = c("OLS (IV Sample)","OLS (Flexible Sample)","OLS (Exact Sample)"))
   )
 
+cache_estimate_range("ols", ols_estimates_plot_data$conf.low, ols_estimates_plot_data$conf.high)
+
 ols_estimates_all =
   ggplot(ols_estimates_plot_data,
          aes(Estimator, estimate,
              ymin = conf.low,
              ymax = conf.high,
-             color = Race)) +
+             color = Race,
+             shape = Race)) +
   geom_pointrange(position = position_dodge2(width = .5),
                   size = .75,
-                  lwd = .75,
-                  shape = 22) +
+                  lwd = .75) +
   labs(y = "Change in Life Expectancy",
        x = NULL,
        caption = str_wrap("This figure displays OLS estimates of the association between racial segregation and longevity, estimated on the samples used by each specification in the corresponding IV figure.
        The first group is OLS fit to the IV estimation sample, with segregation entering directly rather than through an instrument; the Railroad Division Index and named rivers models share the same sample, so a single OLS column covers both.
        The final two groups are OLS fit to the sibling samples with birth year, urban-rural, birth state, and occupation fixed effects but without the sibling group fixed effect.
-       All estimates refer to a 10-point increase in Dissimilarity.", 120)) +
-  scale_color_manual(values = c("darkgreen","darkblue")) +
+       All estimates refer to a 10-point increase in Dissimilarity.", 100)) +
+  scale_color_manual(values = c("Black" = "darkgreen", "White" = "darkblue")) +
+  scale_shape_manual(values = c("Black" = 16, "White" = 17)) +
+  coord_cartesian(ylim = shared_axis_range(MAIN_ESTIMATE_FIGS)) +
   theme_cowplot() +
   geom_hline(yintercept = 0, linetype = "dashed", lwd = 1) +
-  theme(plot.caption    = element_text(hjust = 0),
+  # Caption size is set so a 9.5pt note survives the ~0.46x shrink from this plot's
+  # 14in ggsave width down to \textwidth (6.5in) on the printed page.
+  theme(plot.caption    = element_text(hjust = 0, size = 20),
         legend.position = "bottom",
         axis.text.x     = element_text(angle = 25, hjust = 1))
 
@@ -880,16 +928,13 @@ ggsave(ols_estimates_all, filename = here("FigTab","ols_estimates_all.jpeg"),
 # Results by education
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-# Helper: return F-test values as a list
-ftest_vals <- function(modc, modnc) {
-  ssr_c  <- sum(residuals(modc)^2)
-  ssr_nc <- sum(residuals(modnc)^2)
-  df_c   <- df.residual(modc)
-  df_nc  <- df.residual(modnc)
-  df_dif <- df_nc - df_c
-  fstat  <- ((ssr_nc - ssr_c) / df_dif) / (ssr_c / df_c)
-  pval   <- pf(fstat, df_dif, df_c, lower.tail = FALSE)
-  list(fstat = fstat, pval = pval)
+# Helper: joint significance of the D x educ_cat interaction, as a cluster-robust
+# Wald test on the interacted model's own vcov (every model here is fit with
+# vcov = CL, so the test needs to respect that clustering to be valid).
+
+ftest_vals <- function(model) {
+  w <- fixest::wald(model, keep = "county_dism:educ_cat")
+  list(fstat = unname(w$stat), pval = unname(w$p))
 }
 
 # Helper: avg_slopes by educ_cat, tagged with strategy and F-test info
@@ -916,40 +961,32 @@ extract_ed_slopes <- function(model, data_ref, strategy, fstat, pval) {
 }
 
 # ------------------------------- RDI IV -------------------------------
-w_ed_c_rdi = feols(death_age~.[cov_ed] + educ_cat |.[fe_main] |.[iv_rdi],    data = dw, vcov = CL)
-b_ed_c_rdi = feols(death_age~.[cov_ed] + educ_cat |.[fe_main] |.[iv_rdi],    data = db, vcov = CL)
 w_ed_rdi   = feols(death_age~.[cov_ed]            |.[fe_base] |.[iv_rdi_ed], data = dw, vcov = CL)
 b_ed_rdi   = feols(death_age~.[cov_ed]            |.[fe_base] |.[iv_rdi_ed], data = db, vcov = CL)
 
-rdi_ft_w <- ftest_vals(w_ed_c_rdi, w_ed_rdi)
-rdi_ft_b <- ftest_vals(b_ed_c_rdi, b_ed_rdi)
+rdi_ft_w <- ftest_vals(w_ed_rdi)
+rdi_ft_b <- ftest_vals(b_ed_rdi)
 
 # ------------------------------- Rivers IV -------------------------------
-w_ed_c_riv = feols(death_age~.[cov_ed] + educ_cat |.[fe_main] |.[iv_riv],    data = dw, vcov = CL)
-b_ed_c_riv = feols(death_age~.[cov_ed] + educ_cat |.[fe_main] |.[iv_riv],    data = db, vcov = CL)
 w_ed_riv   = feols(death_age~.[cov_ed]            |.[fe_base] |.[iv_riv_ed], data = dw, vcov = CL)
 b_ed_riv   = feols(death_age~.[cov_ed]            |.[fe_base] |.[iv_riv_ed], data = db, vcov = CL)
 
-riv_ft_w <- ftest_vals(w_ed_c_riv, w_ed_riv)
-riv_ft_b <- ftest_vals(b_ed_c_riv, b_ed_riv)
+riv_ft_w <- ftest_vals(w_ed_riv)
+riv_ft_b <- ftest_vals(b_ed_riv)
 
 # ------------------------------- Sibling FE (Exact) -------------------------------
-w_ed_c_sib_e = feols(death_age~county_dism + .[cov_ed_sib] + educ_cat |.[fe_sib_e], data = dw_f, vcov = CL)
-b_ed_c_sib_e = feols(death_age~county_dism + .[cov_ed_sib] + educ_cat |.[fe_sib_e], data = db_f, vcov = CL)
 w_ed_sib_e   = feols(death_age~county_dism*educ_cat + .[cov_ed_sib]   |.[fe_sib_e], data = dw_f, vcov = CL)
 b_ed_sib_e   = feols(death_age~county_dism*educ_cat + .[cov_ed_sib]   |.[fe_sib_e], data = db_f, vcov = CL)
 
-sib_e_ft_w <- ftest_vals(w_ed_c_sib_e, w_ed_sib_e)
-sib_e_ft_b <- ftest_vals(b_ed_c_sib_e, b_ed_sib_e)
+sib_e_ft_w <- ftest_vals(w_ed_sib_e)
+sib_e_ft_b <- ftest_vals(b_ed_sib_e)
 
 # ------------------------------- Sibling FE (Flexible) -------------------------------
-w_ed_c_sib_f = feols(death_age~county_dism + .[cov_ed_sib] + educ_cat |.[fe_sib_f], data = dw_f, vcov = CL)
-b_ed_c_sib_f = feols(death_age~county_dism + .[cov_ed_sib] + educ_cat |.[fe_sib_f], data = db_f, vcov = CL)
 w_ed_sib_f   = feols(death_age~county_dism*educ_cat + .[cov_ed_sib]   |.[fe_sib_f], data = dw_f, vcov = CL)
 b_ed_sib_f   = feols(death_age~county_dism*educ_cat + .[cov_ed_sib]   |.[fe_sib_f], data = db_f, vcov = CL)
 
-sib_f_ft_w <- ftest_vals(w_ed_c_sib_f, w_ed_sib_f)
-sib_f_ft_b <- ftest_vals(b_ed_c_sib_f, b_ed_sib_f)
+sib_f_ft_w <- ftest_vals(w_ed_sib_f)
+sib_f_ft_b <- ftest_vals(b_ed_sib_f)
 
 # ------------------------------- Combine into ggplot-ready data frames -------------------------------
 
@@ -1041,6 +1078,169 @@ msummary(list("Black" = b_ed_rdi,
            m2 = c("X","X","X","-")
          )) %>%
   save_tt(.,output = here("FigTab","IV_by_Education_table.tex"), overwrite = T)
+
+## ------------------------------- D x Education average marginal effects table (IV + flexible sibling FE) ------------------------------- ##
+# Average marginal effect of D AT each education level (not the raw regression
+# interaction coefficient, which instead gives the contrast between a level and the
+# Less-than-HS reference -- see IV_education_second_diff_table.tex below for that).
+# Pulled from the avg_slopes() results already computed above (education_black /
+# education_white), for the two IV strategies plus the flexible-match sibling FE
+# strategy, rescaled to a 10-point rise in D for consistency with the rest of the
+# paper. The exact-match sibling FE strategy is left out, as requested.
+#
+# 22 of the 24 cells are significant at p < .05. The two exceptions are White Rivers
+# IV, Some College (p = .106) and College+ (p = .134); every other cell -- including
+# every Sib. FE (Flexible) cell for both races -- is significant. The note below
+# states this rather than a blanket significance claim.
+# Every note using this table's stars advertises a "+ p < 0.1" tier in its legend;
+# this must actually produce one, or a marginal cell (e.g. the Sib. FE (Flexible)
+# second difference for White decedents, p = .077) silently reads as indistinguishable
+# from a cell nowhere near significant.
+star_from_p <- function(p) case_when(
+  p < .001 ~ "***", p < .01 ~ "**", p < .05 ~ "*", p < .1 ~ "+", TRUE ~ ""
+)
+
+ed_ame_strategies <- c("RDI IV", "Rivers IV", "Sib. FE (Flexible)")
+
+ame_ed_iv <- bind_rows(
+  education_black |> mutate(Race = "Black"),
+  education_white |> mutate(Race = "White")
+) |>
+  filter(strategy %in% ed_ame_strategies) |>
+  mutate(
+    cell = sprintf("%.3f%s (%.3f)", estimate * 10, star_from_p(p.value), std.error * 10)
+  ) |>
+  select(Race, strategy, educ_cat, cell) |>
+  pivot_wider(names_from = c(Race, strategy), values_from = cell)
+
+ame_ed_iv_tab <- ame_ed_iv |>
+  transmute(
+    `Education Level` = as.character(educ_cat),
+    `RDI IV`      = `Black_RDI IV`,
+    `Rivers IV`   = `Black_Rivers IV`,
+    `Sib. FE (Flexible)`  = `Black_Sib. FE (Flexible)`,
+    `RDI IV `     = `White_RDI IV`,
+    `Rivers IV `  = `White_Rivers IV`,
+    `Sib. FE (Flexible) ` = `White_Sib. FE (Flexible)`
+  )
+
+# ------------------------------- D x College+ contrast (second difference) -------------------------------
+# The D x College+ interaction coefficient already IS the (College+ minus Less than
+# HS) contrast in the segregation slope, since Less than HS is the reference. Used
+# both as an extra row below (comparing the education gradient itself, rather than
+# the level effects, across strategies) and in the standalone second-differences
+# table further down. IV models carry the endogenous term as "fit_county_dism:...";
+# the sibling FE model does not, hence the `prefix` argument.
+extract_college_contrast <- function(model, race, strategy, prefix = "fit_") {
+  broom::tidy(model, conf.int = TRUE) |>
+    filter(term == paste0(prefix, "county_dism:educ_catCollege+")) |>
+    transmute(strategy = strategy, race = race,
+              estimate = estimate * 10, se = std.error * 10,
+              p.value  = 2 * pt(-abs(estimate / se), df = Inf))
+}
+
+college_contrasts <- bind_rows(
+  extract_college_contrast(b_ed_rdi,   "Black", "RDI IV"),
+  extract_college_contrast(w_ed_rdi,   "White", "RDI IV"),
+  extract_college_contrast(b_ed_riv,   "Black", "Rivers IV"),
+  extract_college_contrast(w_ed_riv,   "White", "Rivers IV"),
+  extract_college_contrast(b_ed_sib_f, "Black", "Sib. FE (Flexible)", prefix = ""),
+  extract_college_contrast(w_ed_sib_f, "White", "Sib. FE (Flexible)", prefix = "")
+)
+
+second_diff_row <- college_contrasts |>
+  mutate(cell = sprintf("%.3f%s (%.3f)", estimate, star_from_p(p.value), se)) |>
+  select(race, strategy, cell) |>
+  pivot_wider(names_from = c(race, strategy), values_from = cell) |>
+  transmute(
+    `Education Level` = "Second Difference",
+    `RDI IV`      = `Black_RDI IV`,
+    `Rivers IV`   = `Black_Rivers IV`,
+    `Sib. FE (Flexible)`  = `Black_Sib. FE (Flexible)`,
+    `RDI IV `     = `White_RDI IV`,
+    `Rivers IV `  = `White_Rivers IV`,
+    `Sib. FE (Flexible) ` = `White_Sib. FE (Flexible)`
+  )
+
+ame_ed_iv_tab <- bind_rows(ame_ed_iv_tab, second_diff_row)
+
+# Joint F-test that the full set of D x educ_cat interactions is zero (a
+# cluster-robust Wald test via ftest_vals(), see above); reported here so the
+# table's implied claim -- that the segregation effect varies by education -- has
+# its own significance test, distinct from the per-cell AME significance already
+# noted below. Built as a sig/not-sig sentence from the actual p-values rather than
+# a hardcoded "significant for all N models" claim, so it can't silently go stale
+# if the estimates change on a future re-run (as happened when this test was fixed:
+# the previous, non-cluster-robust version of this test overstated significance for
+# five of these six models).
+ed_ftests <- bind_rows(
+  education_black |> distinct(strategy, fstat, ftest_pval) |> mutate(Race = "Black"),
+  education_white |> distinct(strategy, fstat, ftest_pval) |> mutate(Race = "White")
+) |>
+  filter(strategy %in% ed_ame_strategies) |>
+  mutate(strategy = factor(strategy, levels = ed_ame_strategies)) |>
+  arrange(strategy, Race) |>
+  mutate(label = sprintf("%s %s (F = %.2f, p %s)", Race, strategy, fstat,
+                          if_else(ftest_pval < .001, "< .001", sprintf("= %.3f", ftest_pval))),
+         sig = ftest_pval < .05)
+
+sig_note <- if (all(ed_ftests$sig)) {
+  paste0("A joint F-test that the D x education-category interaction terms are jointly zero, from a cluster-robust Wald test on each model, is significant (p < .05) for all six models: ",
+         paste(ed_ftests$label, collapse = "; "), ".")
+} else if (!any(ed_ftests$sig)) {
+  paste0("A joint F-test that the D x education-category interaction terms are jointly zero, from a cluster-robust Wald test on each model, is not significant for any of the six models: ",
+         paste(ed_ftests$label, collapse = "; "), ".")
+} else {
+  paste0("A joint F-test that the D x education-category interaction terms are jointly zero, from a cluster-robust Wald test on each model, is significant (p < .05) only for ",
+         paste(ed_ftests$label[ed_ftests$sig], collapse = "; "),
+         "; it is not significant for ",
+         paste(ed_ftests$label[!ed_ftests$sig], collapse = "; "), ".")
+}
+
+tt(ame_ed_iv_tab,
+   caption = "Average Marginal Effect of Segregation on Longevity by Education Level, by Identification Strategy",
+   notes = paste0(
+     "Cells report the average marginal effect of D (years of life per 10-point rise in Dissimilarity) at each education level, estimated from the fully-adjusted models above (Sib. FE (Flexible) additionally includes a flexible-match sibling group fixed effect); this is the effect of segregation within that education group, not a contrast against a reference group. Cluster-robust standard errors (by county of death) in parentheses. Every cell is significant at p < .05 except White decedents under Rivers IV at Some College (p = .106) and College+ (p = .134). The final row is the second difference -- the D x College+ interaction coefficient, i.e. how much the segregation slope for the College+ group differs from the Less-than-HS group shown in the first row -- and is individually significant only for White decedents under RDI IV. ",
+     sig_note, " (+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001)")) %>%
+  group_tt(j = list("Black" = 2:4, "White" = 5:7)) %>%
+  # Fixed column widths + smaller type so the 7-column table fits the landscape text
+  # block (~650pt); at natural width (\small, unconstrained columns) it overran by
+  # about 100pt even inside \begin{landscape}. Same pattern as mechanism_table.tex
+  # and IV_results_weights_table.tex above.
+  style_tt(j = 1,
+           tabularray_inner = "colsep=3pt, row{1-Z}={font=\\footnotesize}, colspec={Q[l,wd=2.6cm]*{6}{Q[c,wd=2.3cm]}}") %>%
+  save_tt(., output = here("FigTab","IV_education_interaction_only_table.tex"), overwrite = T)
+
+## ------------------------------- Second differences: College+ vs. Less than HS, by race ------------------------------- ##
+# The D x College+ coefficient already IS the (College+ minus Less than HS) contrast
+# in the segregation slope, since Less than HS is the reference; this table reports
+# just that within-race contrast for each strategy (no cross-race comparison), for
+# the two IV strategies only. college_contrasts (with p.value already computed) and
+# star_from_p() are defined above, in the AME table block, which now also carries
+# this same contrast (plus Sib. FE (Flexible)) as its own row.
+second_diff <- college_contrasts |>
+  filter(strategy %in% c("RDI IV", "Rivers IV")) |>
+  select(-p.value) |>
+  pivot_wider(names_from = race, values_from = c(estimate, se)) |>
+  mutate(
+    p_Black = 2 * pt(-abs(estimate_Black / se_Black), df = Inf),
+    p_White = 2 * pt(-abs(estimate_White / se_White), df = Inf)
+  )
+
+second_diff_tab <- second_diff |>
+  transmute(
+    Strategy = strategy,
+    Black    = sprintf("%.3f%s (%.3f)", estimate_Black, star_from_p(p_Black), se_Black),
+    White    = sprintf("%.3f%s (%.3f)", estimate_White, star_from_p(p_White), se_White)
+  )
+
+# Fixing the same College+ reference-level bug as above: this contrast could not be
+# computed correctly before educ_cat was releveled, because College+ was silently the
+# omitted reference category rather than a fitted interaction term.
+tt(second_diff_tab,
+   caption = "Second Differences: College+ vs. Less-than-HS Segregation Slope, by Race",
+   notes = "Cells report the D x College+ interaction coefficient from the fully-adjusted IV models above -- i.e. how much the segregation slope for the College+ group differs from the Less-than-HS reference group, in years of life per 10-point rise in D -- with cluster-robust standard errors (by county of death) in parentheses. The contrast is individually significant only for White decedents under RDI IV. (+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001)") %>%
+  save_tt(here("FigTab","IV_education_second_diff_table.tex"), overwrite = TRUE)
 
 # ------------------------------- Male V Female -------------------------------
 # Named _male / _female rather than _m / _f: _m previously collided with the

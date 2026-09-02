@@ -519,6 +519,9 @@ msummary(
   output = "tinytable"
 ) %>%
   group_tt(j = list("Years of Education" = 2:5, "Log Wage Income" = 6:9)) %>%
+  # Nine columns overrun the landscape text block at the default size; shrink the
+  # rows and column separation so the table fits the page in the draft.
+  style_tt(fontsize = 0.7, tabularray_inner = "colsep=2pt") %>%
   save_tt(here("FigTab", "rdi_exclusion_three_way_table.tex"), overwrite = TRUE)
 
 cat("\n=== RDI coefficient, strict vs. two-way non-migrant (death-county RDI) ===\n")
@@ -596,6 +599,11 @@ msummary(
   threeparttable = TRUE
 ) %>%
   group_tt(j = list("Black" = 2:5, "White" = 6:9)) %>%
+  # Fixed column widths + smaller type so the 9-column table fits the landscape
+  # text block (650pt); at natural width it overruns by ~410pt. Same treatment as
+  # the mechanism table in 04_Regression_Models.R.
+  style_tt(j = 1,
+           tabularray_inner = "colsep=2pt, row{1-Z}={font=\\footnotesize}, colspec={Q[l,wd=3cm]Q[c,wd=2.3cm]Q[c,wd=2.3cm]Q[c,wd=2.3cm]Q[c,wd=2.3cm]Q[c,wd=2.3cm]Q[c,wd=2.3cm]Q[c,wd=2.3cm]Q[c,wd=2.3cm]}") %>%
   save_tt(here("FigTab", "IV_results_table_mig3.tex"), overwrite = T)
 
 cat("\n=== D by three-way migration status (per 1 point of D) ===\n")
@@ -626,12 +634,16 @@ mig3_plot_data = bind_rows(
          conf.low  = conf.low  * contrast,
          Group     = factor(Group, levels = c("Stayer", "Return Migrant", "Migrant")))
 
+cache_estimate_range("mig3", mig3_plot_data$conf.low, mig3_plot_data$conf.high)
+
 mig3_plot =
   ggplot(mig3_plot_data,
-         aes(Group, estimate, ymin = conf.low, ymax = conf.high, color = Race)) +
-  geom_pointrange(position = position_dodge2(width = .5), size = .75, lwd = .75, shape = 22) +
+         aes(Group, estimate, ymin = conf.low, ymax = conf.high, color = Race, shape = Race)) +
+  geom_pointrange(position = position_dodge2(width = .5), size = .75, lwd = .75) +
   geom_hline(yintercept = 0, linetype = "dashed", lwd = 1) +
   scale_color_manual(values = c("Black" = "darkgreen", "White" = "darkblue")) +
+  scale_shape_manual(values = c("Black" = 16, "White" = 17)) +
+  coord_cartesian(ylim = shared_axis_range(MAIN_ESTIMATE_FIGS)) +
   labs(y = "Change in Life Expectancy", x = NULL,
        caption = str_wrap("IV estimates (Railroad Division Index instrument) of the effect of segregation on longevity,
        split by three-way migration status using county of residence in 1940 as an intermediate observation: a Stayer
@@ -640,8 +652,11 @@ mig3_plot =
        Models adjust for demographic controls and birth year, birth state, urban-rural, and occupation fixed effects.
        Estimates refer to a 10-point increase in Dissimilarity.", 100)) +
   theme_cowplot() +
-  theme(plot.caption    = element_text(hjust = 0),
+  # Sized so the note prints at ~8pt after the ~0.54x shrink from this plot's 12in
+  # ggsave width down to its full-\textwidth (~6.5in) display size on the printed page.
+  theme(plot.caption    = element_text(hjust = 0, size = 15),
         legend.position = "bottom")
 
 ggsave(mig3_plot, filename = here("FigTab", "mig3_estimates.jpeg"),
-       width = 8, height = 6, dpi = 1000)
+       # Wide layout: panel plus a compact note below it at full text width.
+       width = 12, height = 7, dpi = 1000)

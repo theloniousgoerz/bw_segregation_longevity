@@ -10,12 +10,12 @@ note{ }={This table describes IV estimates of the effect of segregation on longe
 colspec={Q[]Q[]Q[]},
 column{2,3}={}{halign=c,},
 column{1}={}{halign=l,},
-hline{20}={1,2,3}{solid, black, 0.05em},
+hline{24}={1,2,3}{solid, black, 0.05em},
 }                     %% tabularray inner close
 \toprule
 & Black & White \\ \midrule %% TinyTableHeader
-D                                & -0.042*** & -0.038*** \\
-& (0.011)   & (0.007)   \\
+D                                & -0.058*** & -0.048*** \\
+& (0.008)   & (0.006)   \\
 Male                             & -1.058*** & -0.939*** \\
 & (0.028)   & (0.011)   \\
 Migrated                         & 0.260***  & 0.002     \\
@@ -24,14 +24,18 @@ Married in 1940                  & 0.088**   & -0.013    \\
 & (0.031)   & (0.008)   \\
 Died in South                    & -0.011    & 0.201*    \\
 & (0.127)   & (0.086)   \\
-High School (Ref = Less than HS) & 0.491     & -0.134    \\
-& (0.600)   & (0.151)   \\
-Some College                     & -0.066    & -0.069    \\
-& (0.539)   & (0.121)   \\
-D x High School                  & -0.015    & -0.003    \\
+High School (Ref = Less than HS) & 0.253     & -0.067    \\
+& (0.226)   & (0.065)   \\
+Some College                     & -0.303    & -0.002    \\
+& (0.347)   & (0.116)   \\
+College or Higher                & -0.237    & 0.067     \\
+& (0.588)   & (0.163)   \\
+D x High School                  & 0.001     & 0.007***  \\
+& (0.004)   & (0.001)   \\
+D x Some College                 & 0.010+    & 0.008***  \\
+& (0.006)   & (0.002)   \\
+D x College or Higher            & 0.016     & 0.009**   \\
 & (0.010)   & (0.003)   \\
-D x Some College                 & -0.006    & -0.002    \\
-& (0.009)   & (0.002)   \\
 Num.Obs.                         & 123053    & 2254290   \\
 R2                               & 0.364     & 0.330     \\
 Birth Year                       & X         & X         \\

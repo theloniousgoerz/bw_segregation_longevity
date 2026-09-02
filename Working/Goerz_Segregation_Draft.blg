@@ -3,51 +3,44 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: Goerz_Segregation_Draft.aux
 The style file: apalike.bst
 Database file #1: ref.bib
-Warning--empty journal in osborne_censoc-numident_nodate
-Warning--empty publisher in perman_struggle_2001
-Warning--can't use both author and editor fields in weber_economy_1922
-Warning--empty journal in wilson_truly_1987
-Warning--empty journal in wrigley-field_three_2025
-Warning--empty journal in zimran_internal_2022
-You've used 123 entries,
+You've used 124 entries,
             1935 wiz_defined-function locations,
-            1152 strings with 26531 characters,
-and the built_in function-call counts, 47942 in all, are:
-= -- 4798
-> -- 1754
+            1161 strings with 26493 characters,
+and the built_in function-call counts, 48487 in all, are:
+= -- 4857
+> -- 1777
 < -- 89
-+ -- 625
-- -- 571
-* -- 4158
-:= -- 8294
-add.period$ -- 369
-call.type$ -- 123
-change.case$ -- 890
-chr.to.int$ -- 123
-cite$ -- 129
-duplicate$ -- 1773
-empty$ -- 3412
-format.name$ -- 774
-if$ -- 9287
++ -- 631
+- -- 579
+* -- 4210
+:= -- 8388
+add.period$ -- 370
+call.type$ -- 124
+change.case$ -- 897
+chr.to.int$ -- 124
+cite$ -- 124
+duplicate$ -- 1783
+empty$ -- 3454
+format.name$ -- 783
+if$ -- 9395
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 133
-newline$ -- 617
-num.names$ -- 371
-pop$ -- 657
+missing$ -- 131
+newline$ -- 620
+num.names$ -- 374
+pop$ -- 656
 preamble$ -- 1
-purify$ -- 900
+purify$ -- 909
 quote$ -- 0
-skip$ -- 1402
+skip$ -- 1409
 stack$ -- 0
-substring$ -- 3764
-swap$ -- 195
+substring$ -- 3854
+swap$ -- 197
 text.length$ -- 5
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 708
-warning$ -- 6
-while$ -- 422
+type$ -- 716
+warning$ -- 0
+while$ -- 429
 width$ -- 0
-write$ -- 1591
-(There were 6 warnings)
+write$ -- 1600

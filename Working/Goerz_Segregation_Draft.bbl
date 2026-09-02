@@ -34,7 +34,6 @@ Ananat, E.~O. and Washington, E. (2009).
 Angrist, J. and Kolesár, M. (2021).
 \newblock One {Instrument} to {Rule} {Them} {All}: {The} {Bias} and {Coverage} of {Just}-{ID} {IV}.
 \newblock {\em arXiv:2110.10556 [econ, stat]}.
-\newblock arXiv: 2110.10556.
 
 \bibitem[Arias and Xu, 2022]{arias_united_2022}
 Arias, E. and Xu, J. (2022).
@@ -46,11 +45,6 @@ Atack, J. (2016).
 \newblock Historical {Geographic} {Information} {Systems} ({GIS}) database of {U}.{S}. {Railroads}.
 \newblock Revised October 31, 2023.
 
-\bibitem[Atack et~al., 1994]{atack_new_1994}
-Atack, J., Passell, P., and Atack, J. (1994).
-\newblock {\em A new economic view of {American} history: from colonial times to 1940}.
-\newblock Norton, New York, NY, 2 ed edition.
-
 \bibitem[Austin et~al., 2016]{austin_does_2016}
 Austin, N., Harper, S., and Strumpf, E. (2016).
 \newblock Does {Segregation} {Lead} to {Lower} {Birth} {Weight}?: {An} {Instrumental} {Variable} {Approach}.
@@ -58,8 +52,8 @@ Austin, N., Harper, S., and Strumpf, E. (2016).
 
 \bibitem[Bell, 2020]{bell_anti-segregation_2020}
 Bell, M.~C. (2020).
-\newblock {ANTI}-{SEGREGATION} {POLICING}.
-\newblock {\em NEW YORK UNIVERSITY LAW REVIEW}, 95.
+\newblock {Anti}-{Segregation} {Policing}.
+\newblock {\em New York University Law Review}, 95.
 
 \bibitem[Bernard et~al., 2014]{bernard_life-course_2014}
 Bernard, A., Bell, M., and Charles-Edwards, E. (2014).
@@ -184,7 +178,6 @@ DiPrete, T.~A. and Eirich, G.~M. (2006).
 Dockery, D.~W., Pope, C.~A., Xu, X., Spengler, J.~D., Ware, J.~H., Fay, M.~E., Ferris, B.~G., and Speizer, F.~E. (1993).
 \newblock An {Association} between {Air} {Pollution} and {Mortality} in {Six} {U}.{S}. {Cities}.
 \newblock {\em New England Journal of Medicine}, 329(24):1753--1759.
-\newblock \_eprint: https://www.nejm.org/doi/pdf/10.1056/NEJM199312093292401.
 
 \bibitem[Du~Bois, 1935]{dubois_black_1935}
 Du~Bois, W. E.~B. (1935).
@@ -200,7 +193,6 @@ Duncan, O.~D. and Duncan, B. (1955).
 Edwards, F., Lee, H., and Esposito, M. (2019).
 \newblock Risk of being killed by police use of force in the {United} {States} by age, race–ethnicity, and sex.
 \newblock {\em Proceedings of the National Academy of Sciences}, 116(34):16793--16798.
-\newblock Company: National Academy of Sciences Distributor: National Academy of Sciences Institution: National Academy of Sciences Label: National Academy of Sciences.
 
 \bibitem[Elliott and Frickel, 2013]{elliott_historical_2013}
 Elliott, J.~R. and Frickel, S. (2013).
@@ -285,8 +277,7 @@ Hendi, A. (2023).
 \bibitem[Hendi, 2024]{hendi_where_2024}
 Hendi, A.~S. (2024).
 \newblock Where {Does} the {Black}–{White} {Life} {Expectancy} {Gap} {Come} {From}? {The} {Deadly} {Consequences} of {Residential} {Segregation}.
-\newblock {\em Population and Development Review}, n/a(n/a).
-\newblock \_eprint: https://onlinelibrary.wiley.com/doi/pdf/10.1111/padr.12625.
+\newblock {\em Population and Development Review}.
 
 \bibitem[Hurd and Kapteyn, 2003]{hurd_health_2003}
 Hurd, M. and Kapteyn, A. (2003).
@@ -301,7 +292,7 @@ Imbens, G. and Angrist, J. (1994).
 \bibitem[Johnson, 2019]{johnson_children_2019}
 Johnson, R.~C. (2019).
 \newblock {\em Children of the {Dream}: {Why} {School} {Integration} {Works}}.
-\newblock Basic Books, new york, ny edition.
+\newblock Basic Books, New York, NY.
 
 \bibitem[Karbeah and Hacker, 2023]{karbeah_racial_2023}
 Karbeah, J. and Hacker, J.~D. (2023).
@@ -313,11 +304,15 @@ Klinenberg, E. (2002).
 \newblock {\em Heat {Wave}: {A} {Social} {Autopsy} of {Disaster} in {Chicago}}.
 \newblock University of Chicago Press, Chicago.
 
+\bibitem[Kramer and Hogue, 2009]{kramer_is_2009}
+Kramer, M.~R. and Hogue, C.~R. (2009).
+\newblock Is {Segregation} {Bad} for {Your} {Health}?
+\newblock {\em Epidemiologic Reviews}, 31(1):178--194.
+
 \bibitem[Krysan and Crowder, 2017]{krysan_cycle_2017}
 Krysan, M. and Crowder, K. (2017).
 \newblock {\em Cycle of {Segregation}: {Social} {Processes} and {Residential} {Stratification}}.
 \newblock Russell Sage Foundation.
-\newblock Google-Books-ID: eqA\_DwAAQBAJ.
 
 \bibitem[Leibbrand et~al., 2020]{leibbrand_great_2020}
 Leibbrand, C., Massey, C., Alexander, J.~T., Genadek, K.~R., and Tolnay, S. (2020).
@@ -378,7 +373,6 @@ Massey, D.~S. (1995).
 Massey, D.~S. (2016).
 \newblock Residential {Segregation} is the {Linchpin} of {Racial} {Stratification}.
 \newblock {\em City \& Community}, 15(1):4--7.
-\newblock Citation key retains the "2018" used in-text; actual publication year is 2016 per the journal record.
 
 \bibitem[Massey et~al., 1987]{massey_effect_1987}
 Massey, D.~S., Condran, G.~A., and Denton, N.~A. (1987).
@@ -390,16 +384,10 @@ Massey, D.~S. and Denton, N.~A. (1993).
 \newblock {\em American apartheid: segregation and the making of the underclass}.
 \newblock Harvard Univ. Press, Cambridge, Mass., 10. print edition.
 
-\bibitem[Massey and Denton, 2003]{massey_american_2003}
-Massey, D.~S. and Denton, N.~A. (2003).
-\newblock {\em American apartheid: segregation and the making of the underclass}.
-\newblock Harvard Univ. Press, Cambridge, Mass., 10. print edition.
-
 \bibitem[Massey et~al., 2018]{massey_neighborhood_2018}
 Massey, D.~S., Wagner, B., Donnelly, L., McLanahan, S., Brooks-Gunn, J., Garfinkel, I., Mitchell, C., and Notterman, D.~A. (2018).
 \newblock Neighborhood {Disadvantage} and {Telomere} {Length}: {Results} from the {Fragile} {Families} {Study}.
 \newblock {\em RSF: The Russell Sage Foundation Journal of the Social Sciences}, 4(4):28--42.
-\newblock Publisher: RSF: The Russell Sage Foundation Journal of the Social Sciences.
 
 \bibitem[Mays and Smith, 2011]{mays_evidence_2011}
 Mays, G.~P. and Smith, S.~A. (2011).
@@ -414,7 +402,7 @@ McCullough, J.~M. and Leider, J.~P. (2016).
 \bibitem[McGhee, 2021]{mcghee_sum_2021}
 McGhee, H.~C. (2021).
 \newblock {\em The sum of us: what racism costs everyone and how we can prosper together}.
-\newblock One World, New York, first edition edition.
+\newblock One World, New York.
 
 \bibitem[Metzl, 2019]{metzl_dying_2019}
 Metzl, J.~M. (2019).
@@ -464,11 +452,12 @@ O'Brien, R.~L. (2017).
 \bibitem[Osborne, 2022]{osborne_censoc-numident_nodate}
 Osborne, M. (2022).
 \newblock {CenSoc}-{Numident} and {CenSoc}-{DMF} {Weights} {Manual}.
-\newblock CenSoc Technical Report.
+\newblock {CenSoc} {Technical} {Report}, CenSoc Project, University of California, Berkeley.
 
 \bibitem[Perman, 2001]{perman_struggle_2001}
 Perman, M. (2001).
-\newblock {\em Struggle {forThe} {University} {Mastery} {ofNorth} {Carolina} {Press} {Disfranchisement} {Chapel} {Hill} in the {South}, \& {London}}.
+\newblock {\em Struggle for {Mastery}: {Disfranchisement} in the {South}, 1888--1908}.
+\newblock University of North Carolina Press, Chapel Hill, NC.
 
 \bibitem[Pierson et~al., 2015]{pierson_government_2015}
 Pierson, K., Hand, M.~L., and Thompson, F. (2015).
@@ -479,6 +468,11 @@ Pierson, K., Hand, M.~L., and Thompson, F. (2015).
 Pope, C.~A., Burnett, R.~T., Thun, M.~J., Calle, E.~E., Krewski, D., Ito, K., and Thurston, G.~D. (2002).
 \newblock Lung {Cancer}, {Cardiopulmonary} {Mortality}, and {Long}-term {Exposure} to {Fine} {Particulate} {Air} {Pollution}.
 \newblock {\em JAMA}, 287(9):1132--1141.
+
+\bibitem[Popescu et~al., 2018]{popescu_racial_2018}
+Popescu, I., Duffy, E., Mendelsohn, J., and Escarce, J.~J. (2018).
+\newblock Racial residential segregation, socioeconomic disparities, and the {White}-{Black} survival gap.
+\newblock {\em PLoS ONE}, 13(2):e0193222.
 
 \bibitem[Quillian, 2012]{quillian_segregation_2012}
 Quillian, L. (2012).
@@ -571,11 +565,17 @@ Warren, E. and Valentino, L. (2025).
 Weber, M. (1922).
 \newblock {\em Economy and society: a new translation}.
 \newblock Harvard University Press, Cambridge, Massachusetts.
+\newblock Translated by Keith Tribe.
 
 \bibitem[Wetts and Willer, 2018]{wetts_privilege_2018}
 Wetts, R. and Willer, R. (2018).
 \newblock Privilege on the {Precipice}: {Perceived} {Racial} {Status} {Threats} {Lead} {White} {Americans} to {Oppose} {Welfare} {Programs}.
 \newblock {\em Social Forces}, 97(2):793--822.
+
+\bibitem[White et~al., 2012]{white_elucidating_2012}
+White, K., Haas, J.~S., and Williams, D.~R. (2012).
+\newblock Elucidating the {Role} of {Place} in {Health} {Care} {Disparities}: {The} {Example} of {Racial}/{Ethnic} {Residential} {Segregation}.
+\newblock {\em Health Services Research}, 47(3pt2):1278--1299.
 
 \bibitem[Williams and Collins, 2001]{williams_racial_2001}
 Williams, D.~R. and Collins, C. (2001).
@@ -584,7 +584,8 @@ Williams, D.~R. and Collins, C. (2001).
 
 \bibitem[Wilson, 1987]{wilson_truly_1987}
 Wilson, W.~J. (1987).
-\newblock The {Truly} {Disadvantaged}: {The} {Inner} {City}, the {Underclass}, and {Public} {Policy}.
+\newblock {\em The {Truly} {Disadvantaged}: {The} {Inner} {City}, the {Underclass}, and {Public} {Policy}}.
+\newblock University of Chicago Press, Chicago.
 
 \bibitem[Winship, 1977]{winship_revaluation_1977}
 Winship, C. (1977).
@@ -609,9 +610,11 @@ Wrigley-Field, E. (2024).
 \bibitem[Wrigley-Field, 2025]{wrigley-field_three_2025}
 Wrigley-Field, E. (2025).
 \newblock Three {Ways} of {Looking} at {Black}–{White} {Mortality} {Differences} in the {United} {States}.
+\newblock {\em Annual Review of Sociology}, 51.
 
 \bibitem[Zimran, 2022]{zimran_internal_2022}
 Zimran, A. (2022).
 \newblock Internal {Migration} in the {United} {States}: {Rates}, {Selection}, and {Destination} {Choice}, 1850-1940.
+\newblock Working paper.
 
 \end{thebibliography}

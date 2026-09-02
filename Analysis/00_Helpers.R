@@ -151,3 +151,39 @@ prepare_analysis_data <- function(d, label = "") {
     check_birth_fips(label = label) %>%
     add_migration_status()
 }
+
+# ------------------------------- Shared axis range cache -------------------------------
+# The main-estimate figures (OLS, IV-all, mechanism, migration status, birth-cohort,
+# military service) are meant to share one axis so their vertical extents are directly
+# comparable when read side by side in the manuscript. 00_run_all.R clears the R
+# environment between scripts, so each figure's own estimate range is cached to disk;
+# a figure built in an earlier script can then pick up the range of one built in a
+# later script (and vice versa) once every script in the group has run at least once.
+axis_cache_dir <- here::here("Data", "_Cleaned", "axis_cache")
+if (!dir.exists(axis_cache_dir)) dir.create(axis_cache_dir, recursive = TRUE)
+
+# Cache the [min(lo), max(hi)] of one figure's estimate interval, in whatever units
+# that figure plots on its shared axis (years of life per 10-point rise in D for all
+# of the pointrange figures; see the *10 rescale in the mechanism plot).
+cache_estimate_range <- function(name, lo, hi) {
+  saveRDS(c(lo = min(lo, na.rm = TRUE), hi = max(hi, na.rm = TRUE)),
+          file.path(axis_cache_dir, paste0(name, ".rds")))
+}
+
+# Union the cached ranges for the named figures into one padded axis range. Returns
+# NULL (i.e. auto-scale) until every named figure has cached at least once -- expected
+# on a first run through a single script -- so re-source the analysis scripts a second
+# time (or re-run 00_run_all.R) to have every figure in the group converge on the same
+# final axis.
+shared_axis_range <- function(names, pad = 0.06) {
+  files <- file.path(axis_cache_dir, paste0(names, ".rds"))
+  if (!all(file.exists(files))) return(NULL)
+  vals    <- unlist(lapply(files, readRDS))
+  rng     <- range(vals, na.rm = TRUE)
+  pad_amt <- diff(rng) * pad
+  c(rng[1] - pad_amt, rng[2] + pad_amt)
+}
+
+# Figures synced onto one shared "Change in Life Expectancy" axis (mechanism plot
+# included via its *10-rescaled x-axis; see 04_Regression_Models.R).
+MAIN_ESTIMATE_FIGS <- c("ols", "iv_all", "mechanism", "mig3", "bcohort", "military")

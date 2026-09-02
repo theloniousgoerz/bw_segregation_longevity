@@ -304,11 +304,15 @@ res$sex <- factor(res$sex, levels = c("Men", "Women"))
 
 ## 5. Figure: colored by race, shaped by sex. Estimates are rescaled to a 10-point
 ##    rise in D (see the mutate below), so the axis is labelled accordingly.
-bcohort_plot <-
-  res %>%
+bcohort_plot_data <- res %>%
   mutate(estimate = estimate * 10,
          lo       = lo * 10,
-         hi       = hi * 10) %>%
+         hi       = hi * 10)
+
+cache_estimate_range("bcohort", bcohort_plot_data$lo, bcohort_plot_data$hi)
+
+bcohort_plot <-
+  bcohort_plot_data %>%
   ggplot(aes(bin, estimate,
              color = sample,
              shape = sex)) +
@@ -317,27 +321,32 @@ bcohort_plot <-
                   position = position_dodge(width = 0.35),
                   linewidth = 0.7, fatten = 2.5,
                   size = 1) +
+  coord_cartesian(ylim = shared_axis_range(MAIN_ESTIMATE_FIGS)) +
   labs(
     x = "Birth-year bin",
     y = "Years of Life (per 10-point rise in D)",
     color = "Group",
     subtitle = "RDI IV estimates, stratified by five-year birth cohort",
-    caption = paste(
-      "Note: Estimates are two-stage least squares coefficients using the Railroad Division Index (RDI)",
-      "instrument set (RDI and railroad track density); the Rivers instruments are not used here. Each point",
-      "is a separate model fit within a race, sex, and five-year birth-year bin, expressed as years of life",
-      "per 10-point rise in dissimilarity (D). All models include controls for migration, education, marital",
-      "status, and death in the South, and fixed effects for birth year, birth state, urbanicity, and",
-      "occupation. Bars are 95% confidence intervals from standard errors clustered on county of death.",
-      sep = "\n")
+    caption = str_wrap(
+      "Note: Estimates are two-stage least squares coefficients using the Railroad Division Index (RDI)
+      instrument set (RDI and railroad track density); the Rivers instruments are not used here. Each point
+      is a separate model fit within a race, sex, and five-year birth-year bin, expressed as years of life
+      per 10-point rise in dissimilarity (D). All models include controls for migration, education, marital
+      status, and death in the South, and fixed effects for birth year, birth state, urbanicity, and
+      occupation. Bars are 95% confidence intervals from standard errors clustered on county of death.", 44)
   ) +
   theme_cowplot() +
+  # Sized so a 9.5pt note survives the ~0.36x shrink from this plot's 9in ggsave
+  # width down to its half-\textwidth (3.25in) display size on the printed page.
   theme(legend.position = "top",
-        plot.caption = element_text(hjust = 0, size = 10, face = "italic")) +
+        plot.caption = element_text(hjust = 0, size = 26, face = "italic")) +
   scale_color_manual(values = c("Black" = "#1b7837", "White" = "#2166ac"))
 
 ggsave(bcohort_plot, filename = here("FigTab", "bcohort_stratified_estimates.jpeg"),
-       width = 9, height = 7, dpi = 300)
+       # Taller than the panel alone needs, so the larger caption text (set for print
+       # legibility at this figure's half-\textwidth display size) has room below the
+       # panel instead of compressing it.
+       width = 9, height = 12, dpi = 300)
 
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -509,19 +518,30 @@ service_res <- service_res %>%
     served    = factor(served, levels = c("Not Served", "Served"))
   )
 
-service_plot <- 
-  service_res %>%
-  mutate(estimate = estimate * 10, lo = lo * 10, hi = hi * 10) %>%   # per 10-point rise in D
+service_plot_data <- service_res %>%
+  mutate(estimate = estimate * 10, lo = lo * 10, hi = hi * 10)   # per 10-point rise in D
+
+cache_estimate_range("military", service_plot_data$lo, service_plot_data$hi)
+
+service_plot <-
+  service_plot_data %>%
   ggplot(aes(served, estimate, color = race, shape = served)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey60") +
   geom_pointrange(aes(ymin = lo, ymax = hi),
                   position = position_dodge(width = 0.35),
                   linewidth = 0.7, fatten = 2.5, size = 1) +
-  facet_wrap(~estimator, scales = "free_y") +
+  # Fixed (not free_y) scales so the three estimator panels share one axis, matching
+  # the shared axis this figure also carries across the manuscript's other main
+  # estimate figures.
+  facet_wrap(~estimator) +
+  coord_cartesian(ylim = shared_axis_range(MAIN_ESTIMATE_FIGS)) +
   labs(x = NULL, y = "Years of Life (per 10-point rise in D)", color = "Group", shape = "Service",
-       subtitle = "Implied segregation slope for non-servers vs. servers, from D x Service interaction models") +
+       subtitle = str_wrap("Implied segregation slope for non-servers vs. servers, from D x Service interaction models", 50)) +
   theme_cowplot() +
-  theme(legend.position = "top", axis.text.x = element_text(angle = 20, hjust = 1)) +
+  # Subtitle sized so a 9.5pt note survives the ~0.36x shrink from this plot's 9in
+  # ggsave width down to its half-\textwidth (3.25in) display size on print.
+  theme(legend.position = "top", axis.text.x = element_text(angle = 20, hjust = 1),
+        plot.subtitle = element_text(size = 26)) +
   scale_color_manual(values = c("Black" = "#1b7837", "White" = "#2166ac"))
 
 ggsave(service_plot, filename = here("FigTab", "military_service_estimates.jpeg"),

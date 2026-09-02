@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  14 AUG 2026 15:06
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  2 SEP 2026 15:00
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -667,28 +667,28 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 28
 )
 \Hy@SectionHShift=\skip60
 )
-Package translations Info: No language package found. I am going to use `english' as default language. on input line 57.
+Package translations Info: No language package found. I am going to use `english' as default language. on input line 53.
  (./Goerz_Segregation_Draft.aux)
 \openout1 = `Goerz_Segregation_Draft.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -745,11 +745,15 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 )) (/usr/local/texlive/2025/texmf-dist/tex/latex/translations/translations-basic-dictionary-english.trsl
 File: translations-basic-dictionary-english.trsl (english translation file `translations-basic-dictionary')
 )
-Package translations Info: loading dictionary `translations-basic-dictionary' for `english'. on input line 57.
-Package hyperref Info: Link coloring ON on input line 57.
+Package translations Info: loading dictionary `translations-basic-dictionary' for `english'. on input line 53.
+Package hyperref Info: Link coloring ON on input line 53.
  (./Goerz_Segregation_Draft.out) (./Goerz_Segregation_Draft.out)
 \@outlinefile=\write4
 \openout4 = `Goerz_Segregation_Draft.out'.
+
+
+
+LaTeX Warning: No \author given.
 
 
 
@@ -812,70 +816,52 @@ Package hyperref Info: Link coloring ON on input line 57.
 
 [24]
 
-LaTeX Font Warning: Command \small invalid in math mode on input line 328.
+LaTeX Font Warning: Command \small invalid in math mode on input line 323.
 
 
-LaTeX Font Warning: Command \small invalid in math mode on input line 328.
+LaTeX Font Warning: Command \small invalid in math mode on input line 323.
 
 
 
 [25]
 
 [26]
-<../FigTab/fs_plot.jpeg, id=872, 12045.0pt x 6022.5pt>
+<../FigTab/fs_plot.jpeg, id=864, 12045.0pt x 8030.0pt>
 File: ../FigTab/fs_plot.jpeg Graphic file (type jpg)
 <use ../FigTab/fs_plot.jpeg>
-Package pdftex.def Info: ../FigTab/fs_plot.jpeg  used on input line 360.
-(pdftex.def)             Requested size: 469.75502pt x 234.79385pt.
+Package pdftex.def Info: ../FigTab/fs_plot.jpeg  used on input line 355.
+(pdftex.def)             Requested size: 469.75502pt x 313.05847pt.
 
 
 [27 <../FigTab/fs_plot.jpeg>]
-<../FigTab/ols_estimates_all.jpeg, id=880, 14052.5pt x 6022.5pt>
+<../FigTab/ols_estimates_all.jpeg, id=873, 14052.5pt x 6022.5pt>
 File: ../FigTab/ols_estimates_all.jpeg Graphic file (type jpg)
 <use ../FigTab/ols_estimates_all.jpeg>
-Package pdftex.def Info: ../FigTab/ols_estimates_all.jpeg  used on input line 373.
+Package pdftex.def Info: ../FigTab/ols_estimates_all.jpeg  used on input line 368.
 (pdftex.def)             Requested size: 469.75502pt x 201.25188pt.
-<../FigTab/rdi_iv_estimates.jpeg, id=883, 8030.0pt x 6022.5pt>
-File: ../FigTab/rdi_iv_estimates.jpeg Graphic file (type jpg)
-<use ../FigTab/rdi_iv_estimates.jpeg>
-Package pdftex.def Info: ../FigTab/rdi_iv_estimates.jpeg  used on input line 382.
-(pdftex.def)             Requested size: 234.8775pt x 176.07242pt.
 
 
-[28 <../FigTab/ols_estimates_all.jpeg>]
-<../FigTab/rivers_iv_estimates.jpeg, id=890, 8030.0pt x 6022.5pt>
-File: ../FigTab/rivers_iv_estimates.jpeg Graphic file (type jpg)
-<use ../FigTab/rivers_iv_estimates.jpeg>
-Package pdftex.def Info: ../FigTab/rivers_iv_estimates.jpeg  used on input line 391.
-(pdftex.def)             Requested size: 234.8775pt x 176.07242pt.
-
-
-[29 <../FigTab/rdi_iv_estimates.jpeg> <../FigTab/rivers_iv_estimates.jpeg>]
-<../FigTab/sibling_fe_estimates.jpeg, id=897, 8030.0pt x 6022.5pt>
-File: ../FigTab/sibling_fe_estimates.jpeg Graphic file (type jpg)
-<use ../FigTab/sibling_fe_estimates.jpeg>
-Package pdftex.def Info: ../FigTab/sibling_fe_estimates.jpeg  used on input line 400.
-(pdftex.def)             Requested size: 234.8775pt x 176.07242pt.
-<../FigTab/iv_plot_all.jpeg, id=899, 14052.5pt x 6022.5pt>
+[28]
+<../FigTab/iv_plot_all.jpeg, id=883, 14052.5pt x 6022.5pt>
 File: ../FigTab/iv_plot_all.jpeg Graphic file (type jpg)
 <use ../FigTab/iv_plot_all.jpeg>
-Package pdftex.def Info: ../FigTab/iv_plot_all.jpeg  used on input line 409.
+Package pdftex.def Info: ../FigTab/iv_plot_all.jpeg  used on input line 381.
 (pdftex.def)             Requested size: 469.75502pt x 201.25188pt.
 
 
-[30 <../FigTab/sibling_fe_estimates.jpeg>]
+[29 <../FigTab/ols_estimates_all.jpeg>]
 
-[31 <../FigTab/iv_plot_all.jpeg>]
-<../FigTab/mig3_estimates.jpeg, id=917, 8030.0pt x 6022.5pt>
+[30 <../FigTab/iv_plot_all.jpeg>]
+<../FigTab/mig3_estimates.jpeg, id=905, 12045.0pt x 7026.25pt>
 File: ../FigTab/mig3_estimates.jpeg Graphic file (type jpg)
 <use ../FigTab/mig3_estimates.jpeg>
-Package pdftex.def Info: ../FigTab/mig3_estimates.jpeg  used on input line 424.
-(pdftex.def)             Requested size: 234.8775pt x 176.07242pt.
+Package pdftex.def Info: ../FigTab/mig3_estimates.jpeg  used on input line 396.
+(pdftex.def)             Requested size: 469.75502pt x 273.92616pt.
 
 
-[32 <../FigTab/mig3_estimates.jpeg>]
+[31]
 
-[33] (../FigTab/mechanism_ols_iv_table.tex
+[32 <../FigTab/mig3_estimates.jpeg>] (../FigTab/mechanism_ols_iv_table.tex
 > Step: init table outer spec.
 > Step: parse table options.
 > Step: split table.
@@ -886,27 +872,29 @@ Package pdftex.def Info: ../FigTab/mig3_estimates.jpeg  used on input line 424.
 > Step: build the whole table.
 )
 
+[33]
+
 [34]
 
 [35]
-<../FigTab/mechanism_coefplot.jpeg, id=948, 12045.0pt x 7026.25pt>
+<../FigTab/mechanism_coefplot.jpeg, id=947, 14052.5pt x 6022.5pt>
 File: ../FigTab/mechanism_coefplot.jpeg Graphic file (type jpg)
 <use ../FigTab/mechanism_coefplot.jpeg>
-Package pdftex.def Info: ../FigTab/mechanism_coefplot.jpeg  used on input line 459.
-(pdftex.def)             Requested size: 469.75502pt x 273.92616pt.
+Package pdftex.def Info: ../FigTab/mechanism_coefplot.jpeg  used on input line 431.
+(pdftex.def)             Requested size: 469.75502pt x 201.25188pt.
 
 
 [36 <../FigTab/mechanism_coefplot.jpeg>]
-
-[37]
-<../FigTab/gompertz_figure.jpeg, id=965, 8030.0pt x 8030.0pt>
+<../FigTab/gompertz_figure.jpeg, id=952, 12045.0pt x 8030.0pt>
 File: ../FigTab/gompertz_figure.jpeg Graphic file (type jpg)
 <use ../FigTab/gompertz_figure.jpeg>
-Package pdftex.def Info: ../FigTab/gompertz_figure.jpeg  used on input line 475.
-(pdftex.def)             Requested size: 234.76321pt x 234.76321pt.
+Package pdftex.def Info: ../FigTab/gompertz_figure.jpeg  used on input line 443.
+(pdftex.def)             Requested size: 352.31625pt x 234.76321pt.
 
 
-[38 <../FigTab/gompertz_figure.jpeg>]
+[37 <../FigTab/gompertz_figure.jpeg>]
+
+[38]
 
 [39]
 
@@ -993,6 +981,10 @@ LaTeX Warning: Float too large for page by 7.3383pt on input line 127.
 > Step: execute table commands.
 > Step: calculate cell and line sizes.
 > Step: build the whole table.
+
+
+LaTeX Warning: Float too large for page by 131.09729pt on input line 96.
+
 ) (../FigTab/mechanism_table.tex
 > Step: init table outer spec.
 > Step: parse table options.
@@ -1014,12 +1006,57 @@ LaTeX Warning: Float too large for page by 7.3383pt on input line 127.
 
 [49]
 
-[50] (./Goerz_Segregation_Draft.bbl
+[50] (../FigTab/mechanism_descriptives_table.tex
+> Step: init table outer spec.
+> Step: parse table options.
+> Step: split table.
+> Step: init table inner spec.
+> Step: parse table inner spec.
+> Step: execute table commands.
+> Step: calculate cell and line sizes.
+> Step: build the whole table.
+)
 
 [51
 
 
-]
+] (../FigTab/IV_results_weights_table.tex
+> Step: init table outer spec.
+> Step: parse table options.
+> Step: split table.
+> Step: init table inner spec.
+> Step: parse table inner spec.
+> Step: execute table commands.
+> Step: calculate cell and line sizes.
+> Step: build the whole table.
+) (../FigTab/IV_results_table_alt_measure.tex
+> Step: init table outer spec.
+> Step: parse table options.
+> Step: split table.
+> Step: init table inner spec.
+> Step: parse table inner spec.
+> Step: execute table commands.
+> Step: calculate cell and line sizes.
+> Step: build the whole table.
+) (../FigTab/IV_results_table_alt_measure_rivers.tex
+> Step: init table outer spec.
+> Step: parse table options.
+> Step: split table.
+> Step: init table inner spec.
+> Step: parse table inner spec.
+> Step: execute table commands.
+> Step: calculate cell and line sizes.
+> Step: build the whole table.
+) (../FigTab/IV_results_table_alt_measure_sib.tex
+> Step: init table outer spec.
+> Step: parse table options.
+> Step: split table.
+> Step: init table inner spec.
+> Step: parse table inner spec.
+> Step: execute table commands.
+> Step: calculate cell and line sizes.
+> Step: build the whole table.
+)
 
 [52]
 
@@ -1027,17 +1064,32 @@ LaTeX Warning: Float too large for page by 7.3383pt on input line 127.
 
 [54]
 
-[55]
+[55] (../FigTab/county_agreement_table.tex
+> Step: init table outer spec.
+> Step: parse table options.
+> Step: split table.
+> Step: init table inner spec.
+> Step: parse table inner spec.
+> Step: execute table commands.
+> Step: calculate cell and line sizes.
+> Step: build the whole table.
+)
 
-[56]
+[56
 
-[57]
 
-[58]
+] (../FigTab/rdi_exclusion_three_way_table.tex
+> Step: init table outer spec.
+> Step: parse table options.
+> Step: split table.
+> Step: init table inner spec.
+> Step: parse table inner spec.
+> Step: execute table commands.
+> Step: calculate cell and line sizes.
+> Step: build the whole table.
+)
 
-[59]
-
-[60]) (../FigTab/mechanism_descriptives_table.tex
+[57] (../FigTab/pm25_rdi_table.tex
 > Step: init table outer spec.
 > Step: parse table options.
 > Step: split table.
@@ -1047,121 +1099,6 @@ LaTeX Warning: Float too large for page by 7.3383pt on input line 127.
 > Step: calculate cell and line sizes.
 > Step: build the whole table.
 
-pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.68 \end
-         {talltblr})
-
-[61]
-
-[62] (../FigTab/IV_results_weights_table.tex
-> Step: init table outer spec.
-> Step: parse table options.
-> Step: split table.
-> Step: init table inner spec.
-> Step: parse table inner spec.
-> Step: execute table commands.
-> Step: calculate cell and line sizes.
-> Step: build the whole table.
-
-pdfTeX warning (ext4): destination with the same identifier (name{table.2}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.39 \end
-         {talltblr}) (../FigTab/IV_results_table_alt_measure.tex
-> Step: init table outer spec.
-> Step: parse table options.
-> Step: split table.
-> Step: init table inner spec.
-> Step: parse table inner spec.
-> Step: execute table commands.
-> Step: calculate cell and line sizes.
-> Step: build the whole table.
-
-pdfTeX warning (ext4): destination with the same identifier (name{table.3}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.34 \end
-         {talltblr}) (../FigTab/IV_results_table_alt_measure_rivers.tex
-> Step: init table outer spec.
-> Step: parse table options.
-> Step: split table.
-> Step: init table inner spec.
-> Step: parse table inner spec.
-> Step: execute table commands.
-> Step: calculate cell and line sizes.
-> Step: build the whole table.
-
-pdfTeX warning (ext4): destination with the same identifier (name{table.4}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.34 \end
-         {talltblr}) (../FigTab/IV_results_table_alt_measure_sib.tex
-> Step: init table outer spec.
-> Step: parse table options.
-> Step: split table.
-> Step: init table inner spec.
-> Step: parse table inner spec.
-> Step: execute table commands.
-> Step: calculate cell and line sizes.
-> Step: build the whole table.
-
-pdfTeX warning (ext4): destination with the same identifier (name{table.5}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.36 \end
-         {talltblr})
-
-[63]
-
-[64]
-
-[65]
-
-[66] (../FigTab/county_agreement_table.tex
-> Step: init table outer spec.
-> Step: parse table options.
-> Step: split table.
-> Step: init table inner spec.
-> Step: parse table inner spec.
-> Step: execute table commands.
-> Step: calculate cell and line sizes.
-> Step: build the whole table.
-
-pdfTeX warning (ext4): destination with the same identifier (name{table.6}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.19 \end
-         {talltblr}) (../FigTab/rdi_exclusion_three_way_table.tex
-> Step: init table outer spec.
-> Step: parse table options.
-> Step: split table.
-> Step: init table inner spec.
-> Step: parse table inner spec.
-> Step: execute table commands.
-> Step: calculate cell and line sizes.
-> Step: build the whole table.
-
-pdfTeX warning (ext4): destination with the same identifier (name{table.7}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.34 \end
-         {talltblr}) (../FigTab/pm25_rdi_table.tex
-> Step: init table outer spec.
-> Step: parse table options.
-> Step: split table.
-> Step: init table inner spec.
-> Step: parse table inner spec.
-> Step: execute table commands.
-> Step: calculate cell and line sizes.
-> Step: build the whole table.
-
-pdfTeX warning (ext4): destination with the same identifier (name{table.8}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.21 \end
-         {talltblr}
 Underfull \hbox (badness 10000) in paragraph at lines 21--21
 []\T1/cmr/m/n/10.95 Table A8: As-so-ci-a-tion
  []
@@ -1181,11 +1118,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 21--21
 > Step: calculate cell and line sizes.
 > Step: build the whole table.
 
-pdfTeX warning (ext4): destination with the same identifier (name{table.9}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.23 \end
-         {talltblr}
 Underfull \hbox (badness 3568) in paragraph at lines 23--23
 \T1/cmr/m/n/10.95 ate model of the re-
  []
@@ -1221,57 +1153,34 @@ Underfull \hbox (badness 1776) in paragraph at lines 23--23
  []
 
 )
+<../FigTab/monotonicity_gifure.jpeg, id=1118, 2710.125pt x 2107.875pt>
+File: ../FigTab/monotonicity_gifure.jpeg Graphic file (type jpg)
+<use ../FigTab/monotonicity_gifure.jpeg>
+Package pdftex.def Info: ../FigTab/monotonicity_gifure.jpeg  used on input line 534.
+(pdftex.def)             Requested size: 234.8775pt x 182.65675pt.
 
-[67
+
+[58
 
 
 ]
 
-[68]
-
-[69]
-<../FigTab/monotonicity_gifure.jpeg, id=1173, 2710.125pt x 2107.875pt>
-File: ../FigTab/monotonicity_gifure.jpeg Graphic file (type jpg)
-<use ../FigTab/monotonicity_gifure.jpeg>
-Package pdftex.def Info: ../FigTab/monotonicity_gifure.jpeg  used on input line 558.
-(pdftex.def)             Requested size: 234.8775pt x 182.65675pt.
-
-pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.559 ...nts of First-Stage Regressions Over Time}
-                                                  
-<../FigTab/bcohort_stratified_estimates.jpeg, id=1178, 2710.125pt x 2107.875pt>
+[59 <../FigTab/monotonicity_gifure.jpeg>]
+<../FigTab/bcohort_stratified_estimates.jpeg, id=1138, 2710.125pt x 3613.5pt>
 File: ../FigTab/bcohort_stratified_estimates.jpeg Graphic file (type jpg)
 <use ../FigTab/bcohort_stratified_estimates.jpeg>
-Package pdftex.def Info: ../FigTab/bcohort_stratified_estimates.jpeg  used on input line 568.
-(pdftex.def)             Requested size: 234.8775pt x 182.65675pt.
-
-pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.569 ...Longevity by Birth Cohort Group, by Race}
-                                                  
-<../FigTab/military_service_estimates.jpeg, id=1179, 2710.125pt x 2107.875pt>
+Package pdftex.def Info: ../FigTab/bcohort_stratified_estimates.jpeg  used on input line 545.
+(pdftex.def)             Requested size: 234.8775pt x 313.12585pt.
+<../FigTab/military_service_estimates.jpeg, id=1139, 2710.125pt x 2107.875pt>
 File: ../FigTab/military_service_estimates.jpeg Graphic file (type jpg)
 <use ../FigTab/military_service_estimates.jpeg>
-Package pdftex.def Info: ../FigTab/military_service_estimates.jpeg  used on input line 575.
+Package pdftex.def Info: ../FigTab/military_service_estimates.jpeg  used on input line 552.
 (pdftex.def)             Requested size: 234.8775pt x 182.65675pt.
 
-pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.576 ... by Military Service, by Race (Men only)}
-                                                  
-pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.576 ... by Military Service, by Race (Men only)}
-                                                  
 
-[70 <../FigTab/monotonicity_gifure.jpeg>]
+[60 <../FigTab/bcohort_stratified_estimates.jpeg>]
 
-[71 <../FigTab/bcohort_stratified_estimates.jpeg> <../FigTab/military_service_estimates.jpeg>] (../FigTab/military_service_ols_table.tex
+[61 <../FigTab/military_service_estimates.jpeg>] (../FigTab/military_service_ols_table.tex
 > Step: init table outer spec.
 > Step: parse table options.
 > Step: split table.
@@ -1281,11 +1190,6 @@ l.576 ... by Military Service, by Race (Men only)}
 > Step: calculate cell and line sizes.
 > Step: build the whole table.
 
-pdfTeX warning (ext4): destination with the same identifier (name{table.10}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.31 \end
-         {talltblr}
 Underfull \hbox (badness 5878) in paragraph at lines 31--31
 [][]\T1/cmr/m/n/10.95 Men only. `served` = 1 if the
  []
@@ -1349,6 +1253,44 @@ Underfull \hbox (badness 4254) in paragraph at lines 33--33
 > Step: build the whole table.
 )
 
+[62]
+
+[63]
+
+[64]
+
+[65]
+
+[66] (../FigTab/IV_education_interaction_only_table.tex
+> Step: init table outer spec.
+> Step: parse table options.
+> Step: split table.
+> Step: init table inner spec.
+> Step: parse table inner spec.
+> Step: execute table commands.
+> Step: calculate cell and line sizes.
+> Step: build the whole table.
+)
+
+[67]
+<../FigTab/seg_1940_corr_plot.jpeg, id=1203, 2710.125pt x 1355.0625pt>
+File: ../FigTab/seg_1940_corr_plot.jpeg Graphic file (type jpg)
+<use ../FigTab/seg_1940_corr_plot.jpeg>
+Package pdftex.def Info: ../FigTab/seg_1940_corr_plot.jpeg  used on input line 591.
+(pdftex.def)             Requested size: 352.31625pt x 176.14363pt.
+
+
+[68
+
+
+] (./Goerz_Segregation_Draft.bbl
+
+[69 <../FigTab/seg_1940_corr_plot.jpeg>]
+
+[70]
+
+[71]
+
 [72]
 
 [73]
@@ -1358,44 +1300,34 @@ Underfull \hbox (badness 4254) in paragraph at lines 33--33
 [75]
 
 [76]
-<../FigTab/seg_1940_corr_plot.jpeg, id=1227, 2710.125pt x 1355.0625pt>
-File: ../FigTab/seg_1940_corr_plot.jpeg Graphic file (type jpg)
-<use ../FigTab/seg_1940_corr_plot.jpeg>
-Package pdftex.def Info: ../FigTab/seg_1940_corr_plot.jpeg  used on input line 600.
-(pdftex.def)             Requested size: 352.31625pt x 176.14363pt.
 
-pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.601 ... Segregation in County at Death, by Race}
-                                                  
-pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) has been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.601 ... Segregation in County at Death, by Race}
-                                                  
+[77]
 
-[77 <../FigTab/seg_1940_corr_plot.jpeg>] (./Goerz_Segregation_Draft.aux)
+[78]
+
+[79])
+
+[80] (./Goerz_Segregation_Draft.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
  ***********
 Package rerunfilecheck Info: File `Goerz_Segregation_Draft.out' has not changed.
-(rerunfilecheck)             Checksum: 9E0B3ADA93DFD6A9F0D31250645E0EC4;5013.
+(rerunfilecheck)             Checksum: 8043309BD00806C4841AE9E2BD81D53A;5196.
  ) 
 Here is how much of TeX's memory you used:
- 30692 strings out of 473190
- 664352 string characters out of 5715801
- 1319472 words of memory out of 5000000
- 53129 multiletter control sequences out of 15000+600000
- 635116 words of font info for 142 fonts, out of 8000000 for 9000
+ 30728 strings out of 473190
+ 664945 string characters out of 5715801
+ 1339166 words of memory out of 5000000
+ 53140 multiletter control sequences out of 15000+600000
+ 638910 words of font info for 145 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 102i,14n,107p,3461b,1480s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 102i,14n,107p,3477b,1480s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0600.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0800.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0900.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1728.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti0800.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti1095.pfb>
-Output written on Goerz_Segregation_Draft.pdf (77 pages, 42490738 bytes).
+Output written on Goerz_Segregation_Draft.pdf (80 pages, 42735917 bytes).
 PDF statistics:
- 1403 PDF objects out of 1440 (max. 8388607)
- 1252 compressed objects within 13 object streams
- 325 named destinations out of 1000 (max. 500000)
- 302 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1435 PDF objects out of 1440 (max. 8388607)
+ 1284 compressed objects within 13 object streams
+ 347 named destinations out of 1000 (max. 500000)
+ 295 words of extra memory for PDF output out of 10000 (max. 10000000)
 
