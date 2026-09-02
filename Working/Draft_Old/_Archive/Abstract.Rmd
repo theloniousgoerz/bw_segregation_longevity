@@ -1,8 +1,0 @@
----
-title: "Abstract Draft"
-author: "Thelonious Goerz"
-date: "2024-10-25"
-output: html_document
----
-
-Research has documented extensive negative effects of residential, racial segregation on health for Black Americans and mixed results for White Americans. An important source of heterogeneity in Black-White health inequalities is socioeconomic status (SES). A parallel literature shows distinct SES-health gradients at race-class intersections, but evidence about how these gradients may shape the health effects of segregation are unclear. A further layer of uncertainty is whether these associations are causal, which may lead to biased results and mixed findings. In this paper, I use data on early 20th-Century birth cohorts from the 1940 Census and variation from pre-settlement railroads to estimate the causal effect of Black-White segregation on longevity and examine how these effects vary by education, homeownership, and income. I show that mid-to-late-life exposure to segregation decreases Black longevity by 5.8 years and increases White longevity by 2.8 years. Overall, Higher SES position results in greater longevity for White Americans but longevity does not vary by SES for Black Americans. When considering SES gradients, Black-White longevity disparities vary between 5-9 years.
