@@ -36,7 +36,6 @@ dw =       read_csv(here("Data","_Cleaned","dw.csv"))
 db_f=      read_csv(here("Data","_Cleaned","db_f.csv"))
 dw_f=      read_csv(here("Data","_Cleaned","dw_f.csv"))
 mechanism = read_csv(here("Data","_Cleaned","mechanism.csv"))
-income_seg = read_csv(here("Data","_Cleaned","income_segregation_Hr.csv"))
 
 # Repair birth_fips and derive migration status from the FIPS codes. The stored
 # `migrated` has its two labels swapped, and STATEFIP_b -- the birth-state fixed effect
@@ -77,8 +76,7 @@ mechanisms = mechanism  %>% select(
   cash_asst_pc,
   medicaid_pc,
   taxes_pc,
-  prop_tax_pc,
-  Hr_all
+  prop_tax_pc
 ) %>% distinct()
 
 

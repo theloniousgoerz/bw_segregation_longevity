@@ -40,7 +40,7 @@
 #     restartable.
 # ==============================================================================
 
-source("/Users/theloniousgoerz/Academic/Projects/bw_segregation_longevity/Code/00_setup_instrument.R")
+source(here::here("Code", "00_setup_instrument.R"))
 
 YEAR_CUTOFF <- 1911   # "pre-1911": keep all track in operation by 1911.
                       # Set to 1910 (pre-Great Migration census) or 1900 for

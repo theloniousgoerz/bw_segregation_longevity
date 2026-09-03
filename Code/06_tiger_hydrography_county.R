@@ -35,7 +35,7 @@
 #   - Expect 1-3 hours on a typical connection for the first full run.
 # ==============================================================================
 
-source("/Users/theloniousgoerz/Academic/Projects/bw_segregation_longevity/Code/00_setup_instrument.R")
+source(here::here("Code", "00_setup_instrument.R"))
 
 TIGER_YEAR <- 2023
 STREAM_MTFCC <- c("H3010", "H3013")

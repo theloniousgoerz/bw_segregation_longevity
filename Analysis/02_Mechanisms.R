@@ -40,7 +40,6 @@ my_ftest <- function(modc, modnc) {
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Mechanisms Data
 policy_data = read_csv(here("Data","_Cleaned","county_policy_data.csv"))
-income_seg = read_csv(here("Data","_Cleaned","income_segregation_Hr.csv"))
 # Analytic Data
 source(here("Analysis","00_Helpers.R"))
 
@@ -64,14 +63,11 @@ rdi %<>% mutate(death_fips = GEOID)
 rivers %<>% mutate(death_fips = GEOID)
 # Merge
 data_a %<>% left_join(rdi) %>% left_join(rivers)
-income_seg %<>% mutate(death_fips = county_fips, death_decade = year)
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Mechanisms
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-segregation_data =data_a %>% distinct(death_fips,county_dism,death_decade,ln_gov,gov_rev_share,pop,rdi,n_named_rivers,n_named_rivers_sq,south,urb_code,rail_km_per_km2,pblack) %>%
-  left_join(income_seg, by = c("death_decade","death_fips")) %>%
-  mutate(Hr_all = Hr_all*100)
+segregation_data =data_a %>% distinct(death_fips,county_dism,death_decade,ln_gov,gov_rev_share,pop,rdi,n_named_rivers,n_named_rivers_sq,south,urb_code,rail_km_per_km2,pblack)
 
 policy_data %>% summary()
 
